@@ -1,0 +1,40 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "All-in-Craft",
+    "description": "All-in-Craft Addon Create For Minecraft Bedrock",
+    "uuid": "40fa6e28-4676-4360-aa9a-04f8e6f67c17",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "description": "My Resource Pack",
+      "type": "resources",
+      "uuid": "a68bad99-24ac-42db-8e09-207787f72670",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "c267d5f0-d78f-4183-b0d2-7883ae1a9f15",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

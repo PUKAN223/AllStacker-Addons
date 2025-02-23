@@ -1,0 +1,50 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "All-in-Craft",
+    "description": "All-in-Craft Addon Create For Minecraft Bedrock",
+    "uuid": "c267d5f0-d78f-4183-b0d2-7883ae1a9f15",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "description": "Script resources",
+      "language": "javascript",
+      "type": "script",
+      "uuid": "c91fec7d-8ee6-4538-96cd-ddd79dbd80ff",
+      "version": [
+        1,
+        0,
+        0
+      ],
+      "entry": "scripts/Index.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.18.0-beta"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "1.4.0-beta"
+    },
+    {
+      "uuid": "40fa6e28-4676-4360-aa9a-04f8e6f67c17",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}
