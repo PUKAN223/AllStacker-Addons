@@ -33,7 +33,7 @@ const config = [
 ]
 
 function allPlugins(reset: boolean = false): Plugins[] {
-  if ((JSON.parse(world.getDynamicProperty("pl-config") as string) as Plugins[]).length !== config.length) {
+  if ((JSON.parse(world.getDynamicProperty("pl-config") as string ?? "[]") as Plugins[]).length !== config.length) {
     world.sendMessage("§7[§r§5Detected§r§7]§8:§r §7Configs §6Changed§7.§r")
     world.setDynamicProperty("pl-config", JSON.stringify(config));
   }
