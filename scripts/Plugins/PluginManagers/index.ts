@@ -12,11 +12,19 @@ export default class PluginManagers extends Plugins {
   public setup(): void {
     system.run(() => {
       world.sendMessage(`§7[§rConfig§r§7]§8:§r §bLoaded.§7.§r`)
-      loadPlugins()
     })
   }
 
   public init(): void {
+    world.afterEvents.worldInitialize.subscribe((ev) => {
+      let i = system.runInterval(() => {
+        if (world.getAllPlayers().length > 0) {
+          loadPlugins()
+          system.clearRun(i)
+        }
+      }, 5)
+    })
+
     world.beforeEvents.chatSend.subscribe((ev) => {
       if (ev.message == "!plm-reset") {
         system.run(() => {

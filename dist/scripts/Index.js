@@ -1,11 +1,11 @@
 // scripts/Index.ts
-import { system as system7 } from "@minecraft/server";
+import { system as system9 } from "@minecraft/server";
 
 // scripts/Configs/PluginConfigs.ts
 import { world as world13 } from "@minecraft/server";
 
 // scripts/Plugins/ItemStacker/index.ts
-import { ItemStack as ItemStack2, MinecraftDimensionTypes, system as system3, world as world8 } from "@minecraft/server";
+import { ItemStack as ItemStack3, MinecraftDimensionTypes, system as system5, world as world8 } from "@minecraft/server";
 
 // scripts/Class/Plugins.ts
 var Plugins = class {
@@ -573,12 +573,35 @@ Lost Keys amount: ${this.#queuedKeys.length}
 // scripts/Plugins/ItemStacker/Configs/Databases.ts
 var itemStackMap = new QIDB("itemstacks");
 var itemCode = new DynamicProperties("itemCodes");
+var itemList = /* @__PURE__ */ new Set();
 var SeeingItem = /* @__PURE__ */ new Set();
+
+// scripts/Plugins/ItemStacker/Functions/GetItemAmount.ts
+function getItemAmount(entity) {
+  return parseInt(entity.getTags().find((x) => x.startsWith("amount:")).split(":")[1]) ?? entity.getComponent("item").itemStack.amount;
+}
 
 // scripts/Plugins/ItemStacker/Functions/IsRealItem.ts
 function isRealItem(entity) {
   return entity.typeId == "minecraft:item" && !entity.hasTag("itemStacks");
 }
+
+// scripts/Plugins/ItemStacker/Functions/ItemToName.ts
+function ItemsToName(entity) {
+  return entity.getComponent("item").itemStack.typeId.split(":")[1].split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+
+// scripts/Plugins/ItemStacker/Functions/GetSizeStack.ts
+function getSizeStack(current, amount, maxStack) {
+  const remaining = amount - current;
+  return [...Array(Math.floor(remaining / maxStack)).fill(maxStack), remaining % maxStack].filter(Boolean);
+}
+
+// scripts/Plugins/ItemStacker/Functions/GetStackItem.ts
+import { ItemStack as ItemStack2, system as system4 } from "@minecraft/server";
+
+// scripts/Plugins/ItemStacker/Functions/CombineItems.ts
+import { system as system3 } from "@minecraft/server";
 
 // scripts/Plugins/ItemStacker/Configs/DisabledItems.ts
 var DisabledItem = ["minecraft:bundle", "shulker_box"];
@@ -587,11 +610,6 @@ var DisabledItems_default = DisabledItem;
 // scripts/Plugins/ItemStacker/Functions/GetItemNearBy.ts
 function getItemNearBy(dim, itemEn, raduis = 7) {
   return dim.getEntities({ location: itemEn.location, maxDistance: raduis, type: "minecraft:item", excludeTags: ["itemStacks"] }).filter((x) => x !== itemEn).filter((x) => x.getComponent("item").itemStack.typeId == itemEn.getComponent("item").itemStack.typeId).filter((x) => !x.getComponent("item").itemStack.hasComponent("enchantable")).filter((x) => x.getTags().some((x2) => x2.startsWith("amount:"))).filter((x) => !DisabledItems_default.some((e) => x.getComponent("item").itemStack.typeId.includes(e)));
-}
-
-// scripts/Plugins/ItemStacker/Functions/GetItemAmount.ts
-function getItemAmount(entity) {
-  return parseInt(entity.getTags().find((x) => x.startsWith("amount:")).split(":")[1]) ?? entity.getComponent("item").itemStack.amount;
 }
 
 // scripts/Plugins/ItemStacker/Functions/CombineItems.ts
@@ -605,10 +623,12 @@ function CombineItems(entity) {
     } else {
       entity.addTag(`amount:${itemNearBy.reduce((prev, crr) => prev + getItemAmount(crr), 0) + entity.getComponent("item").itemStack.amount}`);
     }
-    itemNearBy.forEach((en) => {
+    itemNearBy.forEach(async (en) => {
       en.addTag("itemStacks");
       const code = itemCode.get(en.id);
+      await system3.waitTicks(1);
       itemStackMap.delete(code);
+      itemCode.delete(en.id);
       en.remove();
     });
   }
@@ -627,15 +647,25 @@ function randomCode(length) {
   return result;
 }
 
-// scripts/Plugins/ItemStacker/Functions/ItemToName.ts
-function ItemsToName(entity) {
-  return entity.getComponent("item").itemStack.typeId.split(":")[1].split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-}
-
-// scripts/Plugins/ItemStacker/Functions/GetSizeStack.ts
-function getSizeStack(current, amount, maxStack) {
-  const remaining = amount - current;
-  return [...Array(Math.floor(remaining / maxStack)).fill(maxStack), remaining % maxStack].filter(Boolean);
+// scripts/Plugins/ItemStacker/Functions/GetStackItem.ts
+async function StackItem() {
+  if (itemList.size !== 0) {
+    for (let addedEntity of Array.from(itemList)) {
+      CombineItems(addedEntity);
+      const code = randomCode(6);
+      const amount = new ItemStack2("minecraft:stick", 1);
+      amount.nameTag = `${getItemAmount(addedEntity)}`;
+      itemCode.set(addedEntity.id, code);
+      await system4.waitTicks(1);
+      itemStackMap.set(code, [addedEntity.getComponent("item").itemStack, amount]);
+      itemList.delete(addedEntity);
+    }
+  }
+  if (itemList.size !== 0) {
+    return StackItem();
+  } else {
+    system4.run(StackItem);
+  }
 }
 
 // scripts/Plugins/ItemStacker/index.ts
@@ -651,12 +681,17 @@ var ItemStacker = class extends Plugins {
     function resetDB(ev) {
       if (ev.message == "!resetDB") {
         ev.cancel = true;
-        system3.run(() => {
-          itemStackMap.clear();
+        system5.run(() => {
           itemCode.clear();
+          itemStackMap.keys().forEach((m) => {
+            itemStackMap.set(m, []);
+            itemStackMap.delete(m);
+          });
+          itemStackMap.clear();
         });
       }
     }
+    StackItem();
     new CustomEvents(this.name).Tick(20, () => {
       SeeingItem.clear();
       world8.getAllPlayers().forEach((pl) => {
@@ -676,26 +711,38 @@ var ItemStacker = class extends Plugins {
     });
     new CustomEvents(this.name).EntityRemoved((ev) => {
       const { removedEntity } = ev;
-      if (isRealItem(removedEntity)) {
+      if (isRealItem(removedEntity) && !itemList.has(removedEntity)) {
         const removedItemCode = itemCode.get(removedEntity.id);
-        const removedData = itemStackMap.get(removedItemCode);
+        let canceled = false;
+        let removedData;
+        try {
+          removedData = itemStackMap.get(removedItemCode);
+        } catch (e) {
+          removedData = [new ItemStack3("minecraft:air", 1), new ItemStack3("minecraft:stick", 1)];
+          canceled = true;
+        }
         const removedItem = removedData[0];
         const realAmount = parseInt(removedData[1].nameTag);
         const removedDimension = removedEntity.dimension.id;
         const removedLocation = JSON.stringify(removedEntity.location);
-        system3.run(() => {
-          removedItem.amount, realAmount, removedItem.maxAmount;
+        system5.run(() => {
+          if (canceled)
+            return;
           const size = getSizeStack(removedItem.amount, realAmount, removedItem.maxAmount);
           for (let i = 0; i < size.length; i++) {
             const items = removedItem;
             items.amount = size[i];
             const itemSpawn = world8.getDimension(removedDimension).spawnItem(items, JSON.parse(removedLocation));
             itemSpawn.addTag("itemStacks");
-            system3.runTimeout(() => {
+            system5.runTimeout(() => {
               if (itemSpawn.isValid()) {
                 const itemSpawnDimension = itemSpawn.dimension.id;
                 const itemSpawnLocation = JSON.stringify(itemSpawn.location);
-                const itemSpawnItem = itemSpawn.getComponent("item").itemStack;
+                if (!itemSpawn.hasComponent("item"))
+                  return;
+                const itemSpawnItem = itemSpawn.getComponent("item")?.itemStack ?? null;
+                if (itemSpawnItem == null)
+                  return;
                 itemSpawn.remove();
                 world8.getDimension(itemSpawnDimension).spawnItem(itemSpawnItem, JSON.parse(itemSpawnLocation));
               }
@@ -707,22 +754,19 @@ var ItemStacker = class extends Plugins {
         });
       }
     });
-    new CustomEvents(this.name).EntitySpawned((ev) => {
+    new CustomEvents(this.name).EntitySpawned(async (ev) => {
       const { entity: addedEntity } = ev;
       if (isRealItem(addedEntity)) {
-        CombineItems(addedEntity);
-        const code = randomCode(6);
-        const amount = new ItemStack2("minecraft:stick", 1);
-        amount.nameTag = `${getItemAmount(addedEntity)}`;
-        itemCode.set(addedEntity.id, code);
-        itemStackMap.set(code, [ev.entity.getComponent("item").itemStack, amount]);
+        await system5.waitTicks(5);
+        if (addedEntity.isValid())
+          itemList.add(addedEntity);
       }
     });
   }
 };
 
 // scripts/Plugins/PluginManagers/index.ts
-import { system as system5, world as world11 } from "@minecraft/server";
+import { system as system7, world as world11 } from "@minecraft/server";
 
 // scripts/Plugins/PluginManagers/Functions/LoadConfig.ts
 import { world as world9 } from "@minecraft/server";
@@ -746,7 +790,7 @@ function loadPlugins(init = true) {
 }
 
 // scripts/Plugins/PluginManagers/Functions/SettingForms.ts
-import { system as system4 } from "@minecraft/server";
+import { system as system6 } from "@minecraft/server";
 import { FormCancelationReason, ModalFormData } from "@minecraft/server-ui";
 
 // scripts/Plugins/PluginManagers/Functions/SetConfig.ts
@@ -772,7 +816,7 @@ function showForm(pl) {
   });
   ui.show(pl).then(async (res) => {
     if (res.cancelationReason == FormCancelationReason.UserBusy) {
-      await new Promise((res2) => system4.runTimeout(res2, 20));
+      await new Promise((res2) => system6.runTimeout(res2, 20));
       showForm(pl);
       return;
     }
@@ -790,15 +834,22 @@ var PluginManagers = class extends Plugins {
     super(name);
   }
   setup() {
-    system5.run(() => {
+    system7.run(() => {
       world11.sendMessage(`\xA77[\xA7rConfig\xA7r\xA77]\xA78:\xA7r \xA7bLoaded.\xA77.\xA7r`);
-      loadPlugins();
     });
   }
   init() {
+    world11.afterEvents.worldInitialize.subscribe((ev) => {
+      let i = system7.runInterval(() => {
+        if (world11.getAllPlayers().length > 0) {
+          loadPlugins();
+          system7.clearRun(i);
+        }
+      }, 5);
+    });
     world11.beforeEvents.chatSend.subscribe((ev) => {
       if (ev.message == "!plm-reset") {
-        system5.run(() => {
+        system7.run(() => {
           world11.setDynamicProperty("pl-config", JSON.stringify(PluginConfigs_default(true)));
           world11.getAllPlayers().forEach((pl) => {
             if (pl.isOp()) {
@@ -809,7 +860,7 @@ var PluginManagers = class extends Plugins {
         });
         ev.cancel = true;
       } else if (ev.message == "!plm-config") {
-        system5.run(() => {
+        system7.run(() => {
           showForm(ev.sender);
         });
         ev.cancel = true;
@@ -819,7 +870,7 @@ var PluginManagers = class extends Plugins {
 };
 
 // scripts/Plugins/MobStacker/index.ts
-import { EntityDamageCause, MinecraftDimensionTypes as MinecraftDimensionTypes2, system as system6, world as world12 } from "@minecraft/server";
+import { EntityDamageCause, MinecraftDimensionTypes as MinecraftDimensionTypes2, system as system8, world as world12 } from "@minecraft/server";
 
 // scripts/Plugins/MobStacker/Functions/GetEntitiesNearBy.ts
 function getEntitiesNearBy(dimension, en, raduis = 10) {
@@ -868,10 +919,10 @@ var MobStacker = class extends Plugins {
     new CustomEvents(this.name).EntityInteract((ev) => {
       if (ev.target.nameTag && ev.target.nameTag.includes("\xA7m\xA7r\xA7c")) {
         const currAmount = (ev.target.nameTag ?? "").includes("\xA7m\xA7r\xA7c") ? parseInt(ev.target.nameTag.split("\xA7m\xA7r\xA7c")[1]) : 1;
-        system6.run(() => {
+        system8.run(() => {
           const entityNew = spawnEntityClone(ev.target);
           ev.target.nameTag = ``;
-          system6.runTimeout(() => {
+          system8.runTimeout(() => {
             if (!ev.target.isValid())
               return;
             resetEntities.delete(ev.target);
@@ -956,7 +1007,7 @@ var config = [
   }
 ];
 function allPlugins(reset = false) {
-  if (JSON.parse(world13.getDynamicProperty("pl-config")).length !== config.length) {
+  if (JSON.parse(world13.getDynamicProperty("pl-config") ?? "[]").length !== config.length) {
     world13.sendMessage("\xA77[\xA7r\xA75Detected\xA7r\xA77]\xA78:\xA7r \xA77Configs \xA76Changed\xA77.\xA7r");
     world13.setDynamicProperty("pl-config", JSON.stringify(config));
   }
@@ -980,6 +1031,6 @@ function main() {
   loaderClass.setup();
   loaderClass.init();
 }
-system7.run(main);
+system9.run(main);
 
 //# sourceMappingURL=../debug/Index.js.map

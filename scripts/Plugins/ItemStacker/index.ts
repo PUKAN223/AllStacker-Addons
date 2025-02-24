@@ -1,13 +1,14 @@
 import { ChatSendBeforeEvent, ItemStack, MinecraftDimensionTypes, system, world } from "@minecraft/server";
 import Plugins from "../../Class/Plugins";
 import CustomEvents from "../../Events/CustomEvent";
-import { itemCode, itemStackMap, SeeingItem } from "./Configs/Databases";
+import { itemCode, itemList, itemStackMap, SeeingItem } from "./Configs/Databases";
 import CombineItems from "./Functions/CombineItems";
 import getItemAmount from "./Functions/GetItemAmount";
 import isRealItem from "./Functions/IsRealItem";
 import randomCode from "./Functions/RandomCode";
 import ItemsToName from "./Functions/ItemToName";
 import getSizeStack from "./Functions/GetSizeStack";
+import StackItem from "./Functions/GetStackItem";
 
 export default class ItemStacker extends Plugins {
   private name: string
@@ -25,11 +26,17 @@ export default class ItemStacker extends Plugins {
       if (ev.message == "!resetDB") {
         ev.cancel = true
         system.run(() => {
-          itemStackMap.clear()
           itemCode.clear()
+          itemStackMap.keys().forEach(m => {
+            itemStackMap.set(m, [])
+            itemStackMap.delete(m)
+          })
+          itemStackMap.clear()
         })
       }
     }
+
+    StackItem()
 
     new CustomEvents(this.name).Tick(20, () => {
       SeeingItem.clear();
@@ -52,15 +59,22 @@ export default class ItemStacker extends Plugins {
 
     new CustomEvents(this.name).EntityRemoved((ev) => {
       const { removedEntity } = ev;
-      if (isRealItem(removedEntity)) {
+      if (isRealItem(removedEntity) && !itemList.has(removedEntity)) {
         const removedItemCode = itemCode.get(removedEntity.id)
-        const removedData = (itemStackMap.get(removedItemCode) as ItemStack[])
-        const removedItem =  removedData[0]
+        let canceled = false;
+        let removedData;
+        try {
+          removedData = (itemStackMap.get(removedItemCode) as ItemStack[])
+        } catch(e) {
+          removedData = [new ItemStack("minecraft:air", 1), new ItemStack("minecraft:stick", 1)]
+          canceled = true 
+        }
+        const removedItem = (removedData)[0]
         const realAmount = parseInt(removedData[1].nameTag)
         const removedDimension = removedEntity.dimension.id;
         const removedLocation = JSON.stringify(removedEntity.location);
         system.run(() => {
-          removedItem.amount, realAmount, removedItem.maxAmount;
+          if (canceled) return;
           const size = getSizeStack(removedItem.amount, realAmount, removedItem.maxAmount);
           for (let i = 0; i < size.length; i++) {
             const items = removedItem;
@@ -71,7 +85,9 @@ export default class ItemStacker extends Plugins {
               if (itemSpawn.isValid()) {
                 const itemSpawnDimension = itemSpawn.dimension.id;
                 const itemSpawnLocation = JSON.stringify(itemSpawn.location);
-                const itemSpawnItem = itemSpawn.getComponent("item").itemStack;
+                if (!itemSpawn.hasComponent("item")) return
+                const itemSpawnItem = itemSpawn.getComponent("item")?.itemStack ?? null;
+                if (itemSpawnItem == null) return
                 itemSpawn.remove();
                 world.getDimension(itemSpawnDimension).spawnItem(itemSpawnItem, JSON.parse(itemSpawnLocation));
               }
@@ -84,15 +100,11 @@ export default class ItemStacker extends Plugins {
       }
     })
 
-    new CustomEvents(this.name).EntitySpawned((ev) => {
+    new CustomEvents(this.name).EntitySpawned(async (ev) => {
       const { entity: addedEntity } = ev;
       if (isRealItem(addedEntity)) {
-        CombineItems(addedEntity)
-        const code = randomCode(6)
-        const amount = new ItemStack("minecraft:stick", 1)
-        amount.nameTag = `${getItemAmount(addedEntity)}`
-        itemCode.set(addedEntity.id, code)
-        itemStackMap.set(code, [ev.entity.getComponent("item").itemStack, amount])
+        await system.waitTicks(5)
+        if (addedEntity.isValid()) itemList.add(addedEntity);
       }
     })
   }
