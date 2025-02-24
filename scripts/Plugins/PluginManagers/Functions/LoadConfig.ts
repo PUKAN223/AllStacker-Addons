@@ -3,7 +3,7 @@ import allPlugins from "../../../Configs/PluginConfigs"
 import Plugins from "../../../Class/Plugins"
 
 export default function loadPlugins(init: boolean = true) {
-  allPlugins().filter(x => x.setting.isLoader !== true).forEach((x, i) => {
+  for (let x of allPlugins().filter(x => x.setting.isLoader !== true)) {
     world.getAllPlayers().forEach(pl => {
       if (pl.isOp()) {
         if (x.setting.enabled) {
@@ -18,5 +18,5 @@ export default function loadPlugins(init: boolean = true) {
         }
       }
     })
-  })
+  }
 }

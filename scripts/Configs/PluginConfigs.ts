@@ -3,6 +3,7 @@ import Plugins from "../Interfaces/Plugin"
 import ItemStacker from "../Plugins/ItemStacker"
 import PluginManagers from "../Plugins/PluginManagers"
 import MobStacker from "../Plugins/MobStacker"
+import CommandBuilder from "../Plugins/CommandBuilders/index"
 
 const data = JSON.parse(world.getDynamicProperty("pl-config") as string ?? "{}") as Plugins[]
 const config = [
@@ -28,6 +29,14 @@ const config = [
     setting: {
       enabled: true,
       isLoader: false
+    }
+  },
+  {
+    name: "Command Builders",
+    main: CommandBuilder,
+    setting: {
+      enabled: true,
+      isLoader: true
     }
   }
 ]

@@ -1,11 +1,11 @@
 // scripts/Index.ts
-import { system as system9 } from "@minecraft/server";
+import { system as system10 } from "@minecraft/server";
 
 // scripts/Configs/PluginConfigs.ts
-import { world as world13 } from "@minecraft/server";
+import { world as world15 } from "@minecraft/server";
 
 // scripts/Plugins/ItemStacker/index.ts
-import { ItemStack as ItemStack3, MinecraftDimensionTypes, system as system5, world as world8 } from "@minecraft/server";
+import { ItemStack as ItemStack3, MinecraftDimensionTypes, system as system5, world as world9 } from "@minecraft/server";
 
 // scripts/Class/Plugins.ts
 var Plugins = class {
@@ -78,6 +78,18 @@ var CustomEntityInteract = class {
   }
 };
 
+// scripts/Events/onChatSend/index.ts
+import { world as world6 } from "@minecraft/server";
+var CustomOnChatSend = class {
+  constructor(enabled, callback) {
+    world6.beforeEvents.chatSend.subscribe((ev) => {
+      if (!PluginConfigs_default().find((x) => x.name == enabled).setting.enabled)
+        return;
+      callback(ev);
+    });
+  }
+};
+
 // scripts/Events/CustomEvent.ts
 var CustomEvents = class {
   constructor(name) {
@@ -94,6 +106,9 @@ var CustomEvents = class {
   }
   EntityInteract(callback) {
     new CustomEntityInteract(this.name, callback);
+  }
+  onChatSend(callback) {
+    new CustomOnChatSend(this.name, callback);
   }
   Tick(delay, callback) {
     new CustomTick(this.name, delay, callback);
@@ -235,7 +250,7 @@ var DynamicProperties = class {
 };
 
 // scripts/Utilities/QIDB.js
-import { world as world7, system as system2, ItemStack, Player } from "@minecraft/server";
+import { world as world8, system as system2, ItemStack, Player } from "@minecraft/server";
 var QIDB = class {
   /**
    * @param {string} namespace The unique namespace for the database keys.
@@ -253,16 +268,16 @@ var QIDB = class {
     this.#queuedValues = [];
     this.#quickAccess = /* @__PURE__ */ new Map();
     this.#validNamespace = /^[a-z0-9_]*$/.test(this.#settings.namespace);
-    this.#dimension = world7.getDimension("overworld");
-    let sl = world7.scoreboard.getObjective("qidb");
+    this.#dimension = world8.getDimension("overworld");
+    let sl = world8.scoreboard.getObjective("qidb");
     this.#sL;
-    const player = world7.getPlayers()[0];
+    const player = world8.getPlayers()[0];
     if (!this.#validNamespace)
       throw new Error(`\xA7c[Item Database] ${namespace} isn't a valid namespace. accepted char: a-z 0-9 _`);
     if (player)
       if (!sl || sl?.hasParticipant("x") === false) {
         if (!sl)
-          sl = world7.scoreboard.addObjective("qidb");
+          sl = world8.scoreboard.addObjective("qidb");
         sl.setScore("x", player.location.x);
         sl.setScore("z", player.location.z);
         this.#sL = { x: sl.getScore("x"), y: 318, z: sl.getScore("z") };
@@ -272,14 +287,14 @@ var QIDB = class {
         this.#sL = { x: sl.getScore("x"), y: 318, z: sl.getScore("z") };
         console.log(`\xA7q[Item Database] is initialized successfully. namespace: ${this.#settings.namespace}`);
       }
-    world7.afterEvents.playerSpawn.subscribe(({ player: player2, initialSpawn }) => {
+    world8.afterEvents.playerSpawn.subscribe(({ player: player2, initialSpawn }) => {
       if (!this.#validNamespace)
         throw new Error(`\xA7c[Item Database] ${namespace} isn't a valid namespace. accepted char: a-z 0-9 _`);
       if (!initialSpawn)
         return;
       if (!sl || sl?.hasParticipant("x") === false) {
         if (!sl)
-          sl = world7.scoreboard.addObjective("qidb");
+          sl = world8.scoreboard.addObjective("qidb");
         sl.setScore("x", player2.location.x);
         sl.setScore("z", player2.location.z);
         this.#sL = { x: sl.getScore("x"), y: 318, z: sl.getScore("z") };
@@ -327,8 +342,8 @@ var QIDB = class {
         show = true;
       }
     });
-    world7.beforeEvents.playerLeave.subscribe(() => {
-      if (this.#queuedKeys.length && world7.getPlayers().length < 2) {
+    world8.beforeEvents.playerLeave.subscribe(() => {
+      if (this.#queuedKeys.length && world8.getPlayers().length < 2) {
         console.error(
           `
 
@@ -362,7 +377,7 @@ Lost Keys amount: ${this.#queuedKeys.length}
       throw new Error(`\xA7c[Item Database] Out of range: <${key}> has more than 30 characters`);
     let canStr = false;
     try {
-      world7.structureManager.place(key, this.#dimension, this.#sL, { includeEntities: true });
+      world8.structureManager.place(key, this.#dimension, this.#sL, { includeEntities: true });
       canStr = true;
     } catch {
       this.#dimension.spawnEntity("qidb:storage", this.#sL);
@@ -376,8 +391,8 @@ Lost Keys amount: ${this.#queuedKeys.length}
   }
   async #save(key, canStr) {
     if (canStr)
-      world7.structureManager.delete(key);
-    world7.structureManager.createFromWorld(key, this.#dimension, this.#sL, this.#sL, { saveMode: "World", includeEntities: true });
+      world8.structureManager.delete(key);
+    world8.structureManager.createFromWorld(key, this.#dimension, this.#sL, this.#sL, { saveMode: "World", includeEntities: true });
     const entities = this.#dimension.getEntities({ location: this.#sL, type: "qidb:storage" });
     entities.forEach((e) => e.remove());
   }
@@ -392,7 +407,7 @@ Lost Keys amount: ${this.#queuedKeys.length}
     const { canStr, inv } = this.#load(key);
     if (!value)
       for (let i = 0; i < 256; i++)
-        inv.setItem(i, void 0), world7.setDynamicProperty(key, null);
+        inv.setItem(i, void 0), world8.setDynamicProperty(key, null);
     if (Array.isArray(value)) {
       try {
         for (let i = 0; i < 256; i++)
@@ -400,10 +415,10 @@ Lost Keys amount: ${this.#queuedKeys.length}
       } catch {
         throw new Error(`\xA7c[Item Database] Invalid value type. supported: ItemStack | ItemStack[] | undefined`);
       }
-      world7.setDynamicProperty(key, true);
+      world8.setDynamicProperty(key, true);
     } else {
       try {
-        inv.setItem(0, value), world7.setDynamicProperty(key, false);
+        inv.setItem(0, value), world8.setDynamicProperty(key, false);
       } catch {
         throw new Error(`\xA7c[Item Database] Invalid value type. supported: ItemStack | ItemStack[] | undefined`);
       }
@@ -426,9 +441,9 @@ Lost Keys amount: ${this.#queuedKeys.length}
     if (Array.isArray(value)) {
       if (value.length > 255)
         throw new Error(`\xA7c[Item Database] Out of range: <${key}> has more than 255 ItemStacks`);
-      world7.setDynamicProperty(key, true);
+      world8.setDynamicProperty(key, true);
     } else {
-      world7.setDynamicProperty(key, false);
+      world8.setDynamicProperty(key, false);
     }
     this.#quickAccess.set(key, value);
     if (this.#queuedKeys.includes(key)) {
@@ -458,7 +473,7 @@ Lost Keys amount: ${this.#queuedKeys.length}
         this.#timeWarn(time, key, "got");
       return this.#quickAccess.get(key);
     }
-    const structure = world7.structureManager.get(key);
+    const structure = world8.structureManager.get(key);
     if (!structure)
       throw new Error(`\xA7c[Item Database] The key <${key}> doesn't exist.`);
     const { canStr, inv } = this.#load(key);
@@ -473,7 +488,7 @@ Lost Keys amount: ${this.#queuedKeys.length}
     this.#save(key, canStr);
     if (this.#settings.logs)
       this.#timeWarn(time, key, "got");
-    if (world7.getDynamicProperty(key)) {
+    if (world8.getDynamicProperty(key)) {
       this.#quickAccess.set(key, items);
       return items;
     } else {
@@ -493,7 +508,7 @@ Lost Keys amount: ${this.#queuedKeys.length}
       throw new Error(`\xA7c[Item Database] Invalid name: <${key}>. accepted char: a-z 0-9 _`);
     const time = Date.now();
     key = this.#settings.namespace + ":" + key;
-    const exist = this.#quickAccess.has(key) || world7.structureManager.get(key);
+    const exist = this.#quickAccess.has(key) || world8.structureManager.get(key);
     if (this.#settings.logs)
       this.#timeWarn(time, key, `has ${!!exist}`);
     if (exist)
@@ -515,9 +530,9 @@ Lost Keys amount: ${this.#queuedKeys.length}
     key = this.#settings.namespace + ":" + key;
     if (this.#quickAccess.has(key))
       this.#quickAccess.delete(key);
-    const structure = world7.structureManager.get(key);
+    const structure = world8.structureManager.get(key);
     if (structure)
-      world7.structureManager.delete(key), world7.setDynamicProperty(key, null);
+      world8.structureManager.delete(key), world8.setDynamicProperty(key, null);
     else
       throw new Error(`\xA7c[Item Database] The key <${key}> doesn't exist.`);
     if (this.#settings.logs)
@@ -530,7 +545,7 @@ Lost Keys amount: ${this.#queuedKeys.length}
   keys() {
     if (!this.#validNamespace)
       throw new Error(`\xA7c[Item Database] Invalid name: <${this.#settings.namespace}>. accepted char: a-z 0-9 _`);
-    const allIds = world7.getDynamicPropertyIds();
+    const allIds = world8.getDynamicPropertyIds();
     const ids = [];
     allIds.filter((id) => id.startsWith(this.#settings.namespace + ":")).forEach((id) => ids.push(id.replace(this.#settings.namespace + ":", "")));
     return ids;
@@ -543,7 +558,7 @@ Lost Keys amount: ${this.#queuedKeys.length}
     if (!this.#validNamespace)
       throw new Error(`\xA7c[Item Database] Invalid name: <${this.#settings.namespace}>. accepted char: a-z 0-9 _`);
     const time = Date.now();
-    const allIds = world7.getDynamicPropertyIds();
+    const allIds = world8.getDynamicPropertyIds();
     const values = [];
     const filtered = allIds.filter((id) => id.startsWith(this.#settings.namespace + ":")).map((id) => id.replace(this.#settings.namespace + ":", ""));
     for (const key of filtered) {
@@ -560,7 +575,7 @@ Lost Keys amount: ${this.#queuedKeys.length}
     if (!this.#validNamespace)
       throw new Error(`\xA7c[Item Database] Invalid name: <${this.#settings.namespace}>. accepted char: a-z 0-9 _`);
     const time = Date.now();
-    const allIds = world7.getDynamicPropertyIds();
+    const allIds = world8.getDynamicPropertyIds();
     const filtered = allIds.filter((id) => id.startsWith(this.#settings.namespace + ":")).map((id) => id.replace(this.#settings.namespace + ":", ""));
     for (const key of filtered) {
       this.delete(key);
@@ -668,6 +683,43 @@ async function StackItem() {
   }
 }
 
+// scripts/Class/CommandBuilders.ts
+var commandLists = [];
+var CommandBuilder = class {
+  constructor(name, description, prefix, permission) {
+    this.name = name;
+    this.description = description;
+    this.permission = permission;
+    this.prefix = prefix;
+  }
+  overload(callback) {
+    commandLists.push({
+      name: this.name,
+      description: this.description,
+      permission: this.permission,
+      callback,
+      prefix: this.prefix
+    });
+  }
+};
+
+// scripts/Plugins/ItemStacker/Commands/ResetDB.ts
+new CommandBuilder(
+  "resetDB",
+  "Use this command to reset Database of ItemStack",
+  "!",
+  (pl) => {
+    return pl.isOp();
+  }
+).overload((pl) => {
+  itemCode.clear();
+  itemStackMap.keys().forEach((m) => {
+    itemStackMap.set(m, []);
+    itemStackMap.delete(m);
+  });
+  itemStackMap.clear();
+});
+
 // scripts/Plugins/ItemStacker/index.ts
 var ItemStacker = class extends Plugins {
   constructor(name) {
@@ -677,30 +729,16 @@ var ItemStacker = class extends Plugins {
   setup() {
   }
   init() {
-    world8.beforeEvents.chatSend.subscribe(resetDB);
-    function resetDB(ev) {
-      if (ev.message == "!resetDB") {
-        ev.cancel = true;
-        system5.run(() => {
-          itemCode.clear();
-          itemStackMap.keys().forEach((m) => {
-            itemStackMap.set(m, []);
-            itemStackMap.delete(m);
-          });
-          itemStackMap.clear();
-        });
-      }
-    }
-    StackItem();
+    system5.run(StackItem);
     new CustomEvents(this.name).Tick(20, () => {
       SeeingItem.clear();
-      world8.getAllPlayers().forEach((pl) => {
+      world9.getAllPlayers().forEach((pl) => {
         pl.dimension.getEntities({ type: "minecraft:item", excludeTags: ["itemStacks"], location: pl.location, maxDistance: 15 }).forEach((en) => {
           SeeingItem.add(en);
         });
       });
       Object.keys(MinecraftDimensionTypes).forEach((dim) => {
-        world8.getDimension(MinecraftDimensionTypes[dim]).getEntities({ type: "minecraft:item", excludeTags: ["itemStacks"] }).filter((x) => x.getTags().some((x2) => x2.startsWith("amount:"))).forEach((en) => {
+        world9.getDimension(MinecraftDimensionTypes[dim]).getEntities({ type: "minecraft:item", excludeTags: ["itemStacks"] }).filter((x) => x.getTags().some((x2) => x2.startsWith("amount:"))).forEach((en) => {
           if (!SeeingItem.has(en)) {
             en.nameTag = "";
           } else {
@@ -732,7 +770,7 @@ var ItemStacker = class extends Plugins {
           for (let i = 0; i < size.length; i++) {
             const items = removedItem;
             items.amount = size[i];
-            const itemSpawn = world8.getDimension(removedDimension).spawnItem(items, JSON.parse(removedLocation));
+            const itemSpawn = world9.getDimension(removedDimension).spawnItem(items, JSON.parse(removedLocation));
             itemSpawn.addTag("itemStacks");
             system5.runTimeout(() => {
               if (itemSpawn.isValid()) {
@@ -744,7 +782,7 @@ var ItemStacker = class extends Plugins {
                 if (itemSpawnItem == null)
                   return;
                 itemSpawn.remove();
-                world8.getDimension(itemSpawnDimension).spawnItem(itemSpawnItem, JSON.parse(itemSpawnLocation));
+                world9.getDimension(itemSpawnDimension).spawnItem(itemSpawnItem, JSON.parse(itemSpawnLocation));
               }
             }, 20);
           }
@@ -766,13 +804,13 @@ var ItemStacker = class extends Plugins {
 };
 
 // scripts/Plugins/PluginManagers/index.ts
-import { system as system7, world as world11 } from "@minecraft/server";
+import { system as system7, world as world13 } from "@minecraft/server";
 
 // scripts/Plugins/PluginManagers/Functions/LoadConfig.ts
-import { world as world9 } from "@minecraft/server";
+import { world as world10 } from "@minecraft/server";
 function loadPlugins(init = true) {
-  PluginConfigs_default().filter((x) => x.setting.isLoader !== true).forEach((x, i) => {
-    world9.getAllPlayers().forEach((pl) => {
+  for (let x of PluginConfigs_default().filter((x2) => x2.setting.isLoader !== true)) {
+    world10.getAllPlayers().forEach((pl) => {
       if (pl.isOp()) {
         if (x.setting.enabled) {
           if (init) {
@@ -786,7 +824,7 @@ function loadPlugins(init = true) {
         }
       }
     });
-  });
+  }
 }
 
 // scripts/Plugins/PluginManagers/Functions/SettingForms.ts
@@ -794,7 +832,7 @@ import { system as system6 } from "@minecraft/server";
 import { FormCancelationReason, ModalFormData } from "@minecraft/server-ui";
 
 // scripts/Plugins/PluginManagers/Functions/SetConfig.ts
-import { world as world10 } from "@minecraft/server";
+import { world as world11 } from "@minecraft/server";
 function setConfig(name, bool) {
   let config2 = [];
   PluginConfigs_default().forEach((pl) => {
@@ -804,7 +842,7 @@ function setConfig(name, bool) {
       config2.push(pl);
     }
   });
-  world10.setDynamicProperty("pl-config", JSON.stringify(config2));
+  world11.setDynamicProperty("pl-config", JSON.stringify(config2));
 }
 
 // scripts/Plugins/PluginManagers/Functions/SettingForms.ts
@@ -815,6 +853,8 @@ function showForm(pl) {
     ui.toggle(toggle.name, toggle.setting.enabled);
   });
   ui.show(pl).then(async (res) => {
+    if (res.canceled)
+      return;
     if (res.cancelationReason == FormCancelationReason.UserBusy) {
       await new Promise((res2) => system6.runTimeout(res2, 20));
       showForm(pl);
@@ -828,6 +868,37 @@ function showForm(pl) {
   });
 }
 
+// scripts/Plugins/PluginManagers/Commands/PluginConfig.ts
+new CommandBuilder(
+  "plm-config",
+  "Use this command to show config forms.",
+  "!",
+  (pl) => {
+    return pl.isOp();
+  }
+).overload((pl) => {
+  showForm(pl);
+});
+
+// scripts/Plugins/PluginManagers/Commands/PluginReset.ts
+import { world as world12 } from "@minecraft/server";
+new CommandBuilder(
+  "plm-reset",
+  "Use this command to reset config.",
+  "!",
+  (pl) => {
+    return pl.isOp();
+  }
+).overload((pl) => {
+  world12.setDynamicProperty("pl-config", JSON.stringify(PluginConfigs_default(true)));
+  world12.getAllPlayers().forEach((pl2) => {
+    if (pl2.isOp()) {
+      world12.sendMessage(`\xA77[\xA7rConfig\xA7r\xA77]\xA78:\xA7r \xA7bReloaded\xA77.\xA7r`);
+      loadPlugins(false);
+    }
+  });
+});
+
 // scripts/Plugins/PluginManagers/index.ts
 var PluginManagers = class extends Plugins {
   constructor(name) {
@@ -835,42 +906,18 @@ var PluginManagers = class extends Plugins {
   }
   setup() {
     system7.run(() => {
-      world11.sendMessage(`\xA77[\xA7rConfig\xA7r\xA77]\xA78:\xA7r \xA7bLoaded.\xA77.\xA7r`);
+      world13.sendMessage(`\xA77[\xA7rConfig\xA7r\xA77]\xA78:\xA7r \xA7bLoaded.\xA77.\xA7r`);
     });
   }
   init() {
-    world11.afterEvents.worldInitialize.subscribe((ev) => {
-      let i = system7.runInterval(() => {
-        if (world11.getAllPlayers().length > 0) {
-          loadPlugins();
-          system7.clearRun(i);
-        }
-      }, 5);
-    });
-    world11.beforeEvents.chatSend.subscribe((ev) => {
-      if (ev.message == "!plm-reset") {
-        system7.run(() => {
-          world11.setDynamicProperty("pl-config", JSON.stringify(PluginConfigs_default(true)));
-          world11.getAllPlayers().forEach((pl) => {
-            if (pl.isOp()) {
-              world11.sendMessage(`\xA77[\xA7rConfig\xA7r\xA77]\xA78:\xA7r \xA7bReloaded\xA77.\xA7r`);
-              loadPlugins(false);
-            }
-          });
-        });
-        ev.cancel = true;
-      } else if (ev.message == "!plm-config") {
-        system7.run(() => {
-          showForm(ev.sender);
-        });
-        ev.cancel = true;
-      }
+    world13.afterEvents.worldInitialize.subscribe((ev) => {
+      system7.run(loadPlugins);
     });
   }
 };
 
 // scripts/Plugins/MobStacker/index.ts
-import { EntityDamageCause, MinecraftDimensionTypes as MinecraftDimensionTypes2, system as system8, world as world12 } from "@minecraft/server";
+import { EntityDamageCause, MinecraftDimensionTypes as MinecraftDimensionTypes2, system as system8, world as world14 } from "@minecraft/server";
 
 // scripts/Plugins/MobStacker/Functions/GetEntitiesNearBy.ts
 function getEntitiesNearBy(dimension, en, raduis = 10) {
@@ -950,7 +997,7 @@ var MobStacker = class extends Plugins {
     new CustomEvents(this.name).Tick(40, () => {
       Object.keys(MinecraftDimensionTypes2).forEach(async (dimid) => {
         allEntities.clear();
-        world12.getDimension(MinecraftDimensionTypes2[dimid]).getEntities().filter((x) => !resetEntities.has(x)).filter((x) => MobStackList.some((b) => b == x.typeId)).forEach((en) => {
+        world14.getDimension(MinecraftDimensionTypes2[dimid]).getEntities().filter((x) => !resetEntities.has(x)).filter((x) => MobStackList.some((b) => b == x.typeId)).forEach((en) => {
           allEntities.add(en);
         });
         for (const entity of allEntities) {
@@ -969,7 +1016,7 @@ var MobStacker = class extends Plugins {
           console.warn(removedAmount, currAmount);
           entity.nameTag = `\xA7e>> \xA7m\xA7r\xA7c${removedAmount + currAmount}\xA7m\xA7r\xA7c\xA77x\xA7r \xA77${EntityToName(entity)}`;
           allEntities.clear();
-          world12.getDimension(MinecraftDimensionTypes2[dimid]).getEntities().filter((x) => !resetEntities.has(x)).filter((x) => MobStackList.some((b) => b == x.typeId)).forEach((en) => {
+          world14.getDimension(MinecraftDimensionTypes2[dimid]).getEntities().filter((x) => !resetEntities.has(x)).filter((x) => MobStackList.some((b) => b == x.typeId)).forEach((en) => {
             allEntities.add(en);
           });
         }
@@ -978,8 +1025,37 @@ var MobStacker = class extends Plugins {
   }
 };
 
+// scripts/Plugins/CommandBuilders/index.ts
+import { system as system9 } from "@minecraft/server";
+var CommandBuilder2 = class extends Plugins {
+  constructor(name) {
+    super(name);
+    this.name = name;
+  }
+  setup() {
+  }
+  init() {
+    new CustomEvents(this.name).onChatSend((ev) => {
+      if (ev.message.slice(1, ev.message.length) == "help") {
+        ev.sender.sendMessage(`${commandLists.map((x) => `\xA7c${x.prefix}\xA77${x.name} \xA7r\xA7c- \xA77${x.description}\xA7r`).join("\n")}`);
+        ev.cancel = true;
+      } else if (commandLists.some((x) => `${x.prefix}${x.name}` == ev.message)) {
+        const command = commandLists.find((x) => `${x.prefix}${x.name}` == ev.message);
+        system9.run(() => {
+          if (command.permission(ev.sender)) {
+            command.callback(ev.sender);
+          } else {
+            ev.sender.sendMessage(`\xA7cYou dont have permission to use this command.`);
+          }
+        });
+        ev.cancel = true;
+      }
+    });
+  }
+};
+
 // scripts/Configs/PluginConfigs.ts
-var data = JSON.parse(world13.getDynamicProperty("pl-config") ?? "{}");
+var data = JSON.parse(world15.getDynamicProperty("pl-config") ?? "{}");
 var config = [
   {
     name: "Plugin Managers",
@@ -1004,19 +1080,27 @@ var config = [
       enabled: true,
       isLoader: false
     }
+  },
+  {
+    name: "Command Builders",
+    main: CommandBuilder2,
+    setting: {
+      enabled: true,
+      isLoader: true
+    }
   }
 ];
 function allPlugins(reset = false) {
-  if (JSON.parse(world13.getDynamicProperty("pl-config") ?? "[]").length !== config.length) {
-    world13.sendMessage("\xA77[\xA7r\xA75Detected\xA7r\xA77]\xA78:\xA7r \xA77Configs \xA76Changed\xA77.\xA7r");
-    world13.setDynamicProperty("pl-config", JSON.stringify(config));
+  if (JSON.parse(world15.getDynamicProperty("pl-config") ?? "[]").length !== config.length) {
+    world15.sendMessage("\xA77[\xA7r\xA75Detected\xA7r\xA77]\xA78:\xA7r \xA77Configs \xA76Changed\xA77.\xA7r");
+    world15.setDynamicProperty("pl-config", JSON.stringify(config));
   }
   const configR = [];
   config.forEach((pl, i) => {
     configR.push({
-      name: reset ? pl.name : world13.getDynamicProperty("pl-config") !== void 0 ? JSON.parse(world13.getDynamicProperty("pl-config"))[i].name : pl.name,
+      name: reset ? pl.name : world15.getDynamicProperty("pl-config") !== void 0 ? JSON.parse(world15.getDynamicProperty("pl-config"))[i].name : pl.name,
       main: pl.main,
-      setting: reset ? pl.setting : world13.getDynamicProperty("pl-config") !== void 0 ? JSON.parse(world13.getDynamicProperty("pl-config"))[i].setting : pl.setting
+      setting: reset ? pl.setting : world15.getDynamicProperty("pl-config") !== void 0 ? JSON.parse(world15.getDynamicProperty("pl-config"))[i].setting : pl.setting
     });
   });
   return configR;
@@ -1025,12 +1109,12 @@ var PluginConfigs_default = allPlugins;
 
 // scripts/Index.ts
 function main() {
-  const loaderPlugins = PluginConfigs_default().find((x) => x.setting.isLoader == true);
-  console.warn(loaderPlugins);
-  const loaderClass = new loaderPlugins.main(loaderPlugins.name);
-  loaderClass.setup();
-  loaderClass.init();
+  PluginConfigs_default().filter((x) => x.setting.isLoader == true).forEach((x, i) => {
+    const main2 = new x.main(x.name);
+    main2.setup();
+    main2.init();
+  });
 }
-system9.run(main);
+system10.run(main);
 
 //# sourceMappingURL=../debug/Index.js.map

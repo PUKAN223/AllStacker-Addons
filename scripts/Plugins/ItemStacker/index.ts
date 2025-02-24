@@ -9,6 +9,7 @@ import randomCode from "./Functions/RandomCode";
 import ItemsToName from "./Functions/ItemToName";
 import getSizeStack from "./Functions/GetSizeStack";
 import StackItem from "./Functions/GetStackItem";
+import "./Commands/ResetDB"
 
 export default class ItemStacker extends Plugins {
   private name: string
@@ -21,22 +22,7 @@ export default class ItemStacker extends Plugins {
   }
 
   public init(): void {
-    world.beforeEvents.chatSend.subscribe(resetDB)
-    function resetDB(ev: ChatSendBeforeEvent) {
-      if (ev.message == "!resetDB") {
-        ev.cancel = true
-        system.run(() => {
-          itemCode.clear()
-          itemStackMap.keys().forEach(m => {
-            itemStackMap.set(m, [])
-            itemStackMap.delete(m)
-          })
-          itemStackMap.clear()
-        })
-      }
-    }
-
-    StackItem()
+    system.run(StackItem)
 
     new CustomEvents(this.name).Tick(20, () => {
       SeeingItem.clear();

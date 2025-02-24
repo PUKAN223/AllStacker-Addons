@@ -11,6 +11,7 @@ export default function showForm(pl: Player) {
     ui.toggle(toggle.name, toggle.setting.enabled)
   })
   ui.show(pl as any).then(async res => {
+    if (res.canceled) return;
     if (res.cancelationReason == FormCancelationReason.UserBusy) {
       await new Promise((res) => system.runTimeout(res as any, 20))
       showForm(pl)

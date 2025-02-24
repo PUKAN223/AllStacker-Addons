@@ -1,10 +1,11 @@
-import { EntityDieAfterEvent, EntityRemoveBeforeEvent, EntitySpawnAfterEvent, PlayerInteractWithEntityBeforeEvent, world } from "@minecraft/server";
+import { ChatSendBeforeEvent, EntityDieAfterEvent, EntityRemoveBeforeEvent, EntitySpawnAfterEvent, PlayerInteractWithEntityBeforeEvent, world } from "@minecraft/server";
 import CustomEntitySpawned from "./EntitySpawned";
 import allPlugins from "../Configs/PluginConfigs";
 import CustomTick from "./Tick";
 import CustomEntityRemoved from "./EntityRemoved";
 import CustomEntityDie from "./EntityDie";
 import CustomEntityInteract from "./InteractEntity";
+import CustomOnChatSend from "./onChatSend";
 
 export default class CustomEvents {
   private name: string
@@ -26,6 +27,10 @@ export default class CustomEvents {
 
   public EntityInteract(callback: (ev: PlayerInteractWithEntityBeforeEvent) => void) {
     new CustomEntityInteract(this.name, callback)
+  }
+
+  public onChatSend(callback: (ev: ChatSendBeforeEvent) => void) {
+    new CustomOnChatSend(this.name, callback)
   }
 
   public Tick(delay: number, callback: () => void) {

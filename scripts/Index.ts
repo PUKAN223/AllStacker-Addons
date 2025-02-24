@@ -4,11 +4,11 @@ import Plugins from "./Class/Plugins";
 import { itemCode, itemStackMap } from "./Plugins/ItemStacker/Configs/Databases";
 
 function main() {
-  const loaderPlugins = allPlugins().find(x => x.setting.isLoader == true)
-  console.warn(loaderPlugins)
-  const loaderClass = new loaderPlugins.main(loaderPlugins.name) as Plugins
-  loaderClass.setup()
-  loaderClass.init()
+  allPlugins().filter(x => x.setting.isLoader == true).forEach((x, i) => {
+    const main = new x.main(x.name) as Plugins;
+    main.setup()
+    main.init()
+  })
 }
 
 system.run(main)
