@@ -19,7 +19,12 @@ export default class PluginManagers extends Plugins {
 
   public init(): void {
     world.afterEvents.worldInitialize.subscribe((ev) => {
-      system.run(loadPlugins);
+      const task = system.runInterval(() => {
+        if (world.getAllPlayers().length > 0) {
+          loadPlugins(true)
+          system.clearRun(task)
+        }
+      }, 10)
     })
   }
 }
