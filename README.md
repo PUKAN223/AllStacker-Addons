@@ -48,8 +48,9 @@
    - ปรับเเต่งไม่เเสดงผลของไอเท็ม
    - ตั้งค่าการรวมไอเท็มเเละการรวมกันของม็อบ
 
-![Configuration Menu](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/setting_1.png?raw=true)
-![Configuration Menu](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/setting_2.png?raw=true)
+| ![Configuration 1](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/setting_1.png?raw=true) | ![Configuration 2](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/setting_2.png?raw=true) |
+|:-----------------------------------------------------------------------:|:-----------------------------------------------------------------------:|
+| เมนูหลัก                                                             | การปรับเเต่ง                                                              |
 
 ### สูตรคราฟเมนูการตั้งค่า
 ใช้โต๊ะคราฟเพื่อสร้าง **All-In Setting** สำหรับเปิดเมนูตั้งค่า:
