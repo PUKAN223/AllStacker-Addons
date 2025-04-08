@@ -34,7 +34,7 @@
 ---
 
 ## การติดตั้ง
-1. ดาวน์โหลดไฟล์ปลั๊กอิน `All-Stacker.mcaddon` จาก [Releases](/releases)
+1. ดาวน์โหลดไฟล์ปลั๊กอิน `All-Stacker.mcaddon` จาก [Releases](https://github.com/PUKAN223/AllStacker-Addons/releases/tag/release2.0)
 2. เปิดไฟล์ด้วยมายคราฟ 
 3. หากลงเสร็จสิ้นสามารถใส่เข้ากับโลกของคุณได้ใน behavior packs เเละ resource packs
 4. ถ้าเเอดออนทำงานจะมีข้อความเเสดงในเกม
