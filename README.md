@@ -66,7 +66,7 @@
 ### ItemStacker
 รวมไอเท็มที่ดรอปในระยะที่กำหนดเพื่อลดจำนวนเอนทิตีในเกม ช่วยให้เซิร์ฟเวอร์ทำงานได้ลื่นไหลขึ้น เหมาะสำหรับเซิร์ฟเวอร์ที่มีการฟาร์มหรือดรอปไอเท็มจำนวนมาก
 
-![ItemStacker](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/item.png?raw=true)
+<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/item.png?raw=true" alt="MobStacker" style="border-radius: 15px;" width="300"/>
 
 ### MobStacker
 รวมม็อบประเภทเดียวกันในระยะที่กำหนด พร้อมแสดงจำนวนม็อบ
