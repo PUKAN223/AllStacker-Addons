@@ -46,7 +46,7 @@
 1. กดใช้งานเมนูตั้งค่า
 2. ในเมนู คุณสามารถ:
    - ปิดใช้งานการรวมไอเท็มหรือการรวมม็อบ
-   - ปรับเเต่งไม่เเสดงผลของไอเท็ม
+   - ปรับเเต่งการเเสดงผลของไอเท็ม
    - ตั้งค่าการรวมไอเท็มเเละการรวมกันของม็อบ
 
 | ![Configuration 1](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/setting_1.png?raw=true) | ![Configuration 2](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/setting_2.png?raw=true) |
