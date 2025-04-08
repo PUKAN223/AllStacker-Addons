@@ -2,10 +2,11 @@
 
 ![Plugin Banner](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/banner.png?raw=true)  
 **ระบบรวมไอเท็มและม็อบสำหรับ Minecraft**  
-รองรับ Minecraft Bedrock
-  - 1.21.70  
 
+รองรับ Minecraft Bedrock
+  - 1.21.70
 เเอดออนที่ช่วยลดอาการหน่วงของเซิร์ฟเวอร์ด้วยการรวมไอเท็มและม็อบ พร้อมฟีเจอร์การตั้งค่าที่ปรับแต่งได้อย่างยืดหยุ่น
+
 ---
 
 ## อัปเดตในเวอร์ชัน 2.0.0
