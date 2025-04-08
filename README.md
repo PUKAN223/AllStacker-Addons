@@ -10,7 +10,7 @@
 
 ---
 
-## อัปเดตในเวอร์ชัน 2.0.0
+## อัปเดต 2.0.0
 - **ลดอาการหน่วงเซิร์ฟเวอร์**: ปรับปรุงประสิทธิภาพการรวมไอเท็มและม็อบให้ทำงานได้ลื่นไหลยิ่งขึ้น
 - **แก้บัค**:
   - แก้ปัญหาไอเท็มบางประเภทไม่รวมกัน
@@ -23,7 +23,7 @@
 
 ---
 
-## คุณสมบัติหลัก
+## ฟีเจอร์หลักๆ
 - **ItemStacker**: รวมไอเท็มที่ดรอปในบริเวณใกล้เคียงเพื่อลดจำนวนเอนทิตีในเซิร์ฟเวอร์
 - **MobStacker**: รวมม็อบประเภทเดียวกันในระยะที่กำหนด พร้อมแสดงจำนวนม็อบในกอง
 - **เมนูการตั้งค่า**: ปรับแต่งการทำงานของปลั๊กอินได้ง่ายผ่าน GUI ในเกม
@@ -33,64 +33,30 @@
 ---
 
 ## การติดตั้ง
-1. ดาวน์โหลดไฟล์ปลั๊กอิน `ItemStacks-MobStacker-2.0.0.jar` จาก [Releases](#)
-2. วางไฟล์ในโฟลเดอร์ `plugins` ของเซิร์ฟเวอร์
-3. รีสตาร์ทเซิร์ฟเวอร์หรือใช้คำสั่ง `/reload`
-4. ปรับแต่งการตั้งค่าในไฟล์ `config.yml` หรือผ่านเมนูในเกม
+1. ดาวน์โหลดไฟล์ปลั๊กอิน `All-Stacker.mcaddon` จาก [Releases](#)
+2. เปิดไฟล์ด้วยมายคราฟ 
+3. หากลงเสร็จสิ้นสามารถใส่เข้ากับโลกของคุณได้ใน behavior packs เเละ resource packs
+4. ถ้าเเอดออนทำงานจะมีข้อความเเสดงในเกม
 
 ---
 
 ## การใช้งานและการตั้งค่า
 ### การตั้งค่าในเกม
-1. ใช้คำสั่ง `/stacker config` เพื่อเปิด **เมนูการตั้งค่า**
+1. กดใช้งานเมนูตั้งค่า
 2. ในเมนู คุณสามารถ:
-   - เลือกม็อบที่ต้องการให้รวมกัน (เช่น เฉพาะ Zombie, Skeleton)
-   - กำหนดระยะการรวมไอเท็มและม็อบ
-   - ตั้งค่าให้ม็อบที่มี Nametag ไม่รวมกัน
-   - ปรับระยะเวลาการ Respawn ของไอเท็ม
+   - ปิดใช้งานการรวมไอเท็มหรือการรวมม็อบ
+   - ปรับเเต่งไม่เเสดงผลของไอเท็ม
+   - ตั้งค่าการรวมไอเท็มเเละการรวมกันของม็อบ
 
-![Configuration Menu](https://via.placeholder.com/600x300.png?text=Configuration+Menu)
+![Configuration Menu](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/setting_1.png?raw=true)
+![Configuration Menu](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/setting_2.png?raw=true)
 
 ### สูตรคราฟเมนูการตั้งค่า
-ใช้โต๊ะคราฟเพื่อสร้าง **Configuration Wand** สำหรับเปิดเมนูตั้งค่า:
+ใช้โต๊ะคราฟเพื่อสร้าง **All-In Setting** สำหรับเปิดเมนูตั้งค่า:
 
-|   |   |   |
-|---|---|---|
-|   | Stick |   |
-|   | Paper |   |
-|   |   |   |
+![Recipes](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/recipes.png?raw=true)
 
-- **ผลลัพธ์**: ได้ Configuration Wand 1 อัน
 - ใช้โดยการคลิกขวาเพื่อเปิดเมนู
-
-![Crafting Recipe](https://via.placeholder.com/400x200.png?text=Crafting+Recipe)
-
----
-
-## รายละเอียดการตั้งค่า
-ไฟล์ `config.yml` มีตัวเลือกดังนี้:
-```yaml
-item-stacker:
-  enabled: true
-  stack-radius: 3.0
-  respawn-time: 60 # วินาทีที่ไอเท็มจะหายไป
-mob-stacker:
-  enabled: true
-  stack-radius: 5.0
-  excluded-mobs:
-    - VILLAGER
-    - NAMED_MOBS
-  stackable-mobs:
-    - ZOMBIE
-    - SKELETON
-    - CREEPER
-```
-- `stack-radius`: ระยะที่ไอเท็มหรือม็อบจะรวมกัน (หน่วยเป็นบล็อก)
-- `respawn-time`: ระยะเวลาที่ไอเท็มจะหายไปก่อนเกิดใหม่
-- `excluded-mobs`: ม็อบที่ไม่ต้องการให้รวมกัน
-- `stackable-mobs`: ม็อบที่อนุญาตให้รวมกัน
-
-![Settings Overview](https://via.placeholder.com/600x300.png?text=Settings+Overview)
 
 ---
 
@@ -98,18 +64,19 @@ mob-stacker:
 ### ItemStacker
 รวมไอเท็มที่ดรอปในระยะที่กำหนดเพื่อลดจำนวนเอนทิตีในเกม ช่วยให้เซิร์ฟเวอร์ทำงานได้ลื่นไหลขึ้น เหมาะสำหรับเซิร์ฟเวอร์ที่มีการฟาร์มหรือดรอปไอเท็มจำนวนมาก
 
-![ItemStacker](https://via.placeholder.com/600x300.png?text=ItemStacker+In+Action)
+![ItemStacker](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/stack.png?raw=true)
 
 ### MobStacker
-รวมม็อบประเภทเดียวกันในระยะที่กำหนด พร้อมแสดงจำนวนม็อบในกองด้วย Nametag ป้องกันม็อบที่มีชื่อไม่ให้รวมกัน และปรับแต่งได้ตามความต้องการ
+รวมม็อบประเภทเดียวกันในระยะที่กำหนด พร้อมแสดงจำนวนม็อบ
 
-![MobStacker](https://via.placeholder.com/600x300.png?text=MobStacker+In+Action)
+![MobStacker](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/mob.png?raw=true)
 
 ---
 
 ## การสนับสนุน
 - หากพบปัญหาหรือมีคำถาม ติดต่อผ่าน [Issues](#) บน GitHub
-- เข้าร่วมชุมชนของเราใน [Discord](#) เพื่อพูดคุยและรับการช่วยเหลือ
+- ติดต่อส่วนตัว DM ผ่าน Discord **kisux3**
 
-## สนับสนุนโครงการ
-หากชอบปลั๊กอินนี้ อย่าลืมให้ดาว ⭐ บน GitHub และแชร์ให้เพื่อนๆ!
+## สนับสนุน
+หากชอบเเอดออนนี้ อย่าลืมให้ดาว ⭐ บน GitHub
+หากต้องการนำไปเเจกจ่ายต่อ ทิ้งเครดิต Discord kisux3 หรือ Github ด้วย
