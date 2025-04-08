@@ -1,4 +1,4 @@
-# ItemStacks & MobStacker 2.0.0
+<h1 align="center">ItemStacks & MobStacker 2.0.0</h1>
 
 ![Plugin Banner](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/banner.png?raw=true)  
 **ระบบรวมไอเท็มและม็อบสำหรับ Minecraft**  
@@ -65,7 +65,7 @@
 ### ItemStacker
 รวมไอเท็มที่ดรอปในระยะที่กำหนดเพื่อลดจำนวนเอนทิตีในเกม ช่วยให้เซิร์ฟเวอร์ทำงานได้ลื่นไหลขึ้น เหมาะสำหรับเซิร์ฟเวอร์ที่มีการฟาร์มหรือดรอปไอเท็มจำนวนมาก
 
-![ItemStacker](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/stack.png?raw=true)
+![ItemStacker](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/item.png?raw=true)
 
 ### MobStacker
 รวมม็อบประเภทเดียวกันในระยะที่กำหนด พร้อมแสดงจำนวนม็อบ
