@@ -133,7 +133,7 @@ export const ListSetting = {
             DisplayText.set("itemStack", "§7x§c%a §e%n§r\n§7Despawn in %m§am §7%s§as§r");
             pl.sendMessage("§aรีเซ็ทตั้งค่าสำเร็จ§r");
           } else {
-            DisplayText.set("itemStack", displayFormat);
+            DisplayText.set("itemStack", displayFormat.toString().replace("\\n", "\n"));
             pl.sendMessage("§aตั้งค่าสำเร็จ§r");
           }
         });

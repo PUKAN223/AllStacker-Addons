@@ -987,22 +987,24 @@ var ItemStacker = class extends Plugins {
       const location = ev.removedEntity.location;
       const dim = ev.removedEntity.dimension.id;
       const id = ev.removedEntity.id;
+      const itemC = ev.removedEntity.getComponent("item").itemStack;
       system7.run(() => {
         const itemData = itemStackData.get(id);
         if (!itemData)
           return;
-        const itemToSpawn = itemData.amount - itemData.item.amount;
+        const itemToSpawn = itemData.amount - itemC.amount;
+        console.log(itemToSpawn, itemData.amount, itemC.amount);
         if (itemToSpawn > 0) {
           const itemStackSpawn = itemData.item;
           if (itemToSpawn > itemData.item.maxAmount)
             itemStackSpawn.amount = itemData.item.maxAmount;
           else
             itemStackSpawn.amount = itemToSpawn;
-          const enBase = world11.getDimension(dim).spawnItem(itemStackSpawn, location);
-          enBase.teleport(location);
           const itemSetData = itemData;
           itemSetData.currAmount = itemData.currAmount - itemStackSpawn.amount;
-          itemSetData.amount -= itemStackSpawn.amount;
+          itemSetData.amount -= itemC.amount + itemStackSpawn.amount;
+          const enBase = world11.getDimension(dim).spawnItem(itemStackSpawn, location);
+          enBase.teleport({ x: location.x, y: location.y, z: location.z });
           itemStackData.set(enBase.id, itemSetData);
         }
         itemStackData.delete(id);
@@ -1295,16 +1297,16 @@ var ListSetting = {
     },
     "\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E1C\u0E25\u0E08\u0E33\u0E19\u0E27\u0E19\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21": (bool = false) => {
       if (bool) {
-        const ui = new ModalFormData().title("\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E1C\u0E25").textField("\n \u0E43\u0E0A\u0E49 %%a \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E08\u0E33\u0E19\u0E27\u0E19\n \u0E43\u0E0A\u0E49 %%n \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E0A\u0E37\u0E48\u0E2D\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\n \u0E43\u0E0A\u0E49 %%m \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E19\u0E32\u0E17\u0E35\u0E17\u0E35\u0E48\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E08\u0E30\u0E16\u0E39\u0E01\u0E25\u0E1A\n \u0E43\u0E0A\u0E49 %%s \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E27\u0E34\u0E19\u0E32\u0E17\u0E35\u0E17\u0E35\u0E48\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E08\u0E30\u0E16\u0E39\u0E01\u0E25\u0E1A\n \u0E43\u0E0A\u0E49 \\n \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E27\u0E49\u0E19\u0E1A\u0E23\u0E23\u0E17\u0E31\u0E14\n\u0E23\u0E39\u0E1B\u0E40\u0E40\u0E1A\u0E1A\u0E01\u0E32\u0E23\u0E40\u0E40\u0E2A\u0E14\u0E07", "", DisplayText.get("itemStack") ?? "\xA77x\xA7c%a \xA7e%n\xA7r\\n\xA77Respawn in %m\xA7am \xA77%s\xA7as\xA7r").toggle("\u0E23\u0E35\u0E40\u0E0B\u0E47\u0E15\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32", false);
+        const ui = new ModalFormData().title("\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E1C\u0E25").textField("\n \u0E43\u0E0A\u0E49 %%a \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E08\u0E33\u0E19\u0E27\u0E19\n \u0E43\u0E0A\u0E49 %%n \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E0A\u0E37\u0E48\u0E2D\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\n \u0E43\u0E0A\u0E49 %%m \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E19\u0E32\u0E17\u0E35\u0E17\u0E35\u0E48\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E08\u0E30\u0E16\u0E39\u0E01\u0E25\u0E1A\n \u0E43\u0E0A\u0E49 %%s \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E40\u0E2A\u0E14\u0E07\u0E27\u0E34\u0E19\u0E32\u0E17\u0E35\u0E17\u0E35\u0E48\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E08\u0E30\u0E16\u0E39\u0E01\u0E25\u0E1A\n \u0E43\u0E0A\u0E49 \\n \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E27\u0E49\u0E19\u0E1A\u0E23\u0E23\u0E17\u0E31\u0E14\n\u0E23\u0E39\u0E1B\u0E40\u0E40\u0E1A\u0E1A\u0E01\u0E32\u0E23\u0E40\u0E40\u0E2A\u0E14\u0E07", "", DisplayText.get("itemStack") ?? "\xA77x\xA7c%a \xA7e%n\xA7r\\n\xA77Despawn in %m\xA7am \xA77%s\xA7as\xA7r").toggle("\u0E23\u0E35\u0E40\u0E0B\u0E47\u0E15\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32", false);
         ui.show(pl).then((res) => {
           if (res.canceled)
             return;
           const [displayFormat, reset] = res.formValues;
           if (reset) {
-            DisplayText.set("itemStack", "\xA77x\xA7c%a \xA7e%n\xA7r\n\xA77Respawn in %m\xA7am \xA77%s\xA7as\xA7r");
+            DisplayText.set("itemStack", "\xA77x\xA7c%a \xA7e%n\xA7r\n\xA77Despawn in %m\xA7am \xA77%s\xA7as\xA7r");
             pl.sendMessage("\xA7a\u0E23\u0E35\u0E40\u0E0B\u0E47\u0E17\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08\xA7r");
           } else {
-            DisplayText.set("itemStack", displayFormat);
+            DisplayText.set("itemStack", displayFormat.toString().replace("\\n", "\n"));
             pl.sendMessage("\xA7a\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08\xA7r");
           }
         });

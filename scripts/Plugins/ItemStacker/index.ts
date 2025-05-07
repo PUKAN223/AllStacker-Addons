@@ -4,6 +4,7 @@ import CustomEvents from "../../Events/CustomEvent";
 import { isLoaded, ItemListStack, itemStackData } from "./Configs/Database";
 import { StackingItem } from "./Functions/GetStackItem";
 import { SeeingItem } from "./Functions/SeeingItem";
+import getItemAmount from "./Functions/GetItemAmount";
 
 export default class ItemStacker extends Plugins {
   private name: string;
@@ -35,19 +36,21 @@ export default class ItemStacker extends Plugins {
       const location = ev.removedEntity.location;
       const dim = ev.removedEntity.dimension.id;
       const id = ev.removedEntity.id;
+      const itemC = ev.removedEntity.getComponent("item").itemStack
       system.run(() => {
         const itemData = itemStackData.get(id) as { amount: number, item: ItemStack, life: number, currAmount: number };
         if (!itemData) return;
-        const itemToSpawn = itemData.amount - itemData.item.amount
+        const itemToSpawn = itemData.amount - itemC.amount;
+        console.log(itemToSpawn, itemData.amount, itemC.amount);
         if (itemToSpawn > 0) {
           const itemStackSpawn = itemData.item;
           if (itemToSpawn > itemData.item.maxAmount) itemStackSpawn.amount = itemData.item.maxAmount;
           else itemStackSpawn.amount = itemToSpawn;
-          const enBase = world.getDimension(dim).spawnItem(itemStackSpawn, location);
-          enBase.teleport(location);
           const itemSetData = itemData;
           itemSetData.currAmount = (itemData.currAmount - itemStackSpawn.amount);
-          itemSetData.amount -= itemStackSpawn.amount;
+          itemSetData.amount -= itemC.amount + itemStackSpawn.amount;
+          const enBase = world.getDimension(dim).spawnItem(itemStackSpawn, location);
+          enBase.teleport({ x: location.x, y: location.y, z: location.z });
           itemStackData.set(enBase.id, itemSetData);
         }
         itemStackData.delete(id);
