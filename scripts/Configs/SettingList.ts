@@ -123,14 +123,14 @@ export const ListSetting = {
       if (bool) {
         const ui = new ModalFormData()
           .title("ตั้งค่าการเเสดงผล")
-          .textField("\n ใช้ %%a เพื่อเเสดงจำนวน\n ใช้ %%n เพื่อเเสดงชื่อไอเท็ม\n ใช้ %%m เพื่อเเสดงนาทีที่ไอเท็มจะถูกลบ\n ใช้ %%s เพื่อเเสดงวินาทีที่ไอเท็มจะถูกลบ\n ใช้ \\n เพื่อเว้นบรรทัด\nรูปเเบบการเเสดง", "", DisplayText.get("itemStack") ?? "§7x§c%a §e%n§r\\n§7Respawn in %m§am §7%s§as§r")
+          .textField("\n ใช้ %%a เพื่อเเสดงจำนวน\n ใช้ %%n เพื่อเเสดงชื่อไอเท็ม\n ใช้ %%m เพื่อเเสดงนาทีที่ไอเท็มจะถูกลบ\n ใช้ %%s เพื่อเเสดงวินาทีที่ไอเท็มจะถูกลบ\n ใช้ \\n เพื่อเว้นบรรทัด\nรูปเเบบการเเสดง", "", DisplayText.get("itemStack") ?? "§7x§c%a §e%n§r\\n§7Despawn in %m§am §7%s§as§r")
           .toggle("รีเซ็ตการตั้งค่า", false);
 
         ui.show(pl).then(res => {
           if (res.canceled) return;
           const [displayFormat, reset] = res.formValues;
           if (reset) {
-            DisplayText.set("itemStack", "§7x§c%a §e%n§r\n§7Respawn in %m§am §7%s§as§r");
+            DisplayText.set("itemStack", "§7x§c%a §e%n§r\n§7Despawn in %m§am §7%s§as§r");
             pl.sendMessage("§aรีเซ็ทตั้งค่าสำเร็จ§r");
           } else {
             DisplayText.set("itemStack", displayFormat);
