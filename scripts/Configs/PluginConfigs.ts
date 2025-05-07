@@ -3,7 +3,6 @@ import Plugins from "../Interfaces/Plugin"
 import ItemStacker from "../Plugins/ItemStacker"
 import PluginManagers from "../Plugins/PluginManagers"
 import MobStacker from "../Plugins/MobStacker"
-import CommandBuilder from "../Plugins/CommandBuilders/index"
 import ItemMenus from "../Plugins/ItemMenus"
 
 const config = [
@@ -29,14 +28,6 @@ const config = [
     setting: {
       enabled: true,
       isLoader: false
-    }
-  },
-  {
-    name: "Command Builders",
-    main: CommandBuilder,
-    setting: {
-      enabled: true,
-      isLoader: true
     }
   },
   {

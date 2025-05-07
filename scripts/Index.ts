@@ -10,6 +10,6 @@ function main() {
   })
 }
 
-world.afterEvents.worldLoad.subscribe((ev) => {
+world.afterEvents.worldInitialize.subscribe((ev) => {
   system.run(main);
 })

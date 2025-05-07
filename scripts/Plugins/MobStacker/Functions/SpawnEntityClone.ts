@@ -6,9 +6,13 @@ export default function spawnEntityClone(en: Entity) {
     entityNew.getComponent("color").value = en.getComponent("color").value
   }
   if (en.hasComponent(EntityIsBabyComponent.componentId)) {
-    entityNew.triggerEvent("minecraft:entity_born")
+    try {
+      entityNew.triggerEvent("minecraft:entity_born")
+    } catch { }
   } else {
-    entityNew.triggerEvent("minecraft:ageable_grow_up")
+    try {
+      entityNew.triggerEvent("minecraft:ageable_grow_up")
+    } catch { }
   }
 
   return entityNew

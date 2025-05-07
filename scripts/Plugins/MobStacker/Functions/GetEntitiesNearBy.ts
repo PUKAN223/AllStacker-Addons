@@ -1,4 +1,4 @@
-import { Dimension, Entity } from "@minecraft/server";
+import { Dimension, Entity, EntityLeashableComponent } from "@minecraft/server";
 import { resetEntities } from "..";
 
 export default function getEntitiesNearBy(dimension: Dimension, en: Entity, raduis: number = 10) {
@@ -8,7 +8,13 @@ export default function getEntitiesNearBy(dimension: Dimension, en: Entity, radu
     .filter((x) => x.hasComponent("is_baby") == en.hasComponent("is_baby"))
     .filter((x) => (x.getVelocity().x + x.getVelocity().y + x.getVelocity().z) !== 0)
     .filter((x) => !x.hasComponent("is_tamed"))
-    .filter((x) => !x.getComponent("leashable").leashHolder)
+    .filter((x) => {
+      if (x.hasComponent(EntityLeashableComponent.componentId)) {
+        const leashable = x.getComponent(EntityLeashableComponent.componentId);
+        if (leashable.leashHolder) return false;
+      }
+      return true;
+    })
     .filter((x) => x.getComponent("color")?.value == en.getComponent("color")?.value)
     .filter((x) => {
       if ((x.nameTag && en.nameTag) && (x.nameTag.includes("§m§r§c") && en.nameTag.includes("§m§r§c"))) return true

@@ -32,7 +32,7 @@ export default class MobStacker extends Plugins {
             resetEntities.delete(ev.target)
           }, 300)
           resetEntities.add(ev.target)
-          if (currAmount - 1 <= 0) return
+          if (currAmount - 1 <= 1) return
           entityNew.nameTag = `§e>> §m§r§c${currAmount - 1}§m§r§c§7x§r §7${EntityToName(entityNew)}`
         })
       }
@@ -46,6 +46,7 @@ export default class MobStacker extends Plugins {
           return;
         } else {
           const entityNew = spawnEntityClone(ev.deadEntity)
+          if (currAmount - 1 <= 1) return
           entityNew.nameTag = `§e>> §m§r§c${currAmount - 1}§m§r§c§7x§r §7${EntityToName(entityNew)}`
         }
       }

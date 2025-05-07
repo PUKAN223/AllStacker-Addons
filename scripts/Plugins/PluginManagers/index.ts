@@ -1,10 +1,6 @@
 import { system, world } from "@minecraft/server";
-import allPlugins from "../../Configs/PluginConfigs";
 import Plugins from "../../Class/Plugins";
 import loadPlugins from "./Functions/LoadConfig";
-import showForm from "./Functions/SettingForms";
-import "./Commands/PluginConfig"
-import "./Commands/PluginReset"
 
 export default class PluginManagers extends Plugins {
   constructor(name: string) {

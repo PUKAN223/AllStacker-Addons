@@ -12,7 +12,7 @@ export function* SeeingItem(): Generator<void, void, void> {
 
     for (const en of filterEntitys) {
       const itemData = itemStackData.get(en.id) as { amount: number, item: ItemStack, life: number };
-      if (itemData && en.isValid && isLoaded) {
+      if (itemData && en.isValid() && isLoaded) {
         const timeData = getTimeRemaining(5, 30, itemData.life)
         let text = DisplayText.get("itemStack") as string;
         text = text.replace(/%a/g, `${itemData.amount}`)
@@ -26,7 +26,7 @@ export function* SeeingItem(): Generator<void, void, void> {
 
     for (const en of allEnititys) {
       const itemData = itemStackData.get(en.id) as { amount: number, item: ItemStack, life: number };
-      if (itemData && en.isValid) {
+      if (itemData && en.isValid()) {
         const timeData = getTimeRemaining(5, 30, itemData.life)
         if (timeData.m < 0) {
           itemStackData.delete(en.id);
