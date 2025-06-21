@@ -1,4 +1,4 @@
-import { Dimension, Entity, EntityLeashableComponent } from "@minecraft/server";
+import { Dimension, Entity, EntityLeashableComponent, EntityScaleComponent } from "@minecraft/server";
 import { resetEntities } from "..";
 
 export default function getEntitiesNearBy(dimension: Dimension, en: Entity, raduis: number = 10) {
@@ -20,6 +20,10 @@ export default function getEntitiesNearBy(dimension: Dimension, en: Entity, radu
       if ((x.nameTag && en.nameTag) && (x.nameTag.includes("§m§r§c") && en.nameTag.includes("§m§r§c"))) return true
       if (!(x.nameTag && en.nameTag)) return true;
       return false;
+    })
+    .filter((x) => {
+      if (!x.hasComponent(EntityScaleComponent.componentId)) return true;
+      if (x.getComponent(EntityScaleComponent.componentId).value !== en.getComponent(EntityScaleComponent.componentId).value) return false;
     })
   return allEn;
 }

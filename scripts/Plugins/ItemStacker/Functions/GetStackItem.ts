@@ -1,6 +1,7 @@
 import { Entity, ItemEnchantableComponent, system, world } from "@minecraft/server";
 import { ItemListStack, itemStackData, UnStackItem } from "../Configs/Database";
 import getItemNearBy from "./GetItemNearBy";
+import { ItemConvert } from "../../../Class/ItemConverter";
 
 export function* StackingItem(): Generator<void, void, void> {
   if (system.currentTick % 2 !== 0) {
@@ -17,7 +18,7 @@ export function* StackingItem(): Generator<void, void, void> {
           target.remove();
         }
       }
-      itemStackData.set(en.id, { amount: totalAmount + item.amount, item: item, life: system.currentTick, currAmount: totalAmount });
+      itemStackData.set(en.id, { amount: totalAmount + item.amount, item: ItemConvert.ItemToJson(item), life: system.currentTick, currAmount: totalAmount, nowAmount: en.getComponent("item").itemStack.amount });
       ItemListStack.delete(en)
       yield;
     }
@@ -27,7 +28,7 @@ export function* StackingItem(): Generator<void, void, void> {
       if (en && en.isValid()) {
         const data = itemStackData.get(en.id)
         const item = en.getComponent("item").itemStack;
-        itemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount });
+        itemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount, nowAmount: en.getComponent("item").itemStack.amount });
       }
       yield;
     }

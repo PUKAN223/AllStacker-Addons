@@ -5,6 +5,9 @@ import { isLoaded, ItemListStack, itemStackData } from "./Configs/Database";
 import { StackingItem } from "./Functions/GetStackItem";
 import { SeeingItem } from "./Functions/SeeingItem";
 import getItemAmount from "./Functions/GetItemAmount";
+import getSizeStack from "./Functions/GetSizeStack";
+import { ItemJson } from "../../Interfaces/ItemJson";
+import { ItemConvert } from "../../Class/ItemConverter";
 
 export default class ItemStacker extends Plugins {
   private name: string;
@@ -36,24 +39,44 @@ export default class ItemStacker extends Plugins {
       const location = ev.removedEntity.location;
       const dim = ev.removedEntity.dimension.id;
       const id = ev.removedEntity.id;
-      const itemC = ev.removedEntity.getComponent("item").itemStack
       system.run(() => {
-        const itemData = itemStackData.get(id) as { amount: number, item: ItemStack, life: number, currAmount: number };
-        if (!itemData) return;
-        const itemToSpawn = itemData.amount - itemC.amount;
-        console.log(itemToSpawn, itemData.amount, itemC.amount);
-        if (itemToSpawn > 0) {
-          const itemStackSpawn = itemData.item;
-          if (itemToSpawn > itemData.item.maxAmount) itemStackSpawn.amount = itemData.item.maxAmount;
-          else itemStackSpawn.amount = itemToSpawn;
-          const itemSetData = itemData;
-          itemSetData.currAmount = (itemData.currAmount - itemStackSpawn.amount);
-          itemSetData.amount -= itemC.amount + itemStackSpawn.amount;
-          const enBase = world.getDimension(dim).spawnItem(itemStackSpawn, location);
-          enBase.teleport({ x: location.x, y: location.y, z: location.z });
-          itemStackData.set(enBase.id, itemSetData);
+        try {
+          const itemData = itemStackData.get(id) as { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number };
+          if (!itemData) return;
+          const itemToSpawn = itemData.amount - itemData.nowAmount;
+          if (itemToSpawn > 0) {
+            const itemStackSpawn = ItemConvert.JsonToItem(itemData.item).clone ? ItemConvert.JsonToItem(itemData.item).clone() : new ItemStack(itemData.item.typeId, itemData.item.amount);
+            itemStackSpawn.amount = itemToSpawn <= itemStackSpawn.maxAmount ? itemToSpawn : itemStackSpawn.maxAmount;
+            const itemSetData = { ...itemData };
+            itemSetData.currAmount -= itemStackSpawn.amount;
+            itemSetData.amount -= itemStackSpawn.amount;
+            const enBase = world.getDimension(dim).spawnItem(itemStackSpawn, { ...location, y: location.y + 100 });
+            itemStackData.set(enBase.id, itemSetData);
+            system.run(() => {
+              enBase.teleport({ x: location.x, y: location.y, z: location.z });
+            })
+          }
+          itemStackData.delete(id);
+        } catch (e) {
+          console.warn("Hopper Detected.")
+          const itemData = itemStackData.get(id) as { amount: number, item: ItemJson, life: number, currAmount: number };
+          system.run(() => {
+            const itemStack = ItemConvert.JsonToItem(itemData.item);
+            const sizeStack = getSizeStack(itemData.amount - itemData.currAmount, itemData.amount, itemStack.maxAmount)
+            const itemStackSpawn = ItemConvert.JsonToItem(itemData.item).clone ? ItemConvert.JsonToItem(itemData.item).clone() : new ItemStack(itemData.item.typeId, itemData.item.amount);
+            sizeStack.forEach((item) => {
+              itemStackSpawn.amount = item;
+              const enBase = world.getDimension(dim).spawnItem(ItemConvert.JsonToItem(itemStackSpawn), location);
+              enBase.addTag("fakeItem");
+              system.runTimeout(() => {
+                if (enBase.isValid()) {
+                  ItemListStack.add(enBase);
+                }
+              }, 40)
+            });
+          })
+          itemStackData.delete(id);
         }
-        itemStackData.delete(id);
       })
     })
   }

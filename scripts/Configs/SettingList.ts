@@ -5,6 +5,7 @@ import allPlugins from "./PluginConfigs";
 import { SettingSystems } from "../Plugins/ItemMenus";
 import { DisplayText, UnStackItem, UnStackMob } from "../Plugins/ItemStacker/Configs/Database";
 import CustomEvents from "../Events/CustomEvent";
+import { JsonDatabase } from "../Plugins/ItemStacker/Configs/con-database";
 
 const MobAdd = new Map<Player, string>()
 
@@ -210,6 +211,16 @@ export const ListSetting = {
           });
         }
         return null;
+      },
+      "โหมดการตายของม็อบ": (bool: boolean = false): string => {
+        const MobDeathMode = new JsonDatabase("MobDeathMode", pl)
+        if (bool) {
+          pl.playSound("random.pop");
+          MobDeathMode.set("mode", MobDeathMode.get("mode") === 0 ? 1 : 0);
+          pl.sendMessage(`§7[§f${name}§7]§r§f:§r เปลี่ยนโหมดการตายของม็อบ (${MobDeathMode.get("mode") === 0 ? "§cตายทั้งหมด" : "§2ตายทีละตัว"}§r)`);
+          return `โหมดการตายของม็อบ (${MobDeathMode.get("mode") == 0 ? "§2ตายทั้งหมด" : "§6ตายทีละตัว"})`;
+        }
+        return `โหมดการตายของม็อบ (${MobDeathMode.get("mode") == 0 ? "§cตายทั้งหมด" : "§2ตายทีละตัว"}§r)`;
       }
     };
   }
