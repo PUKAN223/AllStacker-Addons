@@ -3,6 +3,7 @@ import { DisplayText, isLoaded, ItemListStack, itemStackData } from "../Configs/
 import getItemNearBy from "./GetItemNearBy";
 import ItemsToName from "./ItemToName";
 import { getTimeRemaining } from "./GetTimeRemianing";
+import { getItemColorCode } from "./GetColorCode";
 
 export function* SeeingItem(): Generator<void, void, void> {
   const ListStack: string[] = [...itemStackData.keys()]
@@ -15,7 +16,8 @@ export function* SeeingItem(): Generator<void, void, void> {
       if (itemData && en.isValid() && isLoaded) {
         const timeData = getTimeRemaining(5, 30, itemData.life)
         let text = DisplayText.get("itemStack") as string;
-        text = text.replace(/%a/g, `${itemData.amount}`)
+        text = `§e>> ` + text
+        text = text.replace(/%a/g, `${getItemColorCode(itemData.amount)}${itemData.amount}§r`)
         text = text.replace(/%n/g, ItemsToName(en))
         text = text.replace(/%m/g, `${Math.max(timeData.m, 0)}`)
         text = text.replace(/%s/g, `${timeData.s}`)

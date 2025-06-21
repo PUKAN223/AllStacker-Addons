@@ -5,7 +5,7 @@ import { system as system11, world as world17 } from "@minecraft/server";
 import { world as world16 } from "@minecraft/server";
 
 // scripts/Plugins/ItemStacker/index.ts
-import { system as system7, world as world11 } from "@minecraft/server";
+import { ItemStack as ItemStack3, system as system7, world as world11 } from "@minecraft/server";
 
 // scripts/Class/Plugins.ts
 var Plugins = class {
@@ -813,9 +813,9 @@ var isLoaded = false;
 system3.run(() => {
   itemStackData = new JsonDatabase("ItemStacker", world8);
   UnStackItem = new JsonDatabase("UnStackItem", world8);
-  DisplayText = new JsonDatabase("DisplayText", world8);
+  DisplayText = new JsonDatabase("DisplayText_New1", world8);
   if (!DisplayText.has("itemStack")) {
-    DisplayText.set("itemStack", "\xA77x\xA7c%a \xA7e%n\xA7r\n\xA77Respawn in %m\xA7am \xA77%s\xA7as\xA7r");
+    DisplayText.set("itemStack", "\xA77x\xA7c%a \xA7r%n\xA7r");
   }
   UnStackMob = new JsonDatabase("UnStackMob", world8);
   if (UnStackMob.size == 0) {
@@ -870,6 +870,80 @@ function getItemNearBy(en, raduis = 7) {
   return itemNearBy;
 }
 
+// scripts/Class/ItemConverter.ts
+import { ItemLockMode as ItemLockMode2, ItemStack } from "@minecraft/server";
+var ItemConverter = class _ItemConverter {
+  static {
+    this.isLoaded = false;
+  }
+  constructor() {
+    if (_ItemConverter.instance) {
+      return _ItemConverter.instance;
+    }
+    _ItemConverter.instance = this;
+    _ItemConverter.isLoaded = true;
+  }
+  static getInstance() {
+    if (!_ItemConverter.instance) {
+      _ItemConverter.instance = new _ItemConverter();
+    }
+    return _ItemConverter.instance;
+  }
+  ItemToJson(item) {
+    let itemDynamic = [];
+    let itemDurability = 0;
+    let itemEnchantment = [];
+    if (item.getDynamicPropertyIds().length !== 0) {
+      item.getDynamicPropertyIds().forEach((ids) => {
+        itemDynamic.push({ id: ids, data: item.getDynamicProperty(ids) });
+      });
+    }
+    if (item.getComponent("durability") && item.getComponent("durability").damage !== 0) {
+      itemDurability = item.getComponent("durability").damage;
+    }
+    if (item.getComponent("enchantable") && item.getComponent("enchantable").getEnchantments().length !== 0) {
+      itemEnchantment = item.getComponent("enchantable").getEnchantments();
+    }
+    const data = {
+      typeId: item.typeId,
+      amount: item.amount,
+      keepOnDeath: item.keepOnDeath,
+      lockMode: item.lockMode,
+      maxAmount: item.maxAmount,
+      nameTag: item.nameTag,
+      dynamicProperty: itemDynamic ?? void 0,
+      lores: item.getLore(),
+      can_destroy: item.getCanDestroy(),
+      can_placeon: item.getCanPlaceOn(),
+      durability: itemDurability,
+      enchants: itemEnchantment ?? []
+    };
+    return data;
+  }
+  JsonToItem(itemJson) {
+    const items = new ItemStack(itemJson.typeId, itemJson.amount);
+    items.setCanDestroy(itemJson.can_destroy);
+    items.setCanPlaceOn(itemJson.can_placeon);
+    if (itemJson.durability) {
+      items.getComponent("durability").damage = itemJson.durability;
+    }
+    itemJson.dynamicProperty.forEach(({ id, data }) => {
+      items.setDynamicProperty(id, data);
+    });
+    if (itemJson.enchants) {
+      itemJson.enchants.forEach((enc) => {
+        items.getComponent("enchantable").addEnchantment({ type: enc.type, level: enc.level });
+      });
+    }
+    items.keepOnDeath = itemJson.keepOnDeath;
+    items.lockMode = ItemLockMode2[itemJson.lockMode];
+    items.setLore(itemJson.lores);
+    items.nameTag = itemJson.nameTag;
+    return items;
+  }
+};
+var ItemConvert = ItemConverter.getInstance();
+
 // scripts/Plugins/ItemStacker/Functions/GetStackItem.ts
 function* StackingItem() {
   if (system4.currentTick % 2 !== 0) {
@@ -889,7 +963,7 @@ function* StackingItem() {
           target.remove();
         }
       }
-      itemStackData.set(en.id, { amount: totalAmount + item.amount, item, life: system4.currentTick, currAmount: totalAmount });
+      itemStackData.set(en.id, { amount: totalAmount + item.amount, item: ItemConvert.ItemToJson(item), life: system4.currentTick, currAmount: totalAmount, nowAmount: en.getComponent("item").itemStack.amount });
       ItemListStack.delete(en);
       yield;
     }
@@ -899,7 +973,7 @@ function* StackingItem() {
       if (en && en.isValid()) {
         const data = itemStackData.get(en.id);
         const item = en.getComponent("item").itemStack;
-        itemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount });
+        itemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount, nowAmount: en.getComponent("item").itemStack.amount });
       }
       yield;
     }
@@ -928,6 +1002,27 @@ function getTimeRemaining(minutes, seconds, referenceTick) {
   return { m: diffMinutes, s: diffSeconds };
 }
 
+// scripts/Plugins/ItemStacker/Functions/GetColorCode.ts
+function getItemColorCode(amount) {
+  if (amount >= 12960)
+    return "\xA79";
+  if (amount >= 2160)
+    return "\xA7b";
+  if (amount >= 1080)
+    return "\xA7a";
+  if (amount >= 108)
+    return "\xA7e";
+  if (amount >= 77)
+    return "\xA7g";
+  if (amount >= 66)
+    return "\xA7p";
+  if (amount >= 36)
+    return "\xA76";
+  if (amount >= 18)
+    return "\xA7v";
+  return "\xA7c";
+}
+
 // scripts/Plugins/ItemStacker/Functions/SeeingItem.ts
 function* SeeingItem() {
   const ListStack = [...itemStackData.keys()];
@@ -939,7 +1034,8 @@ function* SeeingItem() {
       if (itemData && en.isValid() && isLoaded) {
         const timeData = getTimeRemaining(5, 30, itemData.life);
         let text = DisplayText.get("itemStack");
-        text = text.replace(/%a/g, `${itemData.amount}`);
+        text = `\xA7e>> ` + text;
+        text = text.replace(/%a/g, `${getItemColorCode(itemData.amount)}${itemData.amount}\xA7r`);
         text = text.replace(/%n/g, ItemsToName(en));
         text = text.replace(/%m/g, `${Math.max(timeData.m, 0)}`);
         text = text.replace(/%s/g, `${timeData.s}`);
@@ -965,6 +1061,12 @@ function* SeeingItem() {
   system6.runJob(SeeingItem());
 }
 
+// scripts/Plugins/ItemStacker/Functions/GetSizeStack.ts
+function getSizeStack(current, amount, maxStack) {
+  const remaining = amount - current;
+  return [...Array(Math.floor(remaining / maxStack)).fill(maxStack), remaining % maxStack].filter(Boolean);
+}
+
 // scripts/Plugins/ItemStacker/index.ts
 var ItemStacker = class extends Plugins {
   constructor(name) {
@@ -987,27 +1089,45 @@ var ItemStacker = class extends Plugins {
       const location = ev.removedEntity.location;
       const dim = ev.removedEntity.dimension.id;
       const id = ev.removedEntity.id;
-      const itemC = ev.removedEntity.getComponent("item").itemStack;
       system7.run(() => {
-        const itemData = itemStackData.get(id);
-        if (!itemData)
-          return;
-        const itemToSpawn = itemData.amount - itemC.amount;
-        console.log(itemToSpawn, itemData.amount, itemC.amount);
-        if (itemToSpawn > 0) {
-          const itemStackSpawn = itemData.item;
-          if (itemToSpawn > itemData.item.maxAmount)
-            itemStackSpawn.amount = itemData.item.maxAmount;
-          else
-            itemStackSpawn.amount = itemToSpawn;
-          const itemSetData = itemData;
-          itemSetData.currAmount = itemData.currAmount - itemStackSpawn.amount;
-          itemSetData.amount -= itemC.amount + itemStackSpawn.amount;
-          const enBase = world11.getDimension(dim).spawnItem(itemStackSpawn, location);
-          enBase.teleport({ x: location.x, y: location.y, z: location.z });
-          itemStackData.set(enBase.id, itemSetData);
+        try {
+          const itemData = itemStackData.get(id);
+          if (!itemData)
+            return;
+          const itemToSpawn = itemData.amount - itemData.nowAmount;
+          if (itemToSpawn > 0) {
+            const itemStackSpawn = ItemConvert.JsonToItem(itemData.item).clone ? ItemConvert.JsonToItem(itemData.item).clone() : new ItemStack3(itemData.item.typeId, itemData.item.amount);
+            itemStackSpawn.amount = itemToSpawn <= itemStackSpawn.maxAmount ? itemToSpawn : itemStackSpawn.maxAmount;
+            const itemSetData = { ...itemData };
+            itemSetData.currAmount -= itemStackSpawn.amount;
+            itemSetData.amount -= itemStackSpawn.amount;
+            const enBase = world11.getDimension(dim).spawnItem(itemStackSpawn, { ...location, y: location.y + 100 });
+            itemStackData.set(enBase.id, itemSetData);
+            system7.run(() => {
+              enBase.teleport({ x: location.x, y: location.y, z: location.z });
+            });
+          }
+          itemStackData.delete(id);
+        } catch (e) {
+          console.warn("Hopper Detected.");
+          const itemData = itemStackData.get(id);
+          system7.run(() => {
+            const itemStack = ItemConvert.JsonToItem(itemData.item);
+            const sizeStack = getSizeStack(itemData.amount - itemData.currAmount, itemData.amount, itemStack.maxAmount);
+            const itemStackSpawn = ItemConvert.JsonToItem(itemData.item).clone ? ItemConvert.JsonToItem(itemData.item).clone() : new ItemStack3(itemData.item.typeId, itemData.item.amount);
+            sizeStack.forEach((item) => {
+              itemStackSpawn.amount = item;
+              const enBase = world11.getDimension(dim).spawnItem(ItemConvert.JsonToItem(itemStackSpawn), location);
+              enBase.addTag("fakeItem");
+              system7.runTimeout(() => {
+                if (enBase.isValid()) {
+                  ItemListStack.add(enBase);
+                }
+              }, 40);
+            });
+          });
+          itemStackData.delete(id);
         }
-        itemStackData.delete(id);
       });
     });
   }
@@ -1060,10 +1180,10 @@ var PluginManagers = class extends Plugins {
 };
 
 // scripts/Plugins/MobStacker/index.ts
-import { EntityDamageCause, system as system9, world as world14 } from "@minecraft/server";
+import { EntityDamageCause, EntityEquippableComponent, EquipmentSlot, system as system9, world as world14 } from "@minecraft/server";
 
 // scripts/Plugins/MobStacker/Functions/GetEntitiesNearBy.ts
-import { EntityLeashableComponent } from "@minecraft/server";
+import { EntityLeashableComponent, EntityScaleComponent } from "@minecraft/server";
 function getEntitiesNearBy(dimension, en, raduis = 10) {
   const allEn = dimension.getEntities({ location: en.location, maxDistance: raduis, type: en.typeId }).filter((x) => x.id !== en.id).filter((x) => !resetEntities.has(x)).filter((x) => x.hasComponent("is_baby") == en.hasComponent("is_baby")).filter((x) => x.getVelocity().x + x.getVelocity().y + x.getVelocity().z !== 0).filter((x) => !x.hasComponent("is_tamed")).filter((x) => {
     if (x.hasComponent(EntityLeashableComponent.componentId)) {
@@ -1078,6 +1198,11 @@ function getEntitiesNearBy(dimension, en, raduis = 10) {
     if (!(x.nameTag && en.nameTag))
       return true;
     return false;
+  }).filter((x) => {
+    if (!x.hasComponent(EntityScaleComponent.componentId))
+      return true;
+    if (x.getComponent(EntityScaleComponent.componentId).value !== en.getComponent(EntityScaleComponent.componentId).value)
+      return false;
   });
   return allEn;
 }
@@ -1140,8 +1265,31 @@ var MobStacker = class extends Plugins {
     new CustomEvents(this.name).EntityDie((ev) => {
       if (ev.damageSource.cause == EntityDamageCause.none || ev.damageSource.cause == EntityDamageCause.selfDestruct)
         return;
-      if (ev.deadEntity.nameTag && ev.deadEntity.nameTag.includes("\xA7m\xA7r\xA7c")) {
-        const currAmount = (ev.deadEntity.nameTag ?? "").includes("\xA7m\xA7r\xA7c") ? parseInt(ev.deadEntity.nameTag.split("\xA7m\xA7r\xA7c")[1]) : 1;
+      const currAmount = (ev.deadEntity.nameTag ?? "").includes("\xA7m\xA7r\xA7c") ? parseInt(ev.deadEntity.nameTag.split("\xA7m\xA7r\xA7c")[1]) : 1;
+      const MobDeathMode = new JsonDatabase("MobDeathMode", ev.damageSource.damagingEntity);
+      if (MobDeathMode.get("mode") == 0) {
+        const spawnClone = spawnEntityClone(ev.deadEntity);
+        for (let i = 0; i < currAmount; i++) {
+          const { x, y, z } = spawnClone.location;
+          const randomTag = Array.from(
+            { length: Math.floor(Math.random() * 13) + 1 },
+            () => String.fromCharCode(
+              Math.random() < 0.5 ? Math.floor(Math.random() * 26) + 65 : Math.floor(Math.random() * 26) + 97
+              // a-z
+            )
+          ).join("");
+          const itemHeld = ev.damageSource.damagingEntity.getComponent(EntityEquippableComponent.componentId).getEquipment(EquipmentSlot.Mainhand);
+          console.warn(i, randomTag, itemHeld.typeId);
+          spawnClone.addTag(randomTag);
+          if (itemHeld) {
+            ev.damageSource.damagingEntity.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] ${itemHeld.typeId}`);
+            console.warn(`loot spawn ${Math.round(x)} ${Math.round(y)} ${Math.round(z)} kill @e[tag=${randomTag}] ${itemHeld.typeId}`);
+          } else {
+            spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+          }
+        }
+        spawnClone.remove();
+      } else if (ev.deadEntity.nameTag && ev.deadEntity.nameTag.includes("\xA7m\xA7r\xA7c")) {
         if (currAmount - 1 <= 0) {
           return;
         } else {
@@ -1153,9 +1301,12 @@ var MobStacker = class extends Plugins {
       }
     });
     new CustomEvents(this.name).Tick(40, () => {
-      ["overworld", "nether", "the_end"].forEach(async (dimid) => {
+      for (const player of world14.getPlayers()) {
+        const dimid = player.dimension.id;
         allEntities.clear();
-        world14.getDimension(dimid).getEntities().filter((x) => !resetEntities.has(x)).filter((x) => [...UnStackMob.keys()].some((b) => b == x.typeId)).forEach((en) => {
+        world14.getDimension(dimid).getEntities().filter(
+          (x) => !resetEntities.has(x) && [...UnStackMob.keys()].some((b) => b == x.typeId) && x.location && !allEntities.has(x)
+        ).forEach((en) => {
           allEntities.add(en);
         });
         for (const entity of allEntities) {
@@ -1173,11 +1324,8 @@ var MobStacker = class extends Plugins {
           const currAmount = (entity.nameTag ?? "").includes("\xA7m\xA7r\xA7c") ? parseInt(entity.nameTag.split("\xA7m\xA7r\xA7c")[1]) : 1;
           entity.nameTag = `\xA7e>> \xA7m\xA7r\xA7c${removedAmount + currAmount}\xA7m\xA7r\xA7c\xA77x\xA7r \xA77${EntityToName(entity)}`;
           allEntities.clear();
-          world14.getDimension(dimid).getEntities().filter((x) => !resetEntities.has(x)).filter((x) => [...UnStackMob.keys()].some((b) => b == x.typeId)).forEach((en) => {
-            allEntities.add(en);
-          });
         }
-      });
+      }
     });
   }
 };
@@ -1374,6 +1522,16 @@ var ListSetting = {
           });
         }
         return null;
+      },
+      "\u0E42\u0E2B\u0E21\u0E14\u0E01\u0E32\u0E23\u0E15\u0E32\u0E22\u0E02\u0E2D\u0E07\u0E21\u0E47\u0E2D\u0E1A": (bool = false) => {
+        const MobDeathMode = new JsonDatabase("MobDeathMode", pl);
+        if (bool) {
+          pl.playSound("random.pop");
+          MobDeathMode.set("mode", MobDeathMode.get("mode") === 0 ? 1 : 0);
+          pl.sendMessage(`\xA77[\xA7f${name}\xA77]\xA7r\xA7f:\xA7r \u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E42\u0E2B\u0E21\u0E14\u0E01\u0E32\u0E23\u0E15\u0E32\u0E22\u0E02\u0E2D\u0E07\u0E21\u0E47\u0E2D\u0E1A (${MobDeathMode.get("mode") === 0 ? "\xA7c\u0E15\u0E32\u0E22\u0E17\u0E31\u0E49\u0E07\u0E2B\u0E21\u0E14" : "\xA72\u0E15\u0E32\u0E22\u0E17\u0E35\u0E25\u0E30\u0E15\u0E31\u0E27"}\xA7r)`);
+          return `\u0E42\u0E2B\u0E21\u0E14\u0E01\u0E32\u0E23\u0E15\u0E32\u0E22\u0E02\u0E2D\u0E07\u0E21\u0E47\u0E2D\u0E1A (${MobDeathMode.get("mode") == 0 ? "\xA72\u0E15\u0E32\u0E22\u0E17\u0E31\u0E49\u0E07\u0E2B\u0E21\u0E14" : "\xA76\u0E15\u0E32\u0E22\u0E17\u0E35\u0E25\u0E30\u0E15\u0E31\u0E27"})`;
+        }
+        return `\u0E42\u0E2B\u0E21\u0E14\u0E01\u0E32\u0E23\u0E15\u0E32\u0E22\u0E02\u0E2D\u0E07\u0E21\u0E47\u0E2D\u0E1A (${MobDeathMode.get("mode") == 0 ? "\xA7c\u0E15\u0E32\u0E22\u0E17\u0E31\u0E49\u0E07\u0E2B\u0E21\u0E14" : "\xA72\u0E15\u0E32\u0E22\u0E17\u0E35\u0E25\u0E30\u0E15\u0E31\u0E27"}\xA7r)`;
       }
     };
   }
@@ -1511,5 +1669,6 @@ function main() {
 world17.afterEvents.worldInitialize.subscribe((ev) => {
   system11.run(main);
 });
+console.warn("Plugins loaded successfully!");
 
 //# sourceMappingURL=../debug/Index.js.map

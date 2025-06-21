@@ -13,3 +13,6 @@ function main() {
 world.afterEvents.worldInitialize.subscribe((ev) => {
   system.run(main);
 })
+
+console.warn("Plugins loaded successfully!");
+  //         itemStackData.delete(id);

@@ -11,9 +11,9 @@ export let isLoaded: boolean = false;
 system.run(() => {
   itemStackData = new JsonDatabase("ItemStacker", world);
   UnStackItem = new JsonDatabase("UnStackItem", world);
-  DisplayText = new JsonDatabase("DisplayText", world);
+  DisplayText = new JsonDatabase("DisplayText_New1", world);
   if (!DisplayText.has("itemStack")) {
-    DisplayText.set("itemStack", "§7x§c%a §e%n§r\n§7Respawn in %m§am §7%s§as§r")
+    DisplayText.set("itemStack", "§7x§c%a §r%n§r")
   }
   UnStackMob = new JsonDatabase("UnStackMob", world);
   if (UnStackMob.size == 0) {
