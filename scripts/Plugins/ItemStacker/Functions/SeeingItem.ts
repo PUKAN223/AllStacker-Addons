@@ -14,10 +14,10 @@ export function* SeeingItem(): Generator<void, void, void> {
     for (const en of filterEntitys) {
       const itemData = itemStackData.get(en.id) as { amount: number, item: ItemStack, life: number };
       if (itemData && en.isValid() && isLoaded) {
-        const timeData = getTimeRemaining(5, 30, itemData.life)
+        const timeData = getTimeRemaining(2, 30, itemData.life)
         let text = DisplayText.get("itemStack") as string;
         text = `§e>> ` + text
-        text = text.replace(/%a/g, `${getItemColorCode(itemData.amount)}${itemData.amount}§r`)
+        text = text.replace(/%a/g, `${getItemColorCode(itemData.amount)}x${itemData.amount}§r§i`)
         text = text.replace(/%n/g, ItemsToName(en))
         text = text.replace(/%m/g, `${Math.max(timeData.m, 0)}`)
         text = text.replace(/%s/g, `${timeData.s}`)
@@ -29,13 +29,12 @@ export function* SeeingItem(): Generator<void, void, void> {
     for (const en of allEnititys) {
       const itemData = itemStackData.get(en.id) as { amount: number, item: ItemStack, life: number };
       if (itemData && en.isValid()) {
-        const timeData = getTimeRemaining(5, 30, itemData.life)
+        const timeData = getTimeRemaining(2, 30, itemData.life)
         if (timeData.m < 0) {
           itemStackData.delete(en.id);
           en.addTag("fakeItem")
           en.remove()
-        } else if (system.currentTick % 20 == 0) en.nameTag = ``;
-        yield;
+        }
       }
     }
     yield;
