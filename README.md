@@ -251,7 +251,7 @@ English & Thai support
 
 <br>
 
-## 🤝 Community & Support
+## 🤝 Support
 
 <div align="center">
 <table>
