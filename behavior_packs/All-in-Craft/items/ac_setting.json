@@ -1,5 +1,5 @@
 {
-	"format_version": "1.20.80",
+	"format_version": "1.21.90",
 	"minecraft:item": {
 		"description": {
 			"identifier": "kisu:ac_setting",
@@ -8,7 +8,16 @@
 			}
 		},
 		"components": {
-			"minecraft:icon": "bridge_ac_setting"
+			"minecraft:icon": {
+				"textures": {
+					"default": "bridge_ac_setting"
+				}
+			},
+			"minecraft:display_name": {
+				"value": "All Stackers Settings\n§7[ Click to open ]§r"
+			},
+			"minecraft:max_stack_size": 1,
+			"kisu:show_config": {}
 		}
 	}
 }

@@ -22,8 +22,9 @@
   },
   "dependencies": {
     "@mbext/database": "^1.0.2",
-    "@minecraft/server": "^1.19.0",
-    "@minecraft/server-ui": "^1.3.0",
+    "@minecraft/math": "^2.2.8",
+    "@minecraft/server": "^2.0.0",
+    "@minecraft/server-ui": "^2.0.0",
     "yazl": "^3.3.1",
     "yn": "^5.0.0"
   },

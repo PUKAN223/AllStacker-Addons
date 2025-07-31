@@ -1,4 +1,6 @@
 {
+	"resource_pack_name": "item_textures",
+	"texture_name": "atlas.items",
 	"texture_data": {
 		"bridge_ac_setting": {
 			"textures": "textures/items/icon_setting"

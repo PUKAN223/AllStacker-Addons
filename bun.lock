@@ -5,8 +5,9 @@
       "name": "all-in-craft",
       "dependencies": {
         "@mbext/database": "^1.0.2",
-        "@minecraft/server": "^1.19.0",
-        "@minecraft/server-ui": "^1.3.0",
+        "@minecraft/math": "^2.2.8",
+        "@minecraft/server": "^2.0.0",
+        "@minecraft/server-ui": "^2.0.0",
         "yazl": "^3.3.1",
         "yn": "^5.0.0",
       },
@@ -104,9 +105,11 @@
 
     "@minecraft/core-build-tasks": ["@minecraft/core-build-tasks@1.2.1", "", { "dependencies": { "@microsoft/api-extractor": "^7.38.3", "@rushstack/node-core-library": "^3.59.6", "dotenv": "^16.4.5", "esbuild": "^0.20.1", "just-scripts": "^2.3.2", "prettier": "^2.8.2", "rimraf": "^3.0.2", "vitest": "^0.34.6", "zip-lib": "^0.7.3" } }, "sha512-QnOXLmY8eHbh2AIU8YemohT2NdiNJEO4WpoiqTBYb7QaxbSnFQ+dab4lFNb0rlYDH+aWh9vKfqfTy46VvqGCQw=="],
 
-    "@minecraft/server": ["@minecraft/server@1.19.0", "", { "dependencies": { "@minecraft/common": "^1.1.0" }, "peerDependencies": { "@minecraft/vanilla-data": ">=1.20.70" } }, "sha512-Nq42tLYRcH8AIxpBq1F9/sXia75Vp7k7SXnV+t+yaFNKHwE7LZIfJ3TSbQ4THWTbf1VjwnbSUfJ0qVb3aTDCug=="],
+    "@minecraft/math": ["@minecraft/math@2.2.8", "", { "peerDependencies": { "@minecraft/server": "^1.15.0 || ^2.0.0" } }, "sha512-uhOYDy1i7WY6d2gyTQy4WAqXAoB3i7O4/R1S82E9MDZOdkOwyoeEXZa4SCzLfY7dRjrXQp6fF+lDtxqV8NhHAg=="],
 
-    "@minecraft/server-ui": ["@minecraft/server-ui@1.3.0", "", { "dependencies": { "@minecraft/common": "^1.0.0", "@minecraft/server": "^1.3.0" } }, "sha512-Vgo7s+gxjHaNmm8lYTW+HL1JguyZggsn1UB86++eqV1KoRlLnqJH1wBJU2OIb1kQ6HXH0pnL206pxmRy7lmmjg=="],
+    "@minecraft/server": ["@minecraft/server@2.0.0", "", { "dependencies": { "@minecraft/common": "^1.1.0" }, "peerDependencies": { "@minecraft/vanilla-data": ">=1.20.70" } }, "sha512-X2LmT82eO0oCjOFaFgg6zoGenAUSyrG+YvIbe7/FSPj9hpMt4BtOIs7axoQUUvMx2NNbq8uEsnQadMMrDDBmUA=="],
+
+    "@minecraft/server-ui": ["@minecraft/server-ui@2.0.0", "", { "dependencies": { "@minecraft/common": "^1.0.0", "@minecraft/server": "^2.0.0" } }, "sha512-K1xFK1OEJSNfIgyRElaoxDTW/nbEqjBp1YnUdyPCs4kGDglwoXNyFz3wzMOkvT04CJXSifZGcTJeWda4C6OkXw=="],
 
     "@minecraft/vanilla-data": ["@minecraft/vanilla-data@1.21.80", "", {}, "sha512-wm6GkTrVbl/8oFFyXL7iDaYj1a+sH6fpYthonxCmoWK/48mf1x1ZvrTZB1rdJFnMo7euNDMnib6uXut6qFmzpw=="],
 

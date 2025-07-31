@@ -15,7 +15,7 @@
  * ```json
  * {
  *   "module_name": "@minecraft/server",
- *   "version": "1.19.0"
+ *   "version": "2.0.0"
  * }
  * ```
  *
@@ -28,7 +28,7 @@ import type * as minecraftvanilladata from '@minecraft/vanilla-data';
  * function Block.getComponent.
  */
 export enum BlockComponentTypes {
-    FluidContainer = 'minecraft:fluidContainer',
+    FluidContainer = 'minecraft:fluid_container',
     /**
      * @remarks
      * Represents the inventory of a block in the world. Used with
@@ -481,15 +481,6 @@ export enum EntityComponentTypes {
      *
      */
     FrictionModifier = 'minecraft:friction_modifier',
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Sets the offset from the ground that the entity is actually
-     * at.
-     *
-     */
-    GroundOffset = 'minecraft:ground_offset',
     /**
      * @remarks
      * Defines the interactions with this entity for healing it.
@@ -1036,15 +1027,6 @@ export enum EntityDamageCause {
      */
     suffocation = 'suffocation',
     /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Damage caused by an Entity killing itself. For example, from
-     * the /kill command.
-     *
-     */
-    suicide = 'suicide',
-    /**
      * @remarks
      * Damage caused by an Entity being in an inhabitable climate.
      * For example, a Snow Golem in a biome with a temperature
@@ -1203,7 +1185,7 @@ export enum GameMode {
      * not be manipulated.
      *
      */
-    adventure = 'adventure',
+    Adventure = 'Adventure',
     /**
      * @remarks
      * World is in a full creative mode. In creative mode, the
@@ -1215,7 +1197,7 @@ export enum GameMode {
      * disappear.
      *
      */
-    creative = 'creative',
+    Creative = 'Creative',
     /**
      * @remarks
      * World is in spectator mode. In spectator mode, spectators
@@ -1227,7 +1209,7 @@ export enum GameMode {
      * transparent floating head.
      *
      */
-    spectator = 'spectator',
+    Spectator = 'Spectator',
     /**
      * @remarks
      * World is in a survival mode, where players can take damage
@@ -1237,7 +1219,7 @@ export enum GameMode {
      * time, chip away at player health and hunger bar.
      *
      */
-    survival = 'survival',
+    Survival = 'Survival',
 }
 
 /**
@@ -1494,6 +1476,43 @@ export enum GameRule {
      *
      */
     TntExplosionDropDecay = 'tntExplosionDropDecay',
+}
+
+/**
+ * Describes the graphics mode of a client. Used by {@link
+ * Player.graphicsMode}
+ */
+export enum GraphicsMode {
+    /**
+     * @remarks
+     * A graphics mode that refers to the Deferred Technical
+     * Preview graphics mode setting.
+     *
+     */
+    Deferred = 'Deferred',
+    /**
+     * @remarks
+     * A graphics mode that refers to the Fancy graphics mode
+     * setting. Most special graphics effects are turned on in this
+     * setting.
+     *
+     */
+    Fancy = 'Fancy',
+    /**
+     * @remarks
+     * A graphics mode that refers to the Ray Traced graphics mode
+     * setting. This setting enables ray tracing.
+     *
+     */
+    RayTraced = 'RayTraced',
+    /**
+     * @remarks
+     * A graphics mode that refers to the Simple graphics mode
+     * setting. Most graphics effects are turned off in this
+     * setting.
+     *
+     */
+    Simple = 'Simple',
 }
 
 export enum HudElement {
@@ -2249,6 +2268,56 @@ export enum TimeOfDay {
 }
 
 /**
+ * Tint logic applied to a block or part of a block. The color
+ * may vary when a world position is part of the context, as
+ * biomes often have an influence on the resulting tint.
+ */
+export enum TintMethod {
+    /**
+     * @remarks
+     * Specifies a birch foliage tint method.
+     *
+     */
+    BirchFoliage = 'BirchFoliage',
+    /**
+     * @remarks
+     * Specifies a default foliage tint method.
+     *
+     */
+    DefaultFoliage = 'DefaultFoliage',
+    /**
+     * @remarks
+     * Specifies a dry foliage tint method.
+     *
+     */
+    DryFoliage = 'DryFoliage',
+    /**
+     * @remarks
+     * Specifies an evergreen foliage tint method.
+     *
+     */
+    EvergreenFoliage = 'EvergreenFoliage',
+    /**
+     * @remarks
+     * Specifies a grass tint method.
+     *
+     */
+    Grass = 'Grass',
+    /**
+     * @remarks
+     * Specifies no tint method, resulting in a white tint.
+     *
+     */
+    None = 'None',
+    /**
+     * @remarks
+     * Specifies a water tint method.
+     *
+     */
+    Water = 'Water',
+}
+
+/**
  * Used to specify the type of weather condition within the
  * world.
  */
@@ -2275,13 +2344,15 @@ export enum WeatherType {
 
 export type BlockComponentReturnType<T extends string> = T extends keyof BlockComponentTypeMap
     ? BlockComponentTypeMap[T]
-    : BlockComponent;
+    : BlockCustomComponentInstance;
 
 export type BlockComponentTypeMap = {
-    fluidContainer: BlockFluidContainerComponent;
+    fluid_container: BlockFluidContainerComponent;
     inventory: BlockInventoryComponent;
-    'minecraft:fluidContainer': BlockFluidContainerComponent;
+    map_color: BlockMapColorComponent;
+    'minecraft:fluid_container': BlockFluidContainerComponent;
     'minecraft:inventory': BlockInventoryComponent;
+    'minecraft:map_color': BlockMapColorComponent;
     'minecraft:piston': BlockPistonComponent;
     'minecraft:record_player': BlockRecordPlayerComponent;
     'minecraft:sign': BlockSignComponent;
@@ -2321,7 +2392,6 @@ export type EntityComponentTypeMap = {
     floats_in_liquid: EntityFloatsInLiquidComponent;
     flying_speed: EntityFlyingSpeedComponent;
     friction_modifier: EntityFrictionModifierComponent;
-    ground_offset: EntityGroundOffsetComponent;
     healable: EntityHealableComponent;
     health: EntityHealthComponent;
     inventory: EntityInventoryComponent;
@@ -2356,7 +2426,6 @@ export type EntityComponentTypeMap = {
     'minecraft:floats_in_liquid': EntityFloatsInLiquidComponent;
     'minecraft:flying_speed': EntityFlyingSpeedComponent;
     'minecraft:friction_modifier': EntityFrictionModifierComponent;
-    'minecraft:ground_offset': EntityGroundOffsetComponent;
     'minecraft:healable': EntityHealableComponent;
     'minecraft:health': EntityHealthComponent;
     'minecraft:inventory': EntityInventoryComponent;
@@ -2441,7 +2510,7 @@ export type EntityComponentTypeMap = {
 
 export type ItemComponentReturnType<T extends string> = T extends keyof ItemComponentTypeMap
     ? ItemComponentTypeMap[T]
-    : ItemComponent;
+    : ItemCustomComponentInstance;
 
 export type ItemComponentTypeMap = {
     compostable: ItemCompostableComponent;
@@ -2496,6 +2565,14 @@ export class Block {
      * {@link LocationOutOfWorldBoundariesError}
      */
     readonly isLiquid: boolean;
+    /**
+     * @remarks
+     * Returns true if this reference to a block is still valid
+     * (for example, if the block is unloaded, references to that
+     * block will no longer be valid.)
+     *
+     */
+    readonly isValid: boolean;
     /**
      * @remarks
      * Returns or sets whether this block has water on it.
@@ -2786,18 +2863,6 @@ export class Block {
      */
     isLiquidBlocking(liquidType: LiquidType): boolean;
     /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns true if this reference to a block is still valid
-     * (for example, if the block is unloaded, references to that
-     * block will no longer be valid.)
-     *
-     * @returns
-     * True if this block object is still working and valid.
-     */
-    isValid(): boolean;
-    /**
      * @remarks
      * Returns whether liquid can flow into the block from the
      * provided direction, or flow out from the provided direction
@@ -3023,22 +3088,22 @@ export class BlockComponentOnPlaceEvent extends BlockEvent {
 }
 
 /**
- * Contains information regarding a specific block being
- * destroyed.
+ * Contains information regarding a specific block being broken
+ * by a player.
  */
 // @ts-ignore Class inheritance allowed for native defined classes
-export class BlockComponentPlayerDestroyEvent extends BlockEvent {
+export class BlockComponentPlayerBreakEvent extends BlockEvent {
     private constructor();
     /**
      * @remarks
      * Returns permutation information about this block before it
-     * was destroyed.
+     * was broken.
      *
      */
-    readonly destroyedBlockPermutation: BlockPermutation;
+    readonly brokenBlockPermutation: BlockPermutation;
     /**
      * @remarks
-     * The player that destroyed this block.
+     * The player that broke this block.
      *
      */
     readonly player?: Player;
@@ -3119,6 +3184,9 @@ export class BlockComponentRandomTickEvent extends BlockEvent {
 export class BlockComponentRegistry {
     private constructor();
     /**
+     * @remarks
+     * This function can be called in early-execution mode.
+     *
      * @throws This function can throw errors.
      *
      * {@link BlockCustomComponentAlreadyRegisteredError}
@@ -3131,9 +3199,9 @@ export class BlockComponentRegistry {
      *
      * {@link CustomComponentInvalidRegistryError}
      *
-     * {@link CustomComponentNameError}
-     *
      * {@link minecraftcommon.EngineError}
+     *
+     * {@link NamespaceNameError}
      */
     registerCustomComponent(name: string, customComponent: BlockCustomComponent): void;
 }
@@ -3174,6 +3242,15 @@ export class BlockComponentStepOnEvent extends BlockEvent {
 // @ts-ignore Class inheritance allowed for native defined classes
 export class BlockComponentTickEvent extends BlockEvent {
     private constructor();
+}
+
+/**
+ * An instance of a custom component on a block.
+ */
+// @ts-ignore Class inheritance allowed for native defined classes
+export class BlockCustomComponentInstance extends BlockComponent {
+    private constructor();
+    readonly customComponentParameters: CustomComponentParameters;
 }
 
 /**
@@ -3271,7 +3348,7 @@ export class BlockFluidContainerComponent extends BlockComponent {
      *
      */
     fluidColor: RGBA;
-    static readonly componentId = 'minecraft:fluidContainer';
+    static readonly componentId = 'minecraft:fluid_container';
     /**
      * @remarks
      * Adds a dye to the fluid. The dye color is combined with any
@@ -3391,6 +3468,36 @@ export class BlockLocationIterator implements Iterable<Vector3> {
      *
      */
     next(): IteratorResult<Vector3>;
+}
+
+/**
+ * Represents the color of a block when displayed on a map.
+ */
+// @ts-ignore Class inheritance allowed for native defined classes
+export class BlockMapColorComponent extends BlockComponent {
+    private constructor();
+    /**
+     * @remarks
+     * Base map color defined for that block.
+     *
+     * @throws This property can throw when used.
+     */
+    readonly color: RGBA;
+    /**
+     * @remarks
+     * Returns the base color multiplied to the evaluated tint at
+     * the given position.
+     *
+     */
+    readonly tintedColor: RGBA;
+    /**
+     * @remarks
+     * Type of tint applied to the color.
+     *
+     * @throws This property can throw when used.
+     */
+    readonly tintMethod: TintMethod;
+    static readonly componentId = 'minecraft:map_color';
 }
 
 /**
@@ -4257,9 +4364,29 @@ export class ButtonPushAfterEvent extends BlockEvent {
  * }
  * ```
  */
-// @ts-ignore Class inheritance allowed for native defined classes
-export class ButtonPushAfterEventSignal extends IButtonPushAfterEventSignal {
+export class ButtonPushAfterEventSignal {
     private constructor();
+    /**
+     * @remarks
+     * Adds a callback that will be called when a button is pushed.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    subscribe(callback: (arg0: ButtonPushAfterEvent) => void): (arg0: ButtonPushAfterEvent) => void;
+    /**
+     * @remarks
+     * Removes a callback from being called when a button is
+     * pushed.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    unsubscribe(callback: (arg0: ButtonPushAfterEvent) => void): void;
 }
 
 /**
@@ -4268,6 +4395,14 @@ export class ButtonPushAfterEventSignal extends IButtonPushAfterEventSignal {
  */
 export class Camera {
     private constructor();
+    /**
+     * @remarks
+     * Returns whether the Camera is valid to access and use. A
+     * Camera is considered valid when the owning Player of the
+     * Camera is loaded and valid itself.
+     *
+     */
+    readonly isValid: boolean;
     /**
      * @remarks
      * Clears the active camera for the specified player. Causes
@@ -4307,7 +4442,6 @@ export class Camera {
     setCamera(
         cameraPreset: string,
         setOptions?:
-            | CameraDefaultOptions
             | CameraFixedBoomOptions
             | CameraSetFacingOptions
             | CameraSetLocationOptions
@@ -4315,6 +4449,22 @@ export class Camera {
             | CameraSetRotOptions
             | CameraTargetOptions,
     ): void;
+    /**
+     * @remarks
+     * Sets the current active camera for the specified player and
+     * resets the position and rotation to the values defined in
+     * the JSON.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * @param cameraPreset
+     * Identifier of a camera preset file defined within JSON.
+     * @param easeOptions
+     * Options to ease the camera back to its original position and
+     * rotation.
+     * @throws This function can throw errors.
+     */
+    setDefaultCamera(cameraPreset: string, easeOptions?: EaseOptions): void;
 }
 
 /**
@@ -4359,23 +4509,19 @@ export class Component {
     private constructor();
     /**
      * @remarks
-     * Identifier of the component.
-     *
-     */
-    readonly typeId: string;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
      * Returns whether the component is valid. A component is
      * considered valid if its owner is valid, in addition to any
      * addition to any additional validation required by the
      * component.
      *
-     * @returns
-     * Whether the component is valid.
      */
-    isValid(): boolean;
+    readonly isValid: boolean;
+    /**
+     * @remarks
+     * Identifier of the component.
+     *
+     */
+    readonly typeId: string;
 }
 
 /**
@@ -4470,6 +4616,14 @@ export class Container {
     readonly emptySlotsCount: number;
     /**
      * @remarks
+     * Returns whether a container object (or the entity or block
+     * that this container is associated with) is still available
+     * for use in this context.
+     *
+     */
+    readonly isValid: boolean;
+    /**
+     * @remarks
      * The number of slots in this container. For example, a
      * standard single-block chest has a size of 27. Note, a
      * player's inventory container contains a total of 36 slots, 9
@@ -4491,6 +4645,10 @@ export class Container {
      * @param itemStack
      * The stack of items to add.
      * @throws This function can throw errors.
+     *
+     * {@link ContainerRulesError}
+     *
+     * {@link Error}
      */
     addItem(itemStack: ItemStack): ItemStack | undefined;
     /**
@@ -4552,16 +4710,6 @@ export class Container {
      */
     getSlot(slot: number): ContainerSlot;
     /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns whether a container object (or the entity or block
-     * that this container is associated with) is still available
-     * for use in this context.
-     *
-     */
-    isValid(): boolean;
-    /**
      * @remarks
      * Moves an item from one slot to another, potentially across
      * containers.
@@ -4580,6 +4728,10 @@ export class Container {
      * @throws
      * Throws if either this container or `toContainer` are invalid
      * or if the `fromSlot` or `toSlot` indices out of bounds.
+     *
+     * {@link ContainerRulesError}
+     *
+     * {@link Error}
      * @example moveBetweenContainers.ts
      * ```typescript
      * import { world, EntityInventoryComponent, EntityComponentTypes, DimensionLocation } from "@minecraft/server";
@@ -4624,6 +4776,10 @@ export class Container {
      * @throws
      * Throws if the container is invalid or if the `slot` index is
      * out of bounds.
+     *
+     * {@link ContainerRulesError}
+     *
+     * {@link Error}
      */
     setItem(slot: number, itemStack?: ItemStack): void;
     /**
@@ -4642,6 +4798,10 @@ export class Container {
      * @throws
      * Throws if either this container or `otherContainer` are
      * invalid or if the `slot` or `otherSlot` are out of bounds.
+     *
+     * {@link ContainerRulesError}
+     *
+     * {@link Error}
      */
     swapItems(slot: number, otherSlot: number, otherContainer: Container): void;
     /**
@@ -4663,6 +4823,10 @@ export class Container {
      * @throws
      * Throws if either this container or `toContainer` are invalid
      * or if the `fromSlot` or `toSlot` indices out of bounds.
+     *
+     * {@link ContainerRulesError}
+     *
+     * {@link Error}
      * @example transferBetweenContainers.ts
      * ```typescript
      * import { world, EntityInventoryComponent, EntityComponentTypes, DimensionLocation } from "@minecraft/server";
@@ -4725,6 +4889,14 @@ export class ContainerSlot {
      * {@link InvalidContainerSlotError}
      */
     readonly isStackable: boolean;
+    /**
+     * @remarks
+     * Returns whether the ContainerSlot is valid. The container
+     * slot is valid if the container exists and is loaded, and the
+     * slot index is valid.
+     *
+     */
+    readonly isValid: boolean;
     /**
      * @remarks
      * Gets or sets whether the item is kept on death.
@@ -4953,16 +5125,6 @@ export class ContainerSlot {
      */
     isStackableWith(itemStack: ItemStack): boolean;
     /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns whether the ContainerSlot is valid. The container
-     * slot is valid if the container exists and is loaded, and the
-     * slot index is valid.
-     *
-     */
-    isValid(): boolean;
-    /**
      * @remarks
      * The list of block types this item can break in Adventure
      * mode. The block names are displayed in the item's tooltip.
@@ -5029,6 +5191,8 @@ export class ContainerSlot {
      * @throws
      * Throws if the slot's container is invalid.
      *
+     * {@link ContainerRulesError}
+     *
      * {@link InvalidContainerSlotError}
      */
     setItem(itemStack?: ItemStack): void;
@@ -5050,6 +5214,20 @@ export class ContainerSlot {
      * {@link InvalidContainerSlotError}
      */
     setLore(loreList?: string[]): void;
+}
+
+/**
+ * Contains the custom component's JSON parameters
+ */
+export class CustomComponentParameters {
+    private constructor();
+    /**
+     * @remarks
+     * JSON object containing the parameters from the custom
+     * component definition
+     *
+     */
+    readonly params: unknown;
 }
 
 /**
@@ -5273,6 +5451,36 @@ export class Dimension {
      * {@link LocationOutOfWorldBoundariesError}
      */
     getBlock(location: Vector3): Block | undefined;
+    /**
+     * @remarks
+     * Gets the first block found above a given block location
+     * based on the given options (by default will find the first
+     * solid block above).
+     *
+     * This function can't be called in read-only mode.
+     *
+     * @param location
+     * Location to retrieve the block above from.
+     * @param options
+     * The options to decide if a block is a valid result.
+     * @throws This function can throw errors.
+     */
+    getBlockAbove(location: Vector3, options?: BlockRaycastOptions): Block | undefined;
+    /**
+     * @remarks
+     * Gets the first block found below a given block location
+     * based on the given options (by default will find the first
+     * solid block below).
+     *
+     * This function can't be called in read-only mode.
+     *
+     * @param location
+     * Location to retrieve the block below from.
+     * @param options
+     * The options to decide if a block is a valid result.
+     * @throws This function can throw errors.
+     */
+    getBlockBelow(location: Vector3, options?: BlockRaycastOptions): Block | undefined;
     /**
      * @remarks
      * Gets the first block that intersects with a vector emanating
@@ -5535,11 +5743,6 @@ export class Dimension {
      */
     runCommand(commandString: string): CommandResult;
     /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     * @throws This function can throw errors.
-     */
-    runCommandAsync(commandString: string): Promise<CommandResult>;
-    /**
      * @remarks
      * Sets a block in the world using a BlockPermutation.
      * BlockPermutations are blocks with a particular state.
@@ -5615,6 +5818,8 @@ export class Dimension {
      *
      * {@link Error}
      *
+     * {@link minecraftcommon.InvalidArgumentError}
+     *
      * {@link LocationInUnloadedChunkError}
      *
      * {@link LocationOutOfWorldBoundariesError}
@@ -5672,7 +5877,7 @@ export class Dimension {
      * }
      * ```
      */
-    spawnEntity(identifier: string, location: Vector3): Entity;
+    spawnEntity(identifier: EntityType | string, location: Vector3, options?: SpawnEntityOptions): Entity;
     /**
      * @remarks
      * Creates a new item stack as an entity at the specified
@@ -5839,20 +6044,18 @@ export class Effect {
     readonly duration: number;
     /**
      * @remarks
+     * Returns whether an effect instance is available for use in
+     * this context.
+     *
+     */
+    readonly isValid: boolean;
+    /**
+     * @remarks
      * Gets the type id of this effect.
      *
      * @throws This property can throw when used.
      */
     readonly typeId: string;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns whether an effect instance is available for use in
-     * this context.
-     *
-     */
-    isValid(): boolean;
 }
 
 /**
@@ -6158,6 +6361,14 @@ export class Entity {
     readonly isSwimming: boolean;
     /**
      * @remarks
+     * Returns whether the entity can be manipulated by script. A
+     * Player is considered valid when it's EntityLifetimeState is
+     * set to Loaded.
+     *
+     */
+    readonly isValid: boolean;
+    /**
+     * @remarks
      * Current location of the entity.
      *
      * @throws This property can throw when used.
@@ -6334,7 +6545,8 @@ export class Entity {
     /**
      * @remarks
      * Applies impulse vector to the current velocity of the
-     * entity.
+     * entity. Note that this method throws an error if called on
+     * Players and will have no impact.
      *
      * This function can't be called in read-only mode.
      *
@@ -6364,12 +6576,6 @@ export class Entity {
      *
      * This function can't be called in read-only mode.
      *
-     * @param directionX
-     * X direction in horizontal plane.
-     * @param directionZ
-     * Z direction in horizontal plane.
-     * @param horizontalStrength
-     * Knockback strength for the horizontal vector.
      * @param verticalStrength
      * Knockback strength for the vertical vector.
      * @throws This function can throw errors.
@@ -6395,7 +6601,7 @@ export class Entity {
      * }
      * ```
      */
-    applyKnockback(directionX: number, directionZ: number, horizontalStrength: number, verticalStrength: number): void;
+    applyKnockback(horizontalForce: VectorXZ, verticalStrength: number): void;
     /**
      * @remarks
      * Clears all dynamic properties that have been set on this
@@ -6407,7 +6613,8 @@ export class Entity {
     /**
      * @remarks
      * Sets the current velocity of the Entity to zero. Note that
-     * this method may not have an impact on Players.
+     * this method throws an error if called on Players and will
+     * have no impact.
      *
      * This function can't be called in read-only mode.
      *
@@ -6490,6 +6697,9 @@ export class Entity {
      * @returns
      * Returns the component if it exists on the entity, otherwise
      * undefined.
+     * @throws This function can throw errors.
+     *
+     * {@link InvalidEntityError}
      */
     getComponent<T extends string>(componentId: T): EntityComponentReturnType<T> | undefined;
     /**
@@ -6500,6 +6710,9 @@ export class Entity {
      * @returns
      * Returns all components that are both present on this entity
      * and supported by the API.
+     * @throws This function can throw errors.
+     *
+     * {@link InvalidEntityError}
      */
     getComponents(): EntityComponent[];
     /**
@@ -6668,6 +6881,9 @@ export class Entity {
      * @returns
      * Returns true if the specified component is present on this
      * entity.
+     * @throws This function can throw errors.
+     *
+     * {@link InvalidEntityError}
      */
     hasComponent(componentId: string): boolean;
     /**
@@ -6681,18 +6897,6 @@ export class Entity {
      * @throws This function can throw errors.
      */
     hasTag(tag: string): boolean;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns whether the entity can be manipulated by script. A
-     * Player is considered valid when it's EntityLifetimeState is
-     * set to Loaded.
-     *
-     * @returns
-     * Whether the entity is valid.
-     */
-    isValid(): boolean;
     /**
      * @remarks
      * Kills this entity. The entity will drop loot as normal.
@@ -6728,6 +6932,21 @@ export class Entity {
      * ```
      */
     kill(): boolean;
+    /**
+     * @remarks
+     * Sets the rotation of the entity to face a target location.
+     * Both pitch and yaw will be set, if applicable, such as for
+     * mobs where the pitch controls the head tilt and the yaw
+     * controls the body rotation.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * @param targetLocation
+     * The target location that this entity should face/look
+     * towards.
+     * @throws This function can throw errors.
+     */
+    lookAt(targetLocation: Vector3): void;
     /**
      * @remarks
      * Matches the entity against the passed in options. Uses the
@@ -6838,11 +7057,6 @@ export class Entity {
      * {@link InvalidEntityError}
      */
     runCommand(commandString: string): CommandResult;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     * @throws This function can throw errors.
-     */
-    runCommandAsync(commandString: string): Promise<CommandResult>;
     /**
      * @remarks
      * Sets a specified property to a value.
@@ -7193,12 +7407,17 @@ export class EntityAttributeComponent extends EntityComponent {
     resetToMinValue(): void;
     /**
      * @remarks
-     * Sets the current value of this attribute. The provided value
-     * will be clamped to the range of this attribute.
+     * Sets the current value of this attribute.
      *
      * This function can't be called in read-only mode.
      *
-     * @throws This function can throw errors.
+     * @throws
+     * If the value is out of bounds, an ArgumentOutOfBounds Error
+     * is thrown.
+     *
+     * {@link minecraftcommon.ArgumentOutOfBoundsError}
+     *
+     * {@link InvalidEntityError}
      */
     setCurrentValue(value: number): boolean;
 }
@@ -7379,6 +7598,9 @@ export class EntityComponent extends Component {
      * The entity that owns this component. The entity will be
      * undefined if it has been removed.
      *
+     * @throws This property can throw when used.
+     *
+     * {@link InvalidEntityError}
      */
     readonly entity: Entity;
 }
@@ -7576,35 +7798,10 @@ export class EntityFrictionModifierComponent extends EntityComponent {
      * Current value of the friction modifier of the associated
      * entity.
      *
-     * This property can't be edited in read-only mode.
-     *
+     * @throws This property can throw when used.
      */
-    value: number;
+    readonly value: number;
     static readonly componentId = 'minecraft:friction_modifier';
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Sets the offset from the ground that the entity is actually
- * at.
- */
-// @ts-ignore Class inheritance allowed for native defined classes
-export class EntityGroundOffsetComponent extends EntityComponent {
-    private constructor();
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Value of this particular ground offset. Note that this value
-     * is effectively read only; setting the ground offset value
-     * will not have an impact on the related entity.
-     *
-     * This property can't be edited in read-only mode.
-     *
-     */
-    value: number;
-    static readonly componentId = 'minecraft:ground_offset';
 }
 
 /**
@@ -7924,8 +8121,11 @@ export class EntityInventoryComponent extends EntityComponent {
      * Defines the container for this entity. The container will be
      * undefined if the entity has been removed.
      *
+     * @throws This property can throw when used.
+     *
+     * {@link InvalidEntityError}
      */
-    readonly container?: Container;
+    readonly container: Container;
     /**
      * @remarks
      * Type of container this entity has.
@@ -8288,10 +8488,9 @@ export class EntityMarkVariantComponent extends EntityComponent {
      * @remarks
      * Value of the mark variant value for this entity.
      *
-     * This property can't be edited in read-only mode.
-     *
+     * @throws This property can throw when used.
      */
-    value: number;
+    readonly value: number;
     static readonly componentId = 'minecraft:mark_variant';
 }
 
@@ -8860,10 +9059,9 @@ export class EntityPushThroughComponent extends EntityComponent {
      * @remarks
      * Value of the push through distances of this entity.
      *
-     * This property can't be edited in read-only mode.
-     *
+     * @throws This property can throw when used.
      */
-    value: number;
+    readonly value: number;
     static readonly componentId = 'minecraft:push_through';
 }
 
@@ -9170,10 +9368,9 @@ export class EntityScaleComponent extends EntityComponent {
      * @remarks
      * Current value for the scale property set on entities.
      *
-     * This property can't be edited in read-only mode.
-     *
+     * @throws This property can throw when used.
      */
-    value: number;
+    readonly value: number;
     static readonly componentId = 'minecraft:scale';
 }
 
@@ -9188,10 +9385,9 @@ export class EntitySkinIdComponent extends EntityComponent {
      * @remarks
      * Returns the value of the skin Id identifier of the entity.
      *
-     * This property can't be edited in read-only mode.
-     *
+     * @throws This property can throw when used.
      */
-    value: number;
+    readonly value: number;
     static readonly componentId = 'minecraft:skin_id';
 }
 
@@ -10024,66 +10220,6 @@ export class GameRules {
 }
 
 /**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Provides an adaptable interface for callers to subscribe to
- * an event that fires when a button is pushed.
- */
-export class IButtonPushAfterEventSignal {
-    private constructor();
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Subscribes to the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    subscribe(callback: (arg0: ButtonPushAfterEvent) => void): (arg0: ButtonPushAfterEvent) => void;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Unsubscribes from the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    unsubscribe(callback: (arg0: ButtonPushAfterEvent) => void): void;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Provides an adaptable interface for callers to subscribe to
- * an event that fires after a lever is used.
- */
-export class ILeverActionAfterEventSignal {
-    private constructor();
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Subscribes to the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    subscribe(callback: (arg0: LeverActionAfterEvent) => void): (arg0: LeverActionAfterEvent) => void;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Unsubscribes from the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    unsubscribe(callback: (arg0: LeverActionAfterEvent) => void): void;
-}
-
-/**
  * Contains the input information for a client instance.
  */
 export class InputInfo {
@@ -10123,96 +10259,6 @@ export class InputInfo {
      * {@link InvalidEntityError}
      */
     getMovementVector(): Vector2;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Provides an adaptable interface for callers to subscribe to
- * an event that fires after a player joins a world.
- */
-export class IPlayerJoinAfterEventSignal {
-    private constructor();
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Subscribes to the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    subscribe(callback: (arg0: PlayerJoinAfterEvent) => void): (arg0: PlayerJoinAfterEvent) => void;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Unsubscribes from the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    unsubscribe(callback: (arg0: PlayerJoinAfterEvent) => void): void;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Provides an adaptable interface for callers to subscribe to
- * an event that fires after a player leaves a world.
- */
-export class IPlayerLeaveAfterEventSignal {
-    private constructor();
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Subscribes to the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    subscribe(callback: (arg0: PlayerLeaveAfterEvent) => void): (arg0: PlayerLeaveAfterEvent) => void;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Unsubscribes from the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    unsubscribe(callback: (arg0: PlayerLeaveAfterEvent) => void): void;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Provides an adaptable interface for callers to subscribe to
- * an event that fires after a player spawns.
- */
-export class IPlayerSpawnAfterEventSignal {
-    private constructor();
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Subscribes to the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    subscribe(callback: (arg0: PlayerSpawnAfterEvent) => void): (arg0: PlayerSpawnAfterEvent) => void;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Unsubscribes from the event.
-     *
-     * This function can't be called in read-only mode.
-     *
-     */
-    unsubscribe(callback: (arg0: PlayerSpawnAfterEvent) => void): void;
 }
 
 /**
@@ -10436,6 +10482,8 @@ export class ItemComponentRegistry {
      * Registers an item custom component that can be used in item
      * JSON configuration.
      *
+     * This function can be called in early-execution mode.
+     *
      * @param name
      * The id that represents this custom component. Must have a
      * namespace. This id can be specified in a item's JSON
@@ -10448,8 +10496,6 @@ export class ItemComponentRegistry {
      *
      * {@link CustomComponentInvalidRegistryError}
      *
-     * {@link CustomComponentNameError}
-     *
      * {@link minecraftcommon.EngineError}
      *
      * {@link ItemCustomComponentAlreadyRegisteredError}
@@ -10459,6 +10505,8 @@ export class ItemComponentRegistry {
      * {@link ItemCustomComponentReloadNewEventError}
      *
      * {@link ItemCustomComponentReloadVersionError}
+     *
+     * {@link NamespaceNameError}
      */
     registerCustomComponent(name: string, itemCustomComponent: ItemCustomComponent): void;
 }
@@ -10580,6 +10628,15 @@ export class ItemCooldownComponent extends ItemComponent {
      * @throws This function can throw errors.
      */
     startCooldown(player: Player): void;
+}
+
+/**
+ * An instance of a custom component on an item.
+ */
+// @ts-ignore Class inheritance allowed for native defined classes
+export class ItemCustomComponentInstance extends ItemComponent {
+    private constructor();
+    readonly customComponentParameters: CustomComponentParameters;
 }
 
 /**
@@ -11767,177 +11824,6 @@ export class ItemUseBeforeEventSignal {
 }
 
 /**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Use {@link PlayerInteractWithBlockAfterEvent} instead.
- *
- * Contains information related to an item being used on a
- * block. This event fires when an item used by a player
- * successfully triggers a block interaction.
- */
-export class ItemUseOnAfterEvent {
-    private constructor();
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link PlayerInteractWithBlockAfterEvent} instead.
-     *
-     * @remarks
-     * The block that the item is used on.
-     *
-     */
-    readonly block: Block;
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link PlayerInteractWithBlockAfterEvent} instead.
-     *
-     * @remarks
-     * The face of the block that an item is being used on.
-     *
-     */
-    readonly blockFace: Direction;
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link PlayerInteractWithBlockAfterEvent} instead.
-     *
-     * @remarks
-     * Location relative to the bottom north-west corner of the
-     * block where the item is placed.
-     *
-     */
-    readonly faceLocation: Vector3;
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link PlayerInteractWithBlockAfterEvent} instead.
-     *
-     * @remarks
-     * This value will be true if the event was triggered on
-     * players initial interaction button press and false on events
-     * triggered from holding the interaction button.
-     *
-     */
-    readonly isFirstEvent: boolean;
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link PlayerInteractWithBlockAfterEvent} instead.
-     *
-     * @remarks
-     * The impacted item stack that is being used on a block.
-     *
-     */
-    readonly itemStack: ItemStack;
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link PlayerInteractWithBlockAfterEvent} instead.
-     *
-     * @remarks
-     * Returns the source entity that triggered this item event.
-     *
-     */
-    readonly source: Player;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Manages callbacks that are connected to an item being used
- * on a block event.
- */
-export class ItemUseOnAfterEventSignal {
-    private constructor();
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Adds a callback that will be called when an item is used on
-     * a block.
-     *
-     * This function can't be called in read-only mode.
-     *
-     * This function can be called in early-execution mode.
-     *
-     */
-    subscribe(callback: (arg0: ItemUseOnAfterEvent) => void): (arg0: ItemUseOnAfterEvent) => void;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Removes a callback from being called when an item is used on
-     * a block.
-     *
-     * This function can't be called in read-only mode.
-     *
-     * This function can be called in early-execution mode.
-     *
-     */
-    unsubscribe(callback: (arg0: ItemUseOnAfterEvent) => void): void;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Use {@link PlayerInteractWithBlockBeforeEvent} instead.
- *
- * Contains information related to an item being used on a
- * block.
- */
-// @ts-ignore Class inheritance allowed for native defined classes
-export class ItemUseOnBeforeEvent extends ItemUseOnAfterEvent {
-    private constructor();
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link PlayerInteractWithBlockBeforeEvent} instead.
-     *
-     * @remarks
-     * If set to true, this will cancel the item use behavior.
-     *
-     */
-    cancel: boolean;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Manages callbacks that fire before an item being used on a
- * block event.
- */
-export class ItemUseOnBeforeEventSignal {
-    private constructor();
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Adds a callback that will be called before an item is used
-     * on a block.
-     *
-     * This function can't be called in read-only mode.
-     *
-     * This function can be called in early-execution mode.
-     *
-     */
-    subscribe(callback: (arg0: ItemUseOnBeforeEvent) => void): (arg0: ItemUseOnBeforeEvent) => void;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Removes a callback from being called before an item is used
-     * on a block.
-     *
-     * This function can't be called in read-only mode.
-     *
-     * This function can be called in early-execution mode.
-     *
-     */
-    unsubscribe(callback: (arg0: ItemUseOnBeforeEvent) => void): void;
-}
-
-/**
  * Contains information regarding the use of an item on a
  * block.
  */
@@ -12062,9 +11948,30 @@ export class LeverActionAfterEvent extends BlockEvent {
  * }
  * ```
  */
-// @ts-ignore Class inheritance allowed for native defined classes
-export class LeverActionAfterEventSignal extends ILeverActionAfterEventSignal {
+export class LeverActionAfterEventSignal {
     private constructor();
+    /**
+     * @remarks
+     * Adds a callback that will be called when a lever is moved
+     * (activates or deactivates).
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    subscribe(callback: (arg0: LeverActionAfterEvent) => void): (arg0: LeverActionAfterEvent) => void;
+    /**
+     * @remarks
+     * Removes a callback from being called when a lever is moved
+     * (activates or deactivates).
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    unsubscribe(callback: (arg0: LeverActionAfterEvent) => void): void;
 }
 
 /**
@@ -12098,66 +12005,6 @@ export class ListBlockVolume extends BlockVolumeBase {
      * Array of block locations to be removed from container.
      */
     remove(locations: Vector3[]): void;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Use {@link @minecraft/vanilla-data.MinecraftDimensionTypes}
- * instead.
- *
- * A collection of default Minecraft dimension types.
- */
-export class MinecraftDimensionTypes {
-    private constructor();
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link @minecraft/vanilla-data.MinecraftDimensionTypes}
-     * instead.
-     *
-     * @remarks
-     * The Nether is a collection of biomes separate from the
-     * Overworld, including Soul Sand Valleys and Crimson forests.
-     * Nether fortresses contain exclusive resources. Mobs such as
-     * Blaze, Hoglins, Piglins, and Ghasts congregate here.
-     *
-     */
-    static readonly nether = 'minecraft:nether';
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link @minecraft/vanilla-data.MinecraftDimensionTypes}
-     * instead.
-     *
-     * @remarks
-     * The overworld is a collection of biomes, including forests,
-     * plains, jungles, mountains, deserts, taiga, and more. This
-     * is the default starter dimension for Minecraft. Mobs such as
-     * Axolotl, Cows, Creepers, and Zombies congregate here.
-     *
-     */
-    static readonly overworld = 'minecraft:overworld';
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * Use {@link @minecraft/vanilla-data.MinecraftDimensionTypes}
-     * instead.
-     *
-     * @remarks
-     * The End is separate from the Overworld and the Nether and is
-     * generated whenever you create an End portal. Here, a giant
-     * center island is surrounded by several smaller areas and
-     * islands. You can find Endermen here. End midlands are larger
-     * areas that transition you from the center to the outer edges
-     * of the End. They contain Shulkers, Endermen, End gateway
-     * portals, and End cities. End gateway portals are commonly
-     * found at the outermost edge of the void. You usually find
-     * End barrens toward the edges of the main areas or land in
-     * the End.
-     *
-     */
-    static readonly theEnd = 'minecraft:the_end';
 }
 
 /**
@@ -12373,6 +12220,17 @@ export class Player extends Entity {
      * @throws This property can throw when used.
      */
     readonly clientSystemInfo: ClientSystemInfo;
+    /**
+     * @remarks
+     * Gets the current graphics mode of the player's client. This
+     * can be changed in the Video section of the settings menu
+     * based on what hardware is available.
+     *
+     * @throws This property can throw when used.
+     *
+     * {@link InvalidEntityError}
+     */
+    readonly graphicsMode: GraphicsMode;
     /**
      * @remarks
      * Contains the player's input information.
@@ -13401,24 +13259,6 @@ export class PlayerInputPermissionCategoryChangeAfterEventSignal {
 export class PlayerInputPermissions {
     private constructor();
     /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Camera input permissions for the player. If set to true,
-     * input relating to camera movement is enabled for the player.
-     *
-     */
-    cameraEnabled: boolean;
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Movement input permissions for the player. If set to true
-     * input relating to movement is enabled for the player.
-     *
-     */
-    movementEnabled: boolean;
-    /**
      * @remarks
      * Returns true if an input permission is enabled.
      *
@@ -13769,9 +13609,30 @@ export class PlayerJoinAfterEvent {
  * Manages callbacks that are connected to a player joining the
  * world.
  */
-// @ts-ignore Class inheritance allowed for native defined classes
-export class PlayerJoinAfterEventSignal extends IPlayerJoinAfterEventSignal {
+export class PlayerJoinAfterEventSignal {
     private constructor();
+    /**
+     * @remarks
+     * Adds a callback that will be called when a player joins the
+     * world.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    subscribe(callback: (arg0: PlayerJoinAfterEvent) => void): (arg0: PlayerJoinAfterEvent) => void;
+    /**
+     * @remarks
+     * Removes a callback from being called when a player joins the
+     * world.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    unsubscribe(callback: (arg0: PlayerJoinAfterEvent) => void): void;
 }
 
 /**
@@ -13799,9 +13660,30 @@ export class PlayerLeaveAfterEvent {
  * Manages callbacks that are connected to a player leaving the
  * world.
  */
-// @ts-ignore Class inheritance allowed for native defined classes
-export class PlayerLeaveAfterEventSignal extends IPlayerLeaveAfterEventSignal {
+export class PlayerLeaveAfterEventSignal {
     private constructor();
+    /**
+     * @remarks
+     * Adds a callback that will be called when a player leaves the
+     * world.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    subscribe(callback: (arg0: PlayerLeaveAfterEvent) => void): (arg0: PlayerLeaveAfterEvent) => void;
+    /**
+     * @remarks
+     * Removes a callback from being called when a player leaves
+     * the world.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    unsubscribe(callback: (arg0: PlayerLeaveAfterEvent) => void): void;
 }
 
 /**
@@ -13925,9 +13807,29 @@ export class PlayerSpawnAfterEvent {
  * Registers an event when a player is spawned (or re-spawned
  * after death) and fully ready within the world.
  */
-// @ts-ignore Class inheritance allowed for native defined classes
-export class PlayerSpawnAfterEventSignal extends IPlayerSpawnAfterEventSignal {
+export class PlayerSpawnAfterEventSignal {
     private constructor();
+    /**
+     * @remarks
+     * Registers a new event receiver for this particular type of
+     * event.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    subscribe(callback: (arg0: PlayerSpawnAfterEvent) => void): (arg0: PlayerSpawnAfterEvent) => void;
+    /**
+     * @remarks
+     * De-registers an event receiver for the player spawn event.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    unsubscribe(callback: (arg0: PlayerSpawnAfterEvent) => void): void;
 }
 
 /**
@@ -14370,6 +14272,13 @@ export class ScoreboardIdentity {
     readonly id: number;
     /**
      * @remarks
+     * Returns true if the ScoreboardIdentity reference is still
+     * valid.
+     *
+     */
+    readonly isValid: boolean;
+    /**
+     * @remarks
      * Type of the scoreboard identity.
      *
      */
@@ -14382,15 +14291,6 @@ export class ScoreboardIdentity {
      * @throws This function can throw errors.
      */
     getEntity(): Entity | undefined;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns true if the ScoreboardIdentity reference is still
-     * valid.
-     *
-     */
-    isValid(): boolean;
 }
 
 /**
@@ -14413,6 +14313,13 @@ export class ScoreboardObjective {
      * @throws This property can throw when used.
      */
     readonly id: string;
+    /**
+     * @remarks
+     * Returns true if the ScoreboardObjective reference is still
+     * valid.
+     *
+     */
+    readonly isValid: boolean;
     /**
      * @remarks
      * Adds a score to the given participant and objective.
@@ -14456,15 +14363,6 @@ export class ScoreboardObjective {
      * @throws This function can throw errors.
      */
     hasParticipant(participant: Entity | ScoreboardIdentity | string): boolean;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns true if the ScoreboardObjective reference is still
-     * valid.
-     *
-     */
-    isValid(): boolean;
     /**
      * @remarks
      * Removes a participant from this scoreboard objective.
@@ -14575,6 +14473,13 @@ export class ScreenDisplay {
     private constructor();
     /**
      * @remarks
+     * Returns true if the current reference to this screen display
+     * manager object is valid and functional.
+     *
+     */
+    readonly isValid: boolean;
+    /**
+     * @remarks
      * This function can't be called in read-only mode.
      *
      * @throws This function can throw errors.
@@ -14601,17 +14506,6 @@ export class ScreenDisplay {
      */
     isForcedHidden(hudElement: HudElement): boolean;
     /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns true if the current reference to this screen display
-     * manager object is valid and functional.
-     *
-     */
-    isValid(): boolean;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
      * @remarks
      * This function can't be called in read-only mode.
      *
@@ -14619,7 +14513,7 @@ export class ScreenDisplay {
      *
      * {@link InvalidEntityError}
      */
-    resetHudElements(): void;
+    resetHudElementsVisibility(): void;
     /**
      * @remarks
      * Set the action bar text - a piece of text that displays
@@ -14889,6 +14783,86 @@ export class Seat {
 }
 
 /**
+ * Provides an adaptable interface for callers to subscribe to
+ * an event that fires before the game world shuts down. This
+ * event occurs after players have left, but before the world
+ * has closed.
+ */
+export class ShutdownBeforeEventSignal {
+    private constructor();
+    /**
+     * @remarks
+     * Adds a new subscriber callback to this event.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     * @param callback
+     * Function callback that is called when this event fires.
+     */
+    subscribe(callback: (arg0: ShutdownEvent) => void): (arg0: ShutdownEvent) => void;
+    /**
+     * @remarks
+     * Removes a subscriber callback previously subscribed to via
+     * the subscribe method.
+     *
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     * @param callback
+     * Function closure that was previously passed to the subscribe
+     * method.
+     */
+    unsubscribe(callback: (arg0: ShutdownEvent) => void): void;
+}
+
+/**
+ * The event object that gets dispatched when the game world is
+ * shutting down.
+ */
+export class ShutdownEvent {
+    private constructor();
+}
+
+export class StartupBeforeEventSignal {
+    private constructor();
+    /**
+     * @remarks
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    subscribe(callback: (arg0: StartupEvent) => void): (arg0: StartupEvent) => void;
+    /**
+     * @remarks
+     * This function can't be called in read-only mode.
+     *
+     * This function can be called in early-execution mode.
+     *
+     */
+    unsubscribe(callback: (arg0: StartupEvent) => void): void;
+}
+
+export class StartupEvent {
+    private constructor();
+    /**
+     * @remarks
+     * This property can be read in early-execution mode.
+     *
+     */
+    readonly blockComponentRegistry: BlockComponentRegistry;
+    /**
+     * @remarks
+     * This property can be read in early-execution mode.
+     *
+     */
+    readonly itemComponentRegistry: ItemComponentRegistry;
+}
+
+/**
  * Represents a loaded structure template (.mcstructure file).
  * Structures can be placed in a world using the /structure
  * command or the {@link StructureManager} APIs.
@@ -14904,6 +14878,13 @@ export class Structure {
      *
      */
     readonly id: string;
+    /**
+     * @remarks
+     * Returns whether the Structure is valid. The Structure may
+     * become invalid if it is deleted.
+     *
+     */
+    readonly isValid: boolean;
     /**
      * @remarks
      * The dimensions of the structure. For example, a single block
@@ -14953,17 +14934,6 @@ export class Structure {
      * {@link InvalidStructureError}
      */
     getIsWaterlogged(location: Vector3): boolean;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Returns whether the Structure is valid. The Structure may
-     * become invalid if it is deleted.
-     *
-     * @returns
-     * Returns whether the Structure is valid.
-     */
-    isValid(): boolean;
     /**
      * @remarks
      * Creates a copy of a Structure and saves it with a new name.
@@ -15269,12 +15239,30 @@ export class System {
     readonly afterEvents: SystemAfterEvents;
     /**
      * @remarks
+     * Returns a collection of before-events for system-level
+     * operations.
+     *
+     * This property can be read in early-execution mode.
+     *
+     */
+    readonly beforeEvents: SystemBeforeEvents;
+    /**
+     * @remarks
      * Represents the current world tick of the server.
      *
      * This property can be read in early-execution mode.
      *
      */
     readonly currentTick: number;
+    /**
+     * @remarks
+     * Returns true if this is a world where the editor is
+     * currently loaded, returns false otherwise.
+     *
+     * This property can be read in early-execution mode.
+     *
+     */
+    readonly isEditorWorld: boolean;
     /**
      * @remarks
      * Contains the device information for the server.
@@ -15483,6 +15471,29 @@ export class SystemAfterEvents {
      *
      */
     readonly scriptEventReceive: ScriptEventCommandMessageAfterEventSignal;
+}
+
+/**
+ * A set of events that fire before an actual action occurs. In
+ * most cases, you can potentially cancel or modify the
+ * impending event. Note that in before events any APIs that
+ * modify gameplay state will not function and will throw an
+ * error.
+ */
+export class SystemBeforeEvents {
+    private constructor();
+    /**
+     * @remarks
+     * This property can be read in early-execution mode.
+     *
+     */
+    readonly shutdown: ShutdownBeforeEventSignal;
+    /**
+     * @remarks
+     * This property can be read in early-execution mode.
+     *
+     */
+    readonly startup: StartupBeforeEventSignal;
 }
 
 /**
@@ -16121,50 +16132,6 @@ export class World {
      */
     playMusic(trackId: string, musicOptions?: MusicOptions): void;
     /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Plays a sound for all players. DEPRECATED: Use
-     * Dimension.playSound.
-     *
-     * This function can't be called in read-only mode.
-     *
-     * @throws
-     * An error will be thrown if volume is less than 0.0.
-     * An error will be thrown if fade is less than 0.0.
-     * An error will be thrown if pitch is less than 0.01.
-     * An error will be thrown if volume is less than 0.0.
-     * @example playMusicAndSound.ts
-     * ```typescript
-     * import { world, MusicOptions, WorldSoundOptions, PlayerSoundOptions, DimensionLocation } from "@minecraft/server";
-     *
-     * function playMusicAndSound(targetLocation: DimensionLocation) {
-     *   const players = world.getPlayers();
-     *
-     *   const musicOptions: MusicOptions = {
-     *     fade: 0.5,
-     *     loop: true,
-     *     volume: 1.0,
-     *   };
-     *   world.playMusic("music.menu", musicOptions);
-     *
-     *   const worldSoundOptions: WorldSoundOptions = {
-     *     pitch: 0.5,
-     *     volume: 4.0,
-     *   };
-     *   world.playSound("ambient.weather.thunder", targetLocation, worldSoundOptions);
-     *
-     *   const playerSoundOptions: PlayerSoundOptions = {
-     *     pitch: 1.0,
-     *     volume: 1.0,
-     *   };
-     *
-     *   players[0].playSound("bucket.fill_water", playerSoundOptions);
-     * }
-     * ```
-     */
-    playSound(soundId: string, location: Vector3, soundOptions?: WorldSoundOptions): void;
-    /**
      * @remarks
      * Queues an additional music track for players. If a track is
      * not playing, a music track will play.
@@ -16352,6 +16319,8 @@ export class WorldAfterEvents {
      * @remarks
      * This event fires when a button is pushed.
      *
+     * This property can be read in early-execution mode.
+     *
      */
     readonly buttonPush: ButtonPushAfterEventSignal;
     /**
@@ -16522,19 +16491,10 @@ export class WorldAfterEvents {
      */
     readonly itemUse: ItemUseAfterEventSignal;
     /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * This event fires when an item is used on a block by a
-     * player.
-     *
-     * This property can be read in early-execution mode.
-     *
-     */
-    readonly itemUseOn: ItemUseOnAfterEventSignal;
-    /**
      * @remarks
      * A lever has been pulled.
+     *
+     * This property can be read in early-execution mode.
      *
      */
     readonly leverAction: LeverActionAfterEventSignal;
@@ -16621,11 +16581,15 @@ export class WorldAfterEvents {
      * playerSpawn for another related event you can trap for when
      * a player is spawned the first time within a world.
      *
+     * This property can be read in early-execution mode.
+     *
      */
     readonly playerJoin: PlayerJoinAfterEventSignal;
     /**
      * @remarks
      * This event fires when a player leaves a world.
+     *
+     * This property can be read in early-execution mode.
      *
      */
     readonly playerLeave: PlayerLeaveAfterEventSignal;
@@ -16642,6 +16606,8 @@ export class WorldAfterEvents {
      * This event fires when a player spawns or respawns. Note that
      * an additional flag within this event will tell you whether
      * the player is spawning right after join vs. a respawn.
+     *
+     * This property can be read in early-execution mode.
      *
      */
     readonly playerSpawn: PlayerSpawnAfterEventSignal;
@@ -16705,16 +16671,11 @@ export class WorldAfterEvents {
      */
     readonly weatherChange: WeatherChangeAfterEventSignal;
     /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
      * @remarks
-     * This event fires when the script environment is initialized
-     * on a World.
-     *
      * This property can be read in early-execution mode.
      *
      */
-    readonly worldInitialize: WorldInitializeAfterEventSignal;
+    readonly worldLoad: WorldLoadAfterEventSignal;
 }
 
 /**
@@ -16762,17 +16723,6 @@ export class WorldBeforeEvents {
      */
     readonly itemUse: ItemUseBeforeEventSignal;
     /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * This event fires when an item is used on a block by a
-     * player.
-     *
-     * This property can be read in early-execution mode.
-     *
-     */
-    readonly itemUseOn: ItemUseOnBeforeEventSignal;
-    /**
      * @remarks
      * This event fires before a block is broken by a player.
      *
@@ -16816,127 +16766,30 @@ export class WorldBeforeEvents {
      *
      */
     readonly weatherChange: WeatherChangeBeforeEventSignal;
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * This event fires immediately when the script environment is
-     * initialized on a World. Not all script functionality may be
-     * available. For guaranteed access to world state, use the
-     * world initialize after event.
-     *
-     * This property can be read in early-execution mode.
-     *
-     */
-    readonly worldInitialize: WorldInitializeBeforeEventSignal;
 }
 
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Contains information and methods that can be used at the
- * initialization of the scripting environment for a World.
- */
-export class WorldInitializeAfterEvent {
+export class WorldLoadAfterEvent {
     private constructor();
 }
 
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Manages callbacks that are run on the first tick of the
- * World. Do note that this event may run multiple times within
- * a session in the case that the /reload command is used.
- */
-export class WorldInitializeAfterEventSignal {
+export class WorldLoadAfterEventSignal {
     private constructor();
     /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
      * @remarks
-     * Adds a callback that will be called when the scripting
-     * environment is initialized for a World.
-     *
      * This function can't be called in read-only mode.
      *
      * This function can be called in early-execution mode.
      *
      */
-    subscribe(callback: (arg0: WorldInitializeAfterEvent) => void): (arg0: WorldInitializeAfterEvent) => void;
+    subscribe(callback: (arg0: WorldLoadAfterEvent) => void): (arg0: WorldLoadAfterEvent) => void;
     /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
      * @remarks
-     * Removes a callback from being called the scripting
-     * environment is initialized for a World.
-     *
      * This function can't be called in read-only mode.
      *
      * This function can be called in early-execution mode.
      *
      */
-    unsubscribe(callback: (arg0: WorldInitializeAfterEvent) => void): void;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Contains information and methods that can be used at the
- * initialization of the scripting environment for a World.
- * Also, use the supplied blockRegistry object to register
- * block custom components within the scope of the World
- * Initialize execution.
- */
-export class WorldInitializeBeforeEvent {
-    private constructor();
-    readonly blockComponentRegistry: BlockComponentRegistry;
-    /**
-     * @deprecated This property is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Provides the functionality for registering custom components
-     * for items.
-     *
-     */
-    readonly itemComponentRegistry: ItemComponentRegistry;
-}
-
-/**
- * @deprecated This class is deprecated and will be removed in 2.0.0.
- *
- * Manages callbacks that are run at the initialization of the
- * scripting environment for a World. Do note that this event
- * may run multiple times within a session in the case that the
- * /reload command is used.
- */
-export class WorldInitializeBeforeEventSignal {
-    private constructor();
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Adds a callback that will be called when the scripting
-     * environment is initialized for a World.
-     *
-     * This function can't be called in read-only mode.
-     *
-     * This function can be called in early-execution mode.
-     *
-     */
-    subscribe(callback: (arg0: WorldInitializeBeforeEvent) => void): (arg0: WorldInitializeBeforeEvent) => void;
-    /**
-     * @deprecated This function is deprecated and will be removed in 2.0.0.
-     *
-     * @remarks
-     * Removes a callback from being called the scripting
-     * environment is initialized for a World.
-     *
-     * This function can't be called in read-only mode.
-     *
-     * This function can be called in early-execution mode.
-     *
-     */
-    unsubscribe(callback: (arg0: WorldInitializeBeforeEvent) => void): void;
+    unsubscribe(callback: (arg0: WorldLoadAfterEvent) => void): void;
 }
 
 /**
@@ -16983,28 +16836,22 @@ export interface BlockCustomComponent {
      * block.
      *
      */
-    beforeOnPlayerPlace?: (arg0: BlockComponentPlayerPlaceBeforeEvent) => void;
+    beforeOnPlayerPlace?: (arg0: BlockComponentPlayerPlaceBeforeEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when an entity falls onto the
      * block that this custom component is bound to.
      *
      */
-    onEntityFallOn?: (arg0: BlockComponentEntityFallOnEvent) => void;
+    onEntityFallOn?: (arg0: BlockComponentEntityFallOnEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when the block that this custom
      * component is bound to is placed.
      *
      */
-    onPlace?: (arg0: BlockComponentOnPlaceEvent) => void;
-    /**
-     * @remarks
-     * This function will be called when a player destroys a
-     * specific block.
-     *
-     */
-    onPlayerDestroy?: (arg0: BlockComponentPlayerDestroyEvent) => void;
+    onPlace?: (arg0: BlockComponentOnPlaceEvent, arg1: CustomComponentParameters) => void;
+    onPlayerBreak?: (arg0: BlockComponentPlayerBreakEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when a player sucessfully
@@ -17012,33 +16859,33 @@ export interface BlockCustomComponent {
      * to.
      *
      */
-    onPlayerInteract?: (arg0: BlockComponentPlayerInteractEvent) => void;
+    onPlayerInteract?: (arg0: BlockComponentPlayerInteractEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when a block randomly ticks.
      *
      */
-    onRandomTick?: (arg0: BlockComponentRandomTickEvent) => void;
+    onRandomTick?: (arg0: BlockComponentRandomTickEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when an entity steps off the
      * block that this custom component is bound to.
      *
      */
-    onStepOff?: (arg0: BlockComponentStepOffEvent) => void;
+    onStepOff?: (arg0: BlockComponentStepOffEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when an entity steps onto the
      * block that this custom component is bound to.
      *
      */
-    onStepOn?: (arg0: BlockComponentStepOnEvent) => void;
+    onStepOn?: (arg0: BlockComponentStepOnEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when a block ticks.
      *
      */
-    onTick?: (arg0: BlockComponentTickEvent) => void;
+    onTick?: (arg0: BlockComponentTickEvent, arg1: CustomComponentParameters) => void;
 }
 
 /**
@@ -17213,33 +17060,6 @@ export interface BlockRaycastOptions extends BlockFilter {
     maxDistance?: number;
 }
 
-export interface CameraDefaultOptions {
-    /**
-     * @remarks
-     * Sets a set of easing options for the camera.
-     *
-     */
-    easeOptions: CameraEaseOptions;
-}
-
-/**
- * Contains options associated with a camera ease operation.
- */
-export interface CameraEaseOptions {
-    /**
-     * @remarks
-     * Time for the ease operation.
-     *
-     */
-    easeTime?: number;
-    /**
-     * @remarks
-     * Type of ease operation to use.
-     *
-     */
-    easeType?: EasingType;
-}
-
 /**
  * Used to initiate a full-screen color fade.
  */
@@ -17303,24 +17123,24 @@ export interface CameraFixedBoomOptions {
 }
 
 export interface CameraSetFacingOptions {
-    easeOptions?: CameraEaseOptions;
+    easeOptions?: EaseOptions;
     facingEntity: Entity;
     location?: Vector3;
 }
 
 export interface CameraSetLocationOptions {
-    easeOptions?: CameraEaseOptions;
+    easeOptions?: EaseOptions;
     location: Vector3;
 }
 
 export interface CameraSetPosOptions {
-    easeOptions?: CameraEaseOptions;
+    easeOptions?: EaseOptions;
     facingLocation: Vector3;
     location?: Vector3;
 }
 
 export interface CameraSetRotOptions {
-    easeOptions?: CameraEaseOptions;
+    easeOptions?: EaseOptions;
     location?: Vector3;
     rotation: Vector2;
 }
@@ -17393,6 +17213,25 @@ export interface DimensionLocation {
      *
      */
     z: number;
+}
+
+/**
+ * Contains options associated with easing between positions
+ * and/or rotations.
+ */
+export interface EaseOptions {
+    /**
+     * @remarks
+     * Time for the ease operation.
+     *
+     */
+    easeTime?: number;
+    /**
+     * @remarks
+     * Type of ease operation to use.
+     *
+     */
+    easeType?: EasingType;
 }
 
 /**
@@ -18141,49 +17980,52 @@ export interface ItemCustomComponent {
      * damage.
      *
      */
-    onBeforeDurabilityDamage?: (arg0: ItemComponentBeforeDurabilityDamageEvent) => void;
+    onBeforeDurabilityDamage?: (
+        arg0: ItemComponentBeforeDurabilityDamageEvent,
+        arg1: CustomComponentParameters,
+    ) => void;
     /**
      * @remarks
      * This function will be called when an item containing this
      * component's use duration was completed.
      *
      */
-    onCompleteUse?: (arg0: ItemComponentCompleteUseEvent) => void;
+    onCompleteUse?: (arg0: ItemComponentCompleteUseEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when an item containing this
      * component is eaten by an entity.
      *
      */
-    onConsume?: (arg0: ItemComponentConsumeEvent) => void;
+    onConsume?: (arg0: ItemComponentConsumeEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when an item containing this
      * component is used to hit another entity.
      *
      */
-    onHitEntity?: (arg0: ItemComponentHitEntityEvent) => void;
+    onHitEntity?: (arg0: ItemComponentHitEntityEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when an item containing this
      * component is used to mine a block.
      *
      */
-    onMineBlock?: (arg0: ItemComponentMineBlockEvent) => void;
+    onMineBlock?: (arg0: ItemComponentMineBlockEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when an item containing this
      * component is used by a player.
      *
      */
-    onUse?: (arg0: ItemComponentUseEvent) => void;
+    onUse?: (arg0: ItemComponentUseEvent, arg1: CustomComponentParameters) => void;
     /**
      * @remarks
      * This function will be called when an item containing this
      * component is used on a block.
      *
      */
-    onUseOn?: (arg0: ItemComponentUseOnEvent) => void;
+    onUseOn?: (arg0: ItemComponentUseOnEvent, arg1: CustomComponentParameters) => void;
 }
 
 /**
@@ -18325,7 +18167,7 @@ export interface PlayAnimationOptions {
      * A list of players the animation will be visible to.
      *
      */
-    players?: string[];
+    players?: Player[];
     /**
      * @remarks
      * Specifies a Molang expression for when this animation should
@@ -18631,6 +18473,19 @@ export interface ScriptEventMessageFilterOptions {
      *
      */
     namespaces: string[];
+}
+
+/**
+ * Contains additional options for spawning an Entity.
+ */
+export interface SpawnEntityOptions {
+    /**
+     * @remarks
+     * Optional spawn event to send to the entity after it is
+     * spawned.
+     *
+     */
+    spawnEvent?: string;
 }
 
 /**
@@ -18941,6 +18796,15 @@ export class CommandError extends Error {
     private constructor();
 }
 
+/**
+ * Error thrown if {@link @minecraft/server.ContainerRules} are
+ * broken on container operations.
+ */
+// @ts-ignore Class inheritance allowed for native defined classes
+export class ContainerRulesError extends Error {
+    private constructor();
+}
+
 // @ts-ignore Class inheritance allowed for native defined classes
 export class CustomComponentInvalidRegistryError extends Error {
     private constructor();
@@ -19118,6 +18982,12 @@ export const HudVisibilityCount = 2;
  *
  */
 export const MoonPhaseCount = 8;
+/**
+ * @remarks
+ * How many times the server ticks in one in-game day.
+ *
+ */
+export const TicksPerDay = 24000;
 /**
  * @remarks
  * How many times the server ticks per second of real time.
