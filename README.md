@@ -40,7 +40,7 @@ This isn't just another lag-reduction addon - it's a complete optimization suite
 - Beautiful GUI interfaces with crafting recipes for easy access and real-time setting changes
 
 ### 🌍 LOCALIZATION ~
-- Complete multi-language support making the addon accessible to global communities
+- Complete multi-language support
 
 -----
 
