@@ -13,11 +13,7 @@
 
 ## 📝 DESCRIPTION
 
-<<<<<<< HEAD
 Have you ever wanted a performance optimization addon that intelligently manages your dropped items and mob spawns without compromising gameplay? Welcome to AllStacker Addons, a comprehensive solution that transforms your Minecraft Bedrock experience through smart stacking technology.
-=======
-## 🤝 Support
->>>>>>> 722eae970cec1ae980f9101eb559061176cffa09
 
 This isn't just another lag-reduction addon - it's a complete optimization suite with extensive customization options, multi-language support, beautiful GUI interfaces, and seamless vanilla compatibility.
 
