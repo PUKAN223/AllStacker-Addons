@@ -1,327 +1,206 @@
 <div align="center">
 
-# 🎯 AllStacker Addons v2.0.0
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Minecraft-1.21%2B-00AA00?style=for-the-badge&logo=minecraft&logoColor=white" alt="Minecraft Version" />
-  <img src="https://img.shields.io/github/v/release/PUKAN223/AllStacker-Addons?style=for-the-badge&color=6366f1" alt="Release" />
-  <img src="https://img.shields.io/github/license/PUKAN223/AllStacker-Addons?style=for-the-badge&color=8b5cf6" alt="License" />
-  <img src="https://img.shields.io/github/stars/PUKAN223/AllStacker-Addons?style=for-the-badge&color=fbbf24" alt="Stars" />
-</p>
-
-<p align="center">
-  <a href="README1.md">
-    <img src="https://img.shields.io/badge/�_English-Current-2563eb?style=for-the-badge&labelColor=1e40af" alt="English" />
-  </a>
-  <a href="README_TH.md">
-    <img src="https://img.shields.io/badge/🇹🇭_ไทย-Thai-f97316?style=for-the-badge&labelColor=ea580c" alt="Thai" />
-  </a>
-</p>
-
-<br>
-
-<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/banner.png?raw=true" alt="AllStacker Banner" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
-
-<br><br>
-
-<h3>🚀 Advanced Item & Mob Stacking System for Minecraft Bedrock Edition</h3>
-
-<p align="center">
-  <a href="#-installation">
-    <img src="https://img.shields.io/badge/📥_Download-Get%20Started-10b981?style=for-the-badge&labelColor=059669" alt="Download" />
-  </a>
-  <a href="https://github.com/PUKAN223/AllStacker-Addons/issues">
-    <img src="https://img.shields.io/badge/🐛_Issues-Report%20Bug-ef4444?style=for-the-badge&labelColor=dc2626" alt="Issues" />
-  </a>
-</p>
-
-</div>
-
-<br><br>
-
-## ✨ Key Features
-<div align="center">
-<table>
-<tr>
-<td width="33%" align="center">
-
-### 📦 ItemStacker
-![ItemStacker](https://img.shields.io/badge/Status-Active-10b981?style=flat-square)
-
-🔥 **Automatic Item Merging**<br>
-Combines dropped items to reduce lag
-
-🎨 **Beautiful Display**<br>
-Shows stack count with colors
-
-⏰ **Despawn Timer**<br>
-Visual countdown before disappearing
-
-📏 **Adjustable Distance**<br>
-Configure view range
-
-</td>
-<td width="33%" align="center">
-
-### 🐾 MobStacker
-![MobStacker](https://img.shields.io/badge/Status-Active-10b981?style=flat-square)
-
-🧠 **Smart Merging**<br>
-Combines same-type mobs
-
-💀 **Death Modes**<br>
-All-at-once or individual
-
-👆 **Easy Separation**<br>
-Right-click to split stacks
-
-🎯 **Mob Filtering**<br>
-Choose stackable types
-
-</td>
-<td width="33%" align="center">
-<div>
-
-### ⚙️ Configuration
-![Config](https://img.shields.io/badge/Status-Active-10b981?style=flat-square)
-
-🎨 **Beautiful GUI**<br>
-Modern interface design
-
-🔧 **Crafting Recipe**<br>
-Easy access method
-
-⚡ **Real-time**<br>
-Instant setting changes
-
-🌍 **Multi-language**<br>
-English & Thai support
-
-</td>
-</tr>
-</table>
-
-<br>
-</td>
-</tr>
-</table>
-</div>
-
-<br>
-
-## 📥 Quick Start
-
-### 🚀 Installation Steps
-
-```bash
-# Step 1: Download
-📥 Get All-in-Craft.mcaddon from releases
-
-# Step 2: Install
-📂 Open file with Minecraft
-
-# Step 3: Enable
-✅ Activate in Behavior & Resource Packs
-
-# Step 4: Play
-🎉 Join world and enjoy!
-```
-
-<div align="center">
-<a href="https://github.com/PUKAN223/AllStacker-Addons/releases/latest">
-<img src="https://img.shields.io/badge/🚀_Download_Now-Latest%20Release-10b981?style=for-the-badge&labelColor=059669" alt="Download" />
-</a>
-</div>
-
-<br>
-
-## 🎮 Getting Started
-
-### 🛠️ Access Configuration
-
-<div align="center">
-<table>
-<tr>
-<td width="50%" align="center">
-
-#### 🔨 **Method 1: Crafting**
-<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/recipes.png?raw=true" alt="Recipe" style="border-radius: 10px;" />
-
-1. Open crafting table
-2. Follow recipe pattern
-3. Get **All-In Setting** item
-4. Right-click to open menu
-
-</td>
-<td width="50%" align="center">
-
-#### ⚡ **Method 2: Command**
-```bash
-/give @s ac:setting
-```
-
-> **For server admins and creative mode**
-
-🎯 Instant access to configuration menu<br>
-🔧 Perfect for quick testing<br>
-⚙️ Admin-friendly approach
-
-</td>
-</tr>
-</table>
-</div>
-
-### ⚙️ Configuration Interface
-
-<div align="center">
-
-<table>
-<tr>
-<td align="center" width="25%">
-<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/config_page.png?raw=true" alt="Main Menu" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" width="200"/><br>
-<strong>🏠 Main Menu</strong><br>
-<em>Central hub for all settings</em>
-</td>
-<td align="center" width="25%">
-<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/lang_config_page.png?raw=true" alt="Language" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" width="200"/><br>
-<strong>🌍 Language</strong><br>
-<em>English & Thai support</em>
-</td>
-<td align="center" width="25%">
-<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/item_config_page.png?raw=true" alt="ItemStacker" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" width="200"/><br>
-<strong>📦 ItemStacker</strong><br>
-<em>Item stacking controls</em>
-</td>
-<td align="center" width="25%">
-<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/mob_config_page.png?raw=true" alt="MobStacker" style="border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" width="200"/><br>
-<strong>🐾 MobStacker</strong><br>
-<em>Mob stacking settings</em>
-</td>
-</tr>
-</table>
-
-</div>
-
-### 🎛️ Configuration Options
-
-<div align="center">
-<table>
-<tr>
-<td width="50%">
-
-#### 📦 **ItemStacker Settings**
-- 🔛 **Toggle**: Enable/Disable stacking
-- 📏 **View Distance**: 1-100 blocks
-- 🎨 **Display Format**: Custom text styling
-- ⏰ **Timer Display**: Show despawn countdown
-- 🎯 **Item Filters**: Choose stackable items
-
-</td>
-<td width="50%">
-
-#### 🐾 **MobStacker Settings**
-- 🔛 **Toggle**: Enable/Disable mob stacking
-- 💀 **Death Mode**: All/Individual killing
-- 📐 **Stack Radius**: 1-20 blocks range
-- 🎭 **Display Style**: Custom name formatting
-- 🎯 **Mob Filters**: Select stackable mobs
-
-</td>
-</tr>
-</table>
-</div>
-
-<br>
-
-## 📸 Showcase
-
-<div align="center">
-
-### 📦 ItemStacker
-<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/itemstack.png?raw=true" alt="ItemStacker Demo" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin: 20px 0;" width="600"/>
-
+![AllStacker Addons Banner](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/banner.png?raw=true)
 
 ---
 
-### 🐾 MobStacker
-<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/mobstack.png?raw=true" alt="MobStacker Demo" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin: 20px 0;" width="600"/>
+[![GitHub Downloads](https://img.shields.io/github/downloads/PUKAN223/AllStacker-Addons/total?style=for-the-badge&logo=GitHub&label=GitHub&labelColor=1f2937&color=10b981)](https://github.com/PUKAN223/AllStacker-Addons/releases) [![GitHub Stars](https://img.shields.io/github/stars/PUKAN223/AllStacker-Addons?style=for-the-badge&logo=github&logoColor=fbbf24&label=Stars&labelColor=1f2937&color=fbbf24)](https://github.com/PUKAN223/AllStacker-Addons/stargazers) [![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21+-10b981?labelColor=1f2937&style=for-the-badge&logo=minecraft)](https://minecraft.net)
 
+### 🚀 Item Stackers & Mob Stackers System - Reduce lag!
 
+-----
 </div>
 
-<br>
+## 📝 DESCRIPTION
 
-## 🤝 Community & Support
+Have you ever wanted a performance optimization addon that intelligently manages your dropped items and mob spawns without compromising gameplay? Welcome to AllStacker Addons, a comprehensive solution that transforms your Minecraft Bedrock experience through smart stacking technology.
 
+This isn't just another lag-reduction addon - it's a complete optimization suite with extensive customization options, multi-language support, beautiful GUI interfaces, and seamless vanilla compatibility.
+
+### 📌 **No Beta APIs required - Full compatibility with achievements and vanilla gameplay!**
+
+-----
+
+## ✨ FEATURES
+
+- **Performance Optimized** - Vanilla-style intelligent stacking algorithms=
+- **Multi-language Support** - English and Thai localization
+- **Real-time Configuration** - No server restart required
+- **Achievement Compatible** - Full vanilla experience preservation=
+
+-----
+
+### 📦 ITEM STACKING ~
+- Merging reduces lag while maintaining visual appeal with colorful stack displays
+
+### 🐾 MOB STACKING ~  
+- Mob combination with configurable death modes and easy separation mechanics
+
+### ⚙️ CONFIGURATION ~
+- Beautiful GUI interfaces with crafting recipes for easy access and real-time setting changes
+
+### 🌍 LOCALIZATION ~
+- Complete multi-language support making the addon accessible to global communities
+
+-----
+
+## 🔨 INSTALLATION & SETUP
+
+### **✅ Requirements**
+- Minecraft Bedrock Edition 1.21+
+
+### **📥 Download & Install**
+1. Download `All-in-Craft.mcaddon` from [GitHub Releases](https://github.com/PUKAN223/AllStacker-Addons/releases/latest)
+2. Open the file with Minecraft Bedrock Edition
+3. Enable both **Behavior Pack** and **Resource Pack**
+4. Join your world and enjoy optimized gameplay!
+
+### **⚡ Quick Access**
+```mcfunction
+/give @s ac:setting
+```
+*For instant configuration access (Creative/Admin)*
+
+-----
+
+## 🎮 CONFIGURATION GUIDE
+
+### **🔨 Crafting Access**
+![Recipe Guide](https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/recipes.png?raw=true)
+
+### **⚙️ Interface Overview**
 <div align="center">
 <table>
 <tr>
-<td width="33%" align="center">
-
-### 🐛 **Bug Reports**
-[![Issues](https://img.shields.io/github/issues/PUKAN223/AllStacker-Addons?style=flat-square&color=ef4444)](https://github.com/PUKAN223/AllStacker-Addons/issues)
-
-📋 Report bugs on GitHub<br>
-📝 Include version & details<br>
-🔄 Get quick responses
-
-[**Report Issue →**](https://github.com/PUKAN223/AllStacker-Addons/issues)
-
+<td align="center">
+<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/config_page.png?raw=true" width="200"/><br>
+<strong>Main Configuration</strong>
 </td>
-<td width="33%" align="center">
-
-### 📧 **Direct Contact**
-[![GitHub](https://img.shields.io/badge/GitHub-PUKAN223-black?style=flat-square&logo=github)](https://github.com/PUKAN223)
-
-🎯 Direct developer contact<br>
-💡 Feature suggestions<br>
-🤝 Collaboration opportunities
-
-[**Contact Dev →**](https://github.com/PUKAN223)
-
+<td align="center">
+<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/lang_config_page.png?raw=true" width="200"/><br>
+<strong>Language Settings</strong>
+</td>
+<td align="center">
+<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/item_config_page.png?raw=true" width="200"/><br>
+<strong>ItemStacker Config</strong>
+</td>
+<td align="center">
+<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/mob_config_page.png?raw=true" width="200"/><br>
+<strong>MobStacker Config</strong>
 </td>
 </tr>
 </table>
 </div>
 
-<br>
+### **🎛️ Available Settings**
+- **ItemStacker**: Toggle, View Distance (1-100 blocks), Display Format, Timer Display, Item Filters
+- **MobStacker**: Toggle, Death Mode (All/Individual), Stack Radius (1-20 blocks), Display Style, Mob Filters  
+- **Language**: English/Thai with real-time switching
+- **Performance**: Optimized algorithms with configurable parameters
 
-## 🌟 Support This Project
+-----
+
+## 📸 SHOWCASE
+
+### **✨ Features in Action**
+<div align="center">
+<table>
+<tr>
+<td align="center" width="50%">
+<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/itemstack.png?raw=true" width="400"/><br>
+<strong>📦 ItemStacker</strong><br>
+<em>Smart item grouping with customizable display</em>
+</td>
+<td align="center" width="50%">
+<img src="https://github.com/PUKAN223/AllStacker-Addons/blob/2.0.0-release/resource/mobstack.png?raw=true" width="400"/><br>
+<strong>🐾 MobStacker</strong><br>
+<em>Efficient mob management with visual indicators</em>
+</td>
+</tr>
+</table>
+</div>
+
+-----
+
+## 🤝 COMMUNITY & SUPPORT
+
+<div align="center">
+<table>
+<tr>
+<td align="center" width="50%">
+<strong>🐛 Bug Reports</strong><br>
+<a href="https://github.com/PUKAN223/AllStacker-Addons/issues">
+<img src="https://img.shields.io/github/issues/PUKAN223/AllStacker-Addons?style=for-the-badge&color=ef4444&logo=github" alt="Issues"/>
+</a><br>
+<em>Report bugs and get quick support</em>
+</td>
+<td align="center" width="50%">
+<strong>�‍💻 Developer Contact</strong><br>
+<a href="https://github.com/PUKAN223">
+<img src="https://img.shields.io/badge/GitHub-PUKAN223-black?style=for-the-badge&logo=github" alt="Developer"/>
+</a><br>
+<em>Direct contact for suggestions and collaboration</em>
+</td>
+</tr>
+</table>
+</div>
+
+### **⭐ Support This Project**
+<div align="center">
+<a href="https://github.com/PUKAN223/AllStacker-Addons/stargazers">
+<img src="https://img.shields.io/badge/⭐_Star_This_Repo-Show%20Support-fbbf24?style=for-the-badge&labelColor=f59e0b" alt="Star"/>
+</a>
+<br>
+<em>Love this addon? Give us a ⭐ star on GitHub!</em>
+</div>
+
+-----
+
+## 📃LICENSE & USAGE
+
+<div align="center">
+<table>
+<tr>
+<td align="center" width="33%">
+<strong>✅ Allowed</strong><br>
+• Personal use<br>
+• Server deployment<br>
+• Content creation<br>
+• Redistribution*
+</td>
+<td align="center" width="33%">
+<strong>📝 Requirements</strong><br>
+• Credit required<br>
+• Link to original<br>
+• Mention developer<br>
+• Keep license
+</td>
+<td align="center" width="33%">
+<strong>❌ Prohibited</strong><br>
+• Commercial use<br>
+• Code selling<br>
+• No credit<br>
+• License removal
+</td>
+</tr>
+</table>
+</div>
+
+### **� MIT License**
+<div align="center">
+<img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License"/>
+<br>
+<em>*Redistribution allowed with proper attribution</em>
+</div>
+
+---
 
 <div align="center">
 
-### ⭐ **Show Your Love**
-
-<a href="https://github.com/PUKAN223/AllStacker-Addons/stargazers">
-<img src="https://img.shields.io/badge/⭐_Star_This_Repo-Show%20Support-fbbf24?style=for-the-badge&labelColor=f59e0b" alt="Star" />
-</a>
-
-**Love this addon?** Give us a ⭐ star on GitHub!
+**Made with ❤️ by [PUKAN223](https://github.com/PUKAN223)**  
+*AllStacker-Addons © 2024 - Enhancing Minecraft Bedrock worlds everywhere*
 
 </div>
-
-### � Distribution & Usage
-
-<table>
-<tr>
-<td width="33%" align="center">
-
-#### ✅ **Allowed**
-- ✅ Personal use
-- ✅ Server deployment
-- ✅ Content creation
-- ✅ Redistribution*
-
-</td>
-<td width="33%" align="center">
-
-#### 📝 **Requirements**
-- 📝 Credit required
-- 📝 Link to original
-- 📝 Mention developer
-- 📝 Keep license
-
-</td>
 <td width="33%" align="center">
 
 #### 🚫 **Prohibited**
