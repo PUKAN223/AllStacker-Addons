@@ -14,6 +14,7 @@ export interface IConfigItemStacker {
   SeeingItemStack: Set<Entity>;
   PluginIcon: string;
   isLoaded: boolean;
+  DimensionDataBackUp: JsonDatabase | null;
 }
 
 const itemName = (item: string) => {
@@ -240,6 +241,7 @@ class ItemStacker extends PluginBase {
     this.config = this.getConfig() as IConfigItemStacker;
     this.config.ItemStackConfig = new JsonDatabase("ItemStackConfig", world);
     this.config.ItemStackData = new JsonDatabase("ItemStackData", world);
+    this.config.DimensionDataBackUp = new JsonDatabase("DimensionDataBackUp", world);
 
     const UnStackItem = this.config.ItemStackConfig.get("UnStackItem") || [];
     const DisplayText = this.config.ItemStackConfig.get("DisplayText") || "§7§c§l%a §r%n§r"

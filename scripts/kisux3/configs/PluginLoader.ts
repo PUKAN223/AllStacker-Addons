@@ -31,6 +31,7 @@ export let PluginLoader: PluginSetting[] = [
                 ItemStackData: null,
                 ItemListStack: new Set<Entity>(),
                 SeeingItemStack: new Set<Entity>(),
+                DimensionDataBackUp: null,
                 PluginIcon: "textures/items/arrow",
                 isLoaded: false,
             }

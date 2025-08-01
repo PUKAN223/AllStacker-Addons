@@ -1,11 +1,9 @@
-import { Entity, ItemEnchantableComponent, ItemStack, system, Vector3, world } from "@minecraft/server";
+import { Dimension, Entity, ItemEnchantableComponent, ItemStack, system, Vector3, world } from "@minecraft/server";
 import { IConfigItemStacker } from "..";
 import { getAllEntities } from "../../../../core/utils/EntityManagers";
 import { Vector3Utils } from "@minecraft/math";
 import { ItemConvert, ItemJson } from "../../../../core";
 import { getAllPlayers } from "../../../../core/utils/PlayerManagers";
-
-const ItemDimensionSave = new Map<string,  { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number }>();
 
 export function* StackingItem(config: IConfigItemStacker): Generator<void, void, void> {
   try {
@@ -202,7 +200,7 @@ export function getItemColorCode(amount: number) {
 
 export function deStackItemStack(config: IConfigItemStacker, itemRemovedData: { location: Vector3, id: string, dim: string }) {
   try {
-    const itemData = ItemDimensionSave.has(itemRemovedData.id) ? ItemDimensionSave.get(itemRemovedData.id) : config.ItemStackData.get(itemRemovedData.id) as { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number };
+    const itemData = config.DimensionDataBackUp.has(itemRemovedData.id) ? config.DimensionDataBackUp.get(itemRemovedData.id) : config.ItemStackData.get(itemRemovedData.id) as { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number };
     if (!itemData) return;
     const itemToSpawn = itemData.amount - itemData.nowAmount;
     if (itemToSpawn > 0) {
@@ -220,15 +218,15 @@ export function deStackItemStack(config: IConfigItemStacker, itemRemovedData: { 
       })
     }
     config.ItemStackData.delete(itemRemovedData.id);
-    if (ItemDimensionSave.has(itemRemovedData.id)) {
-      ItemDimensionSave.delete(itemRemovedData.id);
+    if (config.DimensionDataBackUp.has(itemRemovedData.id)) {
+      config.DimensionDataBackUp.delete(itemRemovedData.id);
     }
   } catch (e) {
     //Why. but is can detect hopper.
     const itemData = config.ItemStackData.get(itemRemovedData.id) as { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number };
     console.warn((e as Error).message)
     if ((e as Error).message.includes("Trying to")) {
-      ItemDimensionSave.set(itemRemovedData.id, itemData);
+      config.DimensionDataBackUp.set(itemRemovedData.id, itemData);
       console.info(`ItemStacker: Item ${itemRemovedData.id} is in a different dimension, saving data for later.`);
       return;
     };
