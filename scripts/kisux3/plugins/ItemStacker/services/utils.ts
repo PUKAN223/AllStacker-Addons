@@ -5,6 +5,8 @@ import { Vector3Utils } from "@minecraft/math";
 import { ItemConvert, ItemJson } from "../../../../core";
 import { getAllPlayers } from "../../../../core/utils/PlayerManagers";
 
+const ItemDimensionSave = new Map<string,  { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number }>();
+
 export function* StackingItem(config: IConfigItemStacker): Generator<void, void, void> {
   try {
     const UnStackItem: string[] = config.ItemStackConfig.has("UnStackItem") ? config.ItemStackConfig.get("UnStackItem") : [];
@@ -200,7 +202,7 @@ export function getItemColorCode(amount: number) {
 
 export function deStackItemStack(config: IConfigItemStacker, itemRemovedData: { location: Vector3, id: string, dim: string }) {
   try {
-    const itemData = config.ItemStackData.get(itemRemovedData.id) as { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number };
+    const itemData = ItemDimensionSave.has(itemRemovedData.id) ? ItemDimensionSave.get(itemRemovedData.id) : config.ItemStackData.get(itemRemovedData.id) as { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number };
     if (!itemData) return;
     const itemToSpawn = itemData.amount - itemData.nowAmount;
     if (itemToSpawn > 0) {
@@ -209,7 +211,7 @@ export function deStackItemStack(config: IConfigItemStacker, itemRemovedData: { 
       const itemSetData = { ...itemData };
       itemSetData.currAmount -= itemStackSpawn.amount;
       itemSetData.amount -= itemStackSpawn.amount;
-      const enBase = world.getDimension(itemRemovedData.dim).spawnItem(itemStackSpawn, { ...itemRemovedData.location, y: itemRemovedData.location.y + 100 });
+      const enBase = world.getDimension(itemRemovedData.dim).spawnItem(itemStackSpawn, { ...itemRemovedData.location, y: world.getDimension(itemRemovedData.dim).heightRange.max });
       const itemStackData = config.ItemStackData;
       itemStackData.set(enBase.id, itemSetData);
       system.run(() => {
@@ -218,9 +220,18 @@ export function deStackItemStack(config: IConfigItemStacker, itemRemovedData: { 
       })
     }
     config.ItemStackData.delete(itemRemovedData.id);
+    if (ItemDimensionSave.has(itemRemovedData.id)) {
+      ItemDimensionSave.delete(itemRemovedData.id);
+    }
   } catch (e) {
     //Why. but is can detect hopper.
-    const itemData = config.ItemStackData.get(itemRemovedData.id) as { amount: number, item: ItemJson, life: number, currAmount: number };
+    const itemData = config.ItemStackData.get(itemRemovedData.id) as { amount: number, item: ItemJson, life: number, currAmount: number, nowAmount: number };
+    console.warn((e as Error).message)
+    if ((e as Error).message.includes("Trying to")) {
+      ItemDimensionSave.set(itemRemovedData.id, itemData);
+      console.info(`ItemStacker: Item ${itemRemovedData.id} is in a different dimension, saving data for later.`);
+      return;
+    };
     system.run(() => {
       const itemStack = ItemConvert.JsonToItem(itemData.item);
       const sizeStack = getSizeStack(itemData.amount - itemData.currAmount, itemData.amount, itemStack.maxAmount)

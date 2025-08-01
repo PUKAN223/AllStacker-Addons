@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, EntityDieAfterEvent, EntityEquippableComponent, EntityRemoveBeforeEvent, EquipmentSlot, Player, PlayerInteractWithEntityBeforeEvent, ShutdownEvent, StartupEvent, system, world, WorldLoadAfterEvent } from "@minecraft/server";
+import { Entity, EntityDamageCause, EntityDieAfterEvent, EntityEquippableComponent, EntityProjectileComponent, EntityRemoveBeforeEvent, EquipmentSlot, Player, PlayerInteractWithEntityBeforeEvent, ShutdownEvent, StartupEvent, system, world, WorldLoadAfterEvent } from "@minecraft/server";
 import { JsonDatabase, KXEvents, PageBuilder, PluginBase } from "../../../core";
 import { EntityToName, getMobColorCode, spawnEntityClone, StackingMob } from "./services/utils";
 import IActionForm from "../../../core/class/forms/IActionForm";
@@ -105,6 +105,8 @@ class MobStacker extends PluginBase {
   }
 
   public onEntityDie(ev: EntityDieAfterEvent) {
+    if (!ev.deadEntity.isValid) return
+    if (ev.deadEntity.hasComponent(EntityProjectileComponent.componentId)) return
     if (ev.damageSource.cause == EntityDamageCause.none || ev.damageSource.cause == EntityDamageCause.selfDestruct) return;
     const currAmount = ev.deadEntity.getDynamicProperty("StackingAmount") as number || 1;
     if (currAmount <= 1) return;

@@ -2,7 +2,6 @@ import { Entity, ItemStack } from "@minecraft/server";
 import PluginSetting from "../../core/types/PluginSetting";
 import ItemStacker from "../plugins/ItemStacker";
 import ConfigMenu from "../plugins/ConfigMenu";
-import { JsonDatabase } from "../../core";
 import MobStacker from "../plugins/MobStacker";
 
 export let PluginLoader: PluginSetting[] = [
