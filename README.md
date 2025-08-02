@@ -57,7 +57,7 @@ This isn't just another lag-reduction addon - it's a complete optimization suite
 
 ### **⚡ Quick Access**
 ```mcfunction
-/give @s ac:setting
+/give @s kisu:ac_setting
 ```
 *For instant configuration access (Creative/Admin)*
 
