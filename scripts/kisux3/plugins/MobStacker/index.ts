@@ -314,13 +314,15 @@ class MobStacker extends PluginBase {
         if (canceled) return;
         const radius = formValues[4];
         const displayText = formValues[5];
-        const mobDeathMode = formValues[3] === "All" ? "All" : "Only one";
+        const mobDeathMode = formValues[3] === 0 ? "All" : "Only one";
         const isEnabled = formValues[2];
 
         const oldRadius = this.config.MobStackConfig.get("RadiusStacking") as number || 10;
         const oldDisplayText = this.config.MobStackConfig.get("DisplayText") as string || "§7§c§l%a §r%n§r";
         const oldEnabled = PluginLoader.find((pl) => pl.name === this.name)?.setting.enabled || false;
         const oldDeathMode = this.config.MobStackConfig.get("MobDeathMode") as string || "All";
+
+        console.info(mobDeathMode, oldDeathMode)
 
         if (mobDeathMode !== oldDeathMode && mobDeathMode !== undefined) {
           this.config.MobStackConfig.set("MobDeathMode", mobDeathMode);

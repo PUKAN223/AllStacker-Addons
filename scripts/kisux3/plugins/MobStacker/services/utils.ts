@@ -25,6 +25,8 @@ export function* StackingMob(config: IConfigMobStacker): Generator<void> {
         }
         for (const target of nearEntities) {
           const amount = target.getDynamicProperty("StackingAmount") as number || 1;
+          const entityAmount = entity.getDynamicProperty("StackingAmount") as number || 1;
+          if (amount > entityAmount) continue;
           target.dimension.spawnParticle("minecraft:large_explosion", { ...target.location, y: target.location.y + 0.5 })
           target.remove();
           removedAmount += amount

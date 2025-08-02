@@ -1,4 +1,4 @@
-import { Dimension, Entity, ItemEnchantableComponent, ItemStack, system, Vector3, world } from "@minecraft/server";
+import { Dimension, Entity, ItemComponent, ItemComponentRegistry, ItemEnchantableComponent, ItemStack, system, Vector3, world } from "@minecraft/server";
 import { IConfigItemStacker } from "..";
 import { getAllEntities } from "../../../../core/utils/EntityManagers";
 import { Vector3Utils } from "@minecraft/math";
@@ -15,7 +15,7 @@ export function* StackingItem(config: IConfigItemStacker): Generator<void, void,
       const item = en.getComponent("item").itemStack;
       let totalAmount = 0;
 
-      if (!(item.nameTag || item.typeId.includes("potion") || ([...UnStackItem].some(x => x == item.typeId)))) {
+      if (!(item.nameTag || item.typeId.includes("potion") || ([...UnStackItem].some(x => item.typeId.includes(x))))) {
         const itemNearBy = getItemNearBy(en, config);
         for (const target of itemNearBy) {
           totalAmount += config.ItemStackData.get(target.id).amount;
@@ -131,9 +131,18 @@ export default function getItemNearBy(en: Entity, config: IConfigItemStacker): E
     return true;
   });
 
+  const jsonItem = ItemConvert.ItemToJson(itemStack);
+  jsonItem.amount = 0;
+
+  
   return allEntities.filter((target) => {
     if (!en.isValid || !target.isValid) return false;
     if (target.id === en.id) return false;
+
+    const jsonTarget = ItemConvert.ItemToJson(target.getComponent("item").itemStack);
+    jsonTarget.amount = 0;
+
+    if (JSON.stringify(jsonItem) !== JSON.stringify(jsonTarget)) return false;
 
     const targetItemStack = target.getComponent("item").itemStack;
 
@@ -142,6 +151,15 @@ export default function getItemNearBy(en: Entity, config: IConfigItemStacker): E
     if (!config.ItemStackData.has(target.id)) return false;
     if (itemStack.getLore().join(",") !== targetItemStack.getLore().join(",")) return false;
     if (itemStack.typeId !== targetItemStack.typeId) return false;
+    if (itemStack.getTags().join(",") !== targetItemStack.getTags().join(",")) return false;
+    if (itemStack.hasComponent("minecraft:potion") || targetItemStack.hasComponent("minecraft:potion")) return false;
+    if (itemStack.hasComponent("minecraft:book") || targetItemStack.hasComponent("minecraft:book")) return false;
+    if (itemStack.hasComponent("minecraft:inventory") || targetItemStack.hasComponent("minecraft:inventory")) return false;
+    if (itemStack.hasComponent("minecraft:dyeable") && targetItemStack.hasComponent("minecraft:dyeable")) {
+      const itemDyeable = itemStack.getComponent("minecraft:dyeable");
+      const targetDyeable = targetItemStack.getComponent("minecraft:dyeable");
+      console.info(itemDyeable, targetDyeable)
+    }
 
     if (itemStack.hasComponent(ItemEnchantableComponent.componentId) && targetItemStack.hasComponent(ItemEnchantableComponent.componentId)) {
       const itemEn = itemStack.getComponent(ItemEnchantableComponent.componentId);
