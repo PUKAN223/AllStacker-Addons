@@ -14,8 +14,13 @@ export function* StackingItem(config: IConfigItemStacker): Generator<void, void,
 
       const item = en.getComponent("item").itemStack;
       let totalAmount = 0;
-
-      if (!(item.nameTag || item.typeId.includes("potion") || ([...UnStackItem].some(x => item.typeId.includes(x))))) {
+      if (!(item.nameTag ||
+        item.typeId.includes("potion") ||
+        item.typeId.includes("shulker_box") ||
+        item.typeId.includes("bundle") ||
+        item.typeId.includes("bed") ||
+        ([...UnStackItem].some(x => item.typeId.includes(x))))
+      ) {
         const itemNearBy = getItemNearBy(en, config);
         for (const target of itemNearBy) {
           totalAmount += config.ItemStackData.get(target.id).amount;
@@ -134,7 +139,7 @@ export default function getItemNearBy(en: Entity, config: IConfigItemStacker): E
   const jsonItem = ItemConvert.ItemToJson(itemStack);
   jsonItem.amount = 0;
 
-  
+
   return allEntities.filter((target) => {
     if (!en.isValid || !target.isValid) return false;
     if (target.id === en.id) return false;

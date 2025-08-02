@@ -247,15 +247,6 @@ class ItemStacker extends PluginBase {
     const DisplayText = this.config.ItemStackConfig.get("DisplayText") || "§7§c§l%a §r%n§r"
     const RadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
     const RadiusCombine = this.config.ItemStackConfig.get("RadiusCombine") || 15;
-    if (!UnStackItem.includes("shulker_box")) {
-      UnStackItem.push("shulker_box");
-    }
-    if (!UnStackItem.includes("bundle")) {
-      UnStackItem.push("bundle");
-    }
-    if (!UnStackItem.includes("bed")) {
-      UnStackItem.push("bed");
-    }
     this.config.ItemStackConfig.set("UnStackItem", UnStackItem);
     this.config.ItemStackConfig.set("DisplayText", DisplayText);
     this.config.ItemStackConfig.set("RadiusSeeing", RadiusSeeing);
