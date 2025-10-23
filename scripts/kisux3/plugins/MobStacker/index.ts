@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, EntityDieAfterEvent, EntityEquippableComponent, EntityProjectileComponent, EntityRemoveBeforeEvent, EquipmentSlot, Player, PlayerInteractWithEntityBeforeEvent, ShutdownEvent, StartupEvent, system, world, WorldLoadAfterEvent } from "@minecraft/server";
+import { Entity, EntityComponent, EntityComponentTypes, EntityDamageCause, EntityDieAfterEvent, EntityEquippableComponent, EntityProjectileComponent, EntityRemoveBeforeEvent, EquipmentSlot, LootTableManager, Player, PlayerInteractWithEntityBeforeEvent, ShutdownEvent, StartupEvent, system, world, WorldLoadAfterEvent } from "@minecraft/server";
 import { JsonDatabase, KXEvents, PageBuilder, PluginBase } from "../../../core";
 import { EntityToName, getMobColorCode, spawnEntityClone, StackingMob } from "./services/utils";
 import IActionForm from "../../../core/class/forms/IActionForm";
@@ -54,13 +54,15 @@ class MobStacker extends PluginBase {
         const xp_orb = world.getDimension(RemovedEntityData.dimension).getEntities({
           location: RemovedEntityData.location,
           type: "minecraft:xp_orb",
-          maxDistance: 1
+          maxDistance: 1,
+          excludeTags: ["kisu:mob_stacker_xp_orb"]
         })
 
         for (let i = 0; i < xpData; i++) {
           xp_orb.forEach((orb) => {
             if (orb.isValid) {
               const orbSpawn = world.getDimension(RemovedEntityData.dimension).spawnEntity("minecraft:xp_orb", orb.location);
+              orbSpawn.addTag("kisu:mob_stacker_xp_orb");
               // orbSpawn.teleport(orbSpawn.location);
             }
           })
@@ -125,21 +127,39 @@ class MobStacker extends PluginBase {
           ).join('');
           if (!ev.damageSource.damagingEntity || !ev.damageSource.damagingEntity.isValid) {
             spawnClone.addTag(randomTag);
-            spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+            // spawnClone.getComponent(EntityComponentTypes.)
+            // spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+            const loot = world.getLootTableManager().generateLootFromEntity(spawnClone);
+            loot.forEach(item => {
+              spawnClone.dimension.spawnItem(item, spawnClone.location);
+            });
           } else {
             const itemHeld = ev.damageSource.damagingEntity.hasComponent(EntityEquippableComponent.componentId) ? ev.damageSource.damagingEntity.getComponent(EntityEquippableComponent.componentId).getEquipment(EquipmentSlot.Mainhand) : null
             spawnClone.addTag(randomTag);
             if (itemHeld && ev.damageSource.damagingEntity.typeId === "minecraft:player") {
-              ev.damageSource.damagingEntity.dimension.runCommand(`execute as ${(<Player>ev.damageSource.damagingEntity).name as string} at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`);
+              // ev.damageSource.damagingEntity.dimension.runCommand(`execute as ${(<Player>ev.damageSource.damagingEntity).name as string} at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`);
+              const loot = world.getLootTableManager().generateLootFromEntity(spawnClone, itemHeld);
+              loot.forEach(item => {
+                // ev.damageSource.damagingEntity.getComponent(EntityE)
+                ev.damageSource.damagingEntity.dimension.spawnItem(item, spawnClone.location);
+              });
             } else if (ev.damageSource.cause === EntityDamageCause.projectile && ["minecraft:skeleton", "minecraft:stray", "minecraft:bogged"].includes(ev.damageSource.damagingEntity.typeId)) {
               ev.damageSource.damagingEntity.addTag(randomTag + "_projectile");
               ev.damageSource.damagingEntity.runCommand(`execute as @e[tag=${randomTag}_projectile] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
             } else if (ev.damageSource.damagingEntity) {
               const damagingEntity = ev.damageSource.damagingEntity;
               damagingEntity.addTag(randomTag + "_entity");
-              damagingEntity.dimension.runCommand(`execute as @e[tag=${randomTag}_entity] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              damagingEntity.dimension.runCommand(`execute as @e[tag=${randomTag}_entity] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`);
+              // const loot = world.getLootTableManager().generateLootFromEntity(spawnClone);
+              // loot.forEach(item => {
+              //   damagingEntity.dimension.spawnItem(item, damagingEntity.location);
+              // });
             } else {
-              spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              // spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              const loot = world.getLootTableManager().generateLootFromEntity(spawnClone);
+              loot.forEach(item => {
+                spawnClone.dimension.spawnItem(item, spawnClone.location);
+              });
             }
           }
         }

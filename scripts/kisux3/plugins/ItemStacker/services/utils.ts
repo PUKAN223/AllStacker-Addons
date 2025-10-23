@@ -19,6 +19,7 @@ export function* StackingItem(config: IConfigItemStacker): Generator<void, void,
         item.typeId.includes("shulker_box") ||
         item.typeId.includes("bundle") ||
         item.typeId.includes("bed") ||
+        item.typeId.includes("bottle") ||
         ([...UnStackItem].some(x => item.typeId.includes(x))))
       ) {
         const itemNearBy = getItemNearBy(en, config);
@@ -54,10 +55,79 @@ export function* StackingItem(config: IConfigItemStacker): Generator<void, void,
         yield;
       }
     }
-    system.run(() => system.runJob(StackingItem(config)));
+
+    const fastModeStacking = config.ItemStackConfig.get("FastModeStacking");
+    if (fastModeStacking) {
+      system.run(() => FastModeStacking(config));
+    } else {
+      system.run(() => system.runJob(StackingItem(config)));
+    }
   } catch (e) {
     system.run(() => {
       StackingItem(config);
+    })
+  }
+}
+
+export function FastModeStacking(config: IConfigItemStacker): void {
+  try {
+    const UnStackItem: string[] = config.ItemStackConfig.has("UnStackItem") ? config.ItemStackConfig.get("UnStackItem") : [];
+
+    const CombineItemStack = (en: Entity) => {
+      if (!en.isValid) return;
+
+      const item = en.getComponent("item").itemStack;
+      let totalAmount = 0;
+      if (!(item.nameTag ||
+        item.typeId.includes("potion") ||
+        item.typeId.includes("shulker_box") ||
+        item.typeId.includes("bundle") ||
+        item.typeId.includes("bed") ||
+        item.typeId.includes("bottle") ||
+        ([...UnStackItem].some(x => item.typeId.includes(x))))
+      ) {
+        const itemNearBy = getItemNearBy(en, config);
+        for (const target of itemNearBy) {
+          totalAmount += config.ItemStackData.get(target.id).amount;
+          if (config.ItemStackData.has(target.id)) config.ItemStackData.delete(target.id)
+          if (config.ItemListStack.has(target)) config.ItemListStack.delete(target);
+          target.addTag("fakeItem")
+          target.remove();
+        }
+      }
+      config.ItemStackData.set(en.id, { amount: totalAmount + item.amount, item: ItemConvert.ItemToJson(item), life: system.currentTick, currAmount: totalAmount, nowAmount: en.getComponent("item").itemStack.amount });
+      config.ItemListStack.delete(en)
+    }
+
+    const UpdateItemStack = (enData: any) => {
+      const en = world.getDimension("overworld").getEntities().filter(x => x.id == enData[0])[0]
+      if (en && en.isValid) {
+        const data = config.ItemStackData.get(en.id)
+        const item = en.getComponent("item").itemStack;
+        config.ItemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount, nowAmount: en.getComponent("item").itemStack.amount });
+      }
+    }
+
+    if (system.currentTick % 2 === 0) {
+      for (const en of config.ItemListStack) {
+        CombineItemStack(en);
+      }
+    } else {
+      for (const enData of config.ItemStackData) {
+        UpdateItemStack(enData)
+      }
+    }
+
+    const fastModeStacking = config.ItemStackConfig.get("FastModeStacking");
+    if (fastModeStacking) {
+      system.run(() => FastModeStacking(config));
+    } else {
+      system.runJob(StackingItem(config));
+    }
+  } catch (e) {
+    console.warn(e);
+    system.run(() => {
+      FastModeStacking(config);
     })
   }
 }

@@ -1,5 +1,5 @@
-import { CustomComponentParameters, ItemComponentUseEvent, ItemCustomComponent, ItemCustomComponentInstance, Player, ShutdownEvent, StartupEvent, system, world, WorldLoadAfterEvent } from "@minecraft/server";
-import { JsonDatabase, PageBuilder, PluginBase } from "../../../core";
+import { CustomComponentParameters, ItemComponentUseEvent, ItemCustomComponent, ItemCustomComponentInstance, ItemStack, Player, ShutdownEvent, StartupEvent, system, world, WorldLoadAfterEvent } from "@minecraft/server";
+import { JsonDatabase, KXEvents, PageBuilder, PluginBase } from "../../../core";
 import IActionForm from "../../../core/class/forms/IActionForm";
 import { PluginLoader } from "../../configs/PluginLoader";
 import { LanguageContext } from "../../configs/Lang";
@@ -38,19 +38,6 @@ class ConfigMenu extends PluginBase {
     const pluginSettingList = PluginLoader.filter(plugin => plugin.name !== this.name);
     const configPage = new PageBuilder("configMenu");
 
-    let list = [
-      "§8All Stackers Settings",
-      "Hello, §e${pl.name}§r!\n\nThis is the configuration menu.\nYou can manage settings here.",
-      "§3Langguage",
-      "§8Language Settings",
-      "Select your preferred language.",
-      `§7[All Stacker] §rLanguage set to §aEnglish§r.`,
-      `§7[All Stacker] §rLanguage set to §aไทย§r.`,
-      `§cBack`,
-      `§7Plugins §7(§c${pluginSettingList.length}§7)`,
-      `§2Enabled§r`,
-      `§cDisabled§r`
-    ]
     const pluginListPage = new IActionForm(`${LanguageContext.getTranslation("allstacker.title.configmenu", pl)}`, `${LanguageContext.getTranslation("allstacker.body.configmenu", pl)}`);
     pluginListPage.addButton(`${LanguageContext.getTranslation("allstacker.button.language", pl)}`, "textures/ui/world_glyph_color_2x_black_outline", () => {
       const langPage = new IActionForm(`${LanguageContext.getTranslation("allstacker.title.language", pl)}`, `${LanguageContext.getTranslation("allstacker.body.language", pl)}`);
@@ -123,12 +110,30 @@ class ConfigMenu extends PluginBase {
   public onShutdown(ev: ShutdownEvent): void { }
 
   public onStartup(ev: StartupEvent): void {
+    KXEvents.on(this, "after:playerSpawn", (ev) => {
+      if (!ev.initialSpawn) return;
+      const isFirstJoin = !ev.player.getTags().includes("kisu:joined_before");
+      if (isFirstJoin) {
+        ev.player.addTag("kisu:joined_before");
+        this.giveConfigMenu(ev.player);
+      }
+    })
     const showConfig = this.showConfig.bind(this);
     ev.itemComponentRegistry.registerCustomComponent("kisu:show_config", {
       onUse(ev: ItemComponentUseEvent): void {
         showConfig(ev.source);
       }
     })
+  }
+
+  public giveConfigMenu(pl: Player): void {
+    const containers = pl.getComponent("inventory");
+    const configMenuItem = new ItemStack("kisu:ac_setting", 1);
+    if (containers.container.emptySlotsCount > 0) {
+      containers.container.addItem(configMenuItem);
+    } else {
+      pl.dimension.spawnItem(configMenuItem, pl.location);
+    }
   }
 }
 

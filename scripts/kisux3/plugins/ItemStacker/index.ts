@@ -1,6 +1,6 @@
 import { Entity, EntityRemoveBeforeEvent, EntitySpawnAfterEvent, ItemStack, Player, ShutdownEvent, StartupEvent, system, world, WorldLoadAfterEvent } from "@minecraft/server";
 import { ItemConvert, ItemJson, JsonDatabase, KXEvents, PageBuilder, PluginBase } from "../../../core";
-import { deStackItemStack, SeeingItem, StackingItem } from "./services/utils";
+import { deStackItemStack, FastModeStacking, SeeingItem, StackingItem } from "./services/utils";
 import IActionForm from "../../../core/class/forms/IActionForm";
 import IModalForm from "../../../core/class/forms/IModalForm";
 import { PluginLoader } from "../../configs/PluginLoader";
@@ -116,12 +116,14 @@ class ItemStacker extends PluginBase {
         const RadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
         const RadiusCombine = this.config.ItemStackConfig.get("RadiusCombine") || 15;
         const DisplayText = this.config.ItemStackConfig.get("DisplayText") || "§7§c§l%a §r%n§r";
+        const FastModeStacking = this.config.ItemStackConfig.get("FastModeStacking") || false;
 
         advandSetting.addLabel(LanguageContext.getTranslation("allstacker.label.advanced.description_full", pl));
         advandSetting.addDivider();
         advandSetting.addToggle(LanguageContext.getTranslation("allstacker.toggle.itemstack", pl), isEnable)
         advandSetting.addSlider(LanguageContext.getTranslation("allstacker.slider.radius_seeing", pl), 1, 50, 1, RadiusSeeing);
         advandSetting.addSlider(LanguageContext.getTranslation("allstacker.slider.radius_combine", pl), 1, 50, 1, RadiusCombine);
+        advandSetting.addToggle(LanguageContext.getTranslation("allstacker.toggle.fast_mode_stacking", pl), FastModeStacking);
         advandSetting.addTextField(LanguageContext.getTranslation("allstacker.textfield.display_text", pl), LanguageContext.getTranslation("allstacker.textfield.display_text.placeholder", pl), DisplayText);
 
         advandSetting.addCallback((values, canceled) => {
@@ -129,16 +131,19 @@ class ItemStacker extends PluginBase {
           const isEnable = values[2];
           const radiusSeeing = values[3];
           const radiusCombine = values[4];
-          const displayText = values[5];
+          const displayText = values[6];
+          const fastModeStacking = values[5];
 
           const oldEnable = PluginLoader.find(plugin => plugin.name === this.name)?.setting.enabled || false;
           const oldRadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
           const oldDisplayText = this.config.ItemStackConfig.get("DisplayText") || "§7§c§l%a §r%n§r";
           const oldRadiusCombine = this.config.ItemStackConfig.get("RadiusCombine") || 15;
+          const oldFastModeStacking = this.config.ItemStackConfig.get("FastModeStacking") || false;
 
           this.config.ItemStackConfig.set("RadiusSeeing", radiusSeeing);
           this.config.ItemStackConfig.set("DisplayText", displayText);
           this.config.ItemStackConfig.set("RadiusCombine", radiusCombine);
+          this.config.ItemStackConfig.set("FastModeStacking", fastModeStacking);
 
           if (oldDisplayText !== displayText && displayText !== undefined) {
             pl.sendMessage(LanguageContext.getTranslation("allstacker.message.display_text.changed", pl).replace("%value", displayText));
@@ -159,6 +164,10 @@ class ItemStacker extends PluginBase {
             pl.sendMessage(message);
           }
 
+          if (fastModeStacking !== oldFastModeStacking && fastModeStacking !== undefined) {
+            this.config.ItemStackConfig.set("FastModeStacking", fastModeStacking);
+            pl.sendMessage(LanguageContext.getTranslation("allstacker.message.fast_mode_stacking.changed", pl).replace("%value", fastModeStacking.toString()));
+          }
         })
         page.addPage(this.name + "_advanced_settings", advandSetting);
         page.showPage(pl, this.name + "_advanced_settings");
@@ -217,7 +226,14 @@ class ItemStacker extends PluginBase {
   }
 
   public runJobs(): void {
-    system.runJob(StackingItem(this.config));
+    // system.runJob(StackingItem(this.config));
+    // Use Fast Mode Stacking instead of normal Stacking
+    const fastModeStacking = this.config.ItemStackConfig.get("FastModeStacking");
+    if (fastModeStacking) {
+      system.run(() => FastModeStacking(this.config));
+    } else {
+      system.runJob(StackingItem(this.config));
+    }
     system.runJob(SeeingItem(this.config));
   }
 

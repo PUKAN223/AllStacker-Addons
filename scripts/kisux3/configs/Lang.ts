@@ -105,6 +105,8 @@ KXEvents.on(null, "after:worldLoad", (ev) => {
       },
    */
   LanguageContext.setLanguage("en", {
+    "allstacker.toggle.fast_mode_stacking": (pl) => "§cOFF§7/§aON §rFast Mode Stacking§r",
+    "allstacker.message.fast_mode_stacking.changed": (pl) => "§aFast Mode Stacking§r changed to: %value",
     "allstacker.title.configmenu": (pl) => "§8All Stackers Settings",
     "allstacker.body.configmenu": (pl) => `Hello, §e${pl.name}§r!\n\nThis is the configuration menu.\nYou can manage settings here.`,
     "allstacker.button.language": (pl) => "§3Language",
@@ -214,6 +216,8 @@ KXEvents.on(null, "after:worldLoad", (ev) => {
     "allstacker.message.mobstacker.disabled": (pl) => "§aMob Stacker plugin is now disabled."
   })
   LanguageContext.setLanguage("th", {
+    "allstacker.toggle.fast_mode_stacking": (pl) => "§cปิด§7/§aเปิด §rFast Mode Stacking§r",
+    "allstacker.message.fast_mode_stacking.changed": (pl) => "§aFast Mode Stacking§r เปลี่ยนเป็น: %value",
     "allstacker.title.configmenu": (pl) => "§8การตั้งค่าทั้งหมด",
     "allstacker.body.configmenu": (pl) => `สวัสดี, §e${pl.name}§r!\n\nนี่คือเมนูการตั้งค่า.\nคุณสามารถจัดการการตั้งค่าได้ที่นี่.`,
     "allstacker.button.language": (pl) => "§3ภาษา",
