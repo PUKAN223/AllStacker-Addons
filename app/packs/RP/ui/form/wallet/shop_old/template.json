@@ -1,0 +1,428 @@
+{
+    "namespace": "shop",
+    "shop_background": {
+        "type": "image",
+        "size": [
+            "100%",
+            "100%"
+        ],
+        "offset": [
+            0,
+            -10
+        ],
+        "texture": "textures/ui/shop_form/shop_bg",
+        "alpha": 1
+    },
+    "shop_close_button": {
+        "type": "button",
+        "default_control": "default",
+        "hover_control": "hover",
+        "$default_texture|default": "textures/ui/shop_form/close_button_default",
+        "$hover_texture|default": "textures/ui/shop_form/close_button_hover",
+        "$alpha|default": 1,
+        "$size|default": [
+            16,
+            16
+        ],
+        "anchor_from": "top_right",
+        "anchor_to": "top_right",
+        "size": [
+            14,
+            14
+        ],
+        "sound_name": "random.click",
+        "controls": [
+            {
+                "default": {
+                    "type": "image",
+                    "size": "$size",
+                    "texture": "$default_texture",
+                    "alpha": "$alpha"
+                }
+            },
+            {
+                "hover": {
+                    "type": "image",
+                    "size": "$size",
+                    "texture": "$hover_texture",
+                    "alpha": "$alpha"
+                }
+            }
+        ],
+        "button_mappings": [
+            {
+                "from_button_id": "button.menu_select",
+                "to_button_id": "button.menu_exit",
+                "mapping_type": "pressed"
+            },
+            {
+                "from_button_id": "button.menu_ok",
+                "to_button_id": "button.menu_exit",
+                "mapping_type": "focused"
+            }
+        ]
+    },
+    "shop_generated_contents": {
+        "type": "stack_panel",
+        "size": [
+            "100%",
+            "100%c"
+        ],
+        "orientation": "vertical",
+        "anchor_from": "top_left",
+        "anchor_to": "top_left",
+        "factory": {
+            "name": "buttons",
+            "control_ids": {
+                "label": "@server_form.custom_label",
+                "toggle": "@shop.shop_custom_toggle",
+                "slider": "@shop.shop_custom_slider",
+                "step_slider": "@server_form.custom_step_slider",
+                "dropdown": "@server_form.custom_dropdown",
+                "input": "@server_form.custom_input",
+                "header": "@server_form.custom_header",
+                "divider": "@settings_common.option_group_section_divider"
+            }
+        },
+        "collection_name": "custom_form",
+        "bindings": [
+            {
+                "binding_name": "#custom_form_length",
+                "binding_name_override": "#collection_length"
+            }
+        ]
+    },
+    "shop_option_slider@settings_common.option_generic": {
+        "$control_name": "shop.shop_option_slider_control"
+    },
+    "shop_option_slider_control": {
+        "type": "panel",
+        "size": [
+            "100% - 2px",
+            16
+        ],
+        "controls": [
+            {
+                "slider@common.slider": {
+                    "size": [
+                        "100%-8px",
+                        10
+                    ],
+                    "$slider_box_size": [
+                        10,
+                        16
+                    ],
+                    "offset": [
+                        1,
+                        0
+                    ],
+                    "$border_visible": false,
+                    "default_control": "shop.shop_slider_bar_default",
+                    "hover_control": "shop.shop_slider_bar_default",
+                    "background_control": "slider_background",
+                    "background_hover_control": "slider_background",
+                    "$option_label|default": "",
+                    "$slider_tts_header": "$option_label",
+                    "$slider_tts_header_binding_type": "global",
+                    "enabled": "$enabled",
+                    "$slider_enabled_binding_name": "$option_enabled_binding_name",
+                    "$slider_enabled_binding_type": "global",
+                    "variables": [
+                        {
+                            "requires": "(not $option_enabled_binding_name or not $enabled)",
+                            "$slider_enabled_binding_name": "#not_data_bound",
+                            "$slider_enabled_binding_type": "none"
+                        }
+                    ],
+                    "controls": [
+                        {
+                            "slider_box@common.slider_box": {
+                                "$slider_box_layout": "shop.slider_button_layout",
+                                "$slider_box_hover_layout": "shop.slider_button_layout",
+                                "$slider_box_size": "$slider_box_size",
+                                "$slider_track_button": "$slider_name"
+                            }
+                        },
+                        {
+                            "shop_slider_bar_default@shop.shop_slider_bar_default": {}
+                        },
+                        {
+                            "slider_bar_hover@common.slider_bar_hover": {
+                                "visible": false
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "slider_button_layout@common.slider_button_state": {
+        "texture": "textures/ui/shop_form/slider_button_default"
+    },
+    "slider_button_hover_layout@common.slider_button_state": {
+        "texture": "textures/ui/shop_form/slider_button_default"
+    },
+    "slider_background": {
+        "type": "image",
+        "texture": "textures/ui/shop_form/slider_background"
+    },
+    "slider_progress": {
+        "type": "image",
+        "texture": "textures/ui/shop_form/slider_progress",
+        "alpha": 1
+    },
+    "slider_progress_hover": {
+        "type": "image",
+        "texture": "textures/ui/shop_form/slider_progress"
+    },
+    "shop_slider_bar_default@common.slider_border": {
+        "$background_control|default": "shop.slider_background",
+        "$progress_control|default": "shop.slider_progress",
+        "$background_control_name|default": "slider_background",
+        "$progress_control_name|default": "slider_progress",
+        "$progress_clip_direction|default": "left",
+        "color": "$slider_default_border_color",
+        "controls": [
+            {
+                "sizing_panel": {
+                    "type": "panel",
+                    "size": [
+                        "100% - 2px",
+                        "100% - 2px"
+                    ],
+                    "controls": [
+                        {
+                            "$background_control_name@$background_control": {
+                                "layer": 1
+                            }
+                        },
+                        {
+                            "$progress_control_name@$progress_control": {
+                                "layer": 3,
+                                "clip_direction": "$progress_clip_direction",
+                                "clip_pixelperfect": false
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "transparent_grey": {
+                    "type": "image",
+                    "texture": "textures/ui/shop_form/slider_locked_transparent_fade",
+                    "alpha": 0.5,
+                    "layer": 4,
+                    "bindings": [
+                        {
+                            "binding_type": "$slider_enabled_binding_type",
+                            "binding_condition": "$slider_enabled_binding_condition",
+                            "binding_collection_name": "$slider_collection_name",
+                            "binding_name": "(not $slider_enabled_binding_name)",
+                            "binding_name_override": "#visible"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "shop_custom_slider": {
+        "type": "stack_panel",
+        "$flag_calc_price": "§r§4§k§r",
+        "size": [
+            "100%",
+            "100%c"
+        ],
+        "controls": [
+            {
+                "wrapper": {
+                    "type": "panel",
+                    "size": [
+                        "100%",
+                        "100%c"
+                    ],
+                    "controls": [
+                        {
+                            "shop_custom_slider_custom@shop.shop_option_slider": {
+                                "$option_label": "#text",
+                                "$slider_name": "custom_slider",
+                                "$slider_value_binding_name": "#custom_slider_value",
+                                "$slider_tts_text_value": "#custom_slider_text_value",
+                                "$slider_binding_type": "collection",
+                                "$slider_collection_name": "custom_form",
+                                "$slider_enabled_binding_name": "#custom_slider_enabled",
+                                "$slider_enabled_binding_type": "collection",
+                                "$slider_timeout_binding_type": "collection",
+                                "$slider_timeout_binding_name": "#custom_slider_timeout",
+                                "$option_tooltip_binding_type": "collection",
+                                "$option_tooltip_collection_name": "custom_form",
+                                "$option_tooltip_text_binding_name": "#custom_tooltip_text",
+                                "$option_tooltip_area": "inside_header_panel",
+                                "$label_bindings": [
+                                    {
+                                        "binding_name": "#custom_slider_text",
+                                        "binding_type": "collection",
+                                        "binding_collection_name": "custom_form"
+                                    },
+                                    {
+                                        "binding_type": "view",
+                                        "source_property_name": "((#field - ('%.13s' * #field)) - '\b' - ':' - ' ' - '\t')",
+                                        "target_property_name": "#amount"
+                                    },
+                                    {
+                                        "binding_type": "view",
+                                        "source_property_name": "(('%.13s' * #field) - '\t' - '\b')",
+                                        "target_property_name": "#price"
+                                    },
+                                    {
+                                        "binding_type": "view",
+                                        "source_property_name": "((('§z')+('ราคารวม:' + '§a' + ' $' + (#price * #amount))) + ' §r§7[§r' + '§e' + #amount + '§7x§r') + '§r§7]')",
+                                        "target_property_name": "#text"
+                                    },
+                                    {
+                                        "binding_type": "view",
+                                        "source_property_name": "('\b' + (#custom_slider_text) - $flag_calc_price)",
+                                        "target_property_name": "#field"
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "bindings": [
+                        {
+                            "binding_name": "#custom_slider_text",
+                            "binding_type": "collection",
+                            "binding_collection_name": "custom_form"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "(not ((#custom_slider_text - $flag_calc_price) = #custom_slider_text))",
+                            "target_property_name": "#visible"
+                        }
+                    ]
+                }
+            },
+            {
+                "wrapper": {
+                    "type": "panel",
+                    "size": [
+                        "100%",
+                        "100%c"
+                    ],
+                    "controls": [
+                        {
+                            "shop_custom_slider_default@shop.shop_option_slider": {
+                                "$option_label": "#custom_slider_text",
+                                "$slider_name": "custom_slider",
+                                "$slider_value_binding_name": "#custom_slider_value",
+                                "$slider_tts_text_value": "#custom_slider_text_value",
+                                "$slider_binding_type": "collection",
+                                "$slider_collection_name": "custom_form",
+                                "$slider_enabled_binding_name": "#custom_slider_enabled",
+                                "$slider_enabled_binding_type": "collection",
+                                "$slider_timeout_binding_type": "collection",
+                                "$slider_timeout_binding_name": "#custom_slider_timeout",
+                                "$option_tooltip_binding_type": "collection",
+                                "$option_tooltip_collection_name": "custom_form",
+                                "$option_tooltip_text_binding_name": "#custom_tooltip_text",
+                                "$option_tooltip_area": "inside_header_panel",
+                                "$label_bindings": [
+                                    {
+                                        "binding_name": "#custom_slider_text",
+                                        "binding_type": "collection",
+                                        "binding_collection_name": "custom_form"
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "bindings": [
+                        {
+                            "binding_name": "#custom_slider_text",
+                            "binding_type": "collection",
+                            "binding_collection_name": "custom_form"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "((#custom_slider_text - $flag_calc_price) = #custom_slider_text)",
+                            "target_property_name": "#visible"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "option_toggle_off@settings_common.option_toggle_state_template": {
+        "texture": "textures/ui/shop_form/toggle_off"
+    },
+    "option_toggle_on@settings_common.option_toggle_state_template": {
+        "texture": "textures/ui/shop_form/toggle_on"
+    },
+    "option_toggle_off_hover@settings_common.option_toggle_state_template": {
+        "texture": "textures/ui/shop_form/toggle_off"
+    },
+    "option_toggle_on_hover@settings_common.option_toggle_state_template": {
+        "texture": "textures/ui/shop_form/toggle_on"
+    },
+    "shop_custom_toggle": {
+        "type": "stack_panel",
+        "offset": [
+            -20,
+            0
+        ],
+        "controls": [
+            {
+                "toggle_element@settings_common.option_toggle": {
+                    "$control_name": "shop.shop_option_toggle_control",
+                    "$option_label": "#custom_text",
+                    "$toggle_name": "custom_toggle",
+                    "$toggle_state_binding_name": "#custom_toggle_state",
+                    "$option_binding_name": "#custom_toggle_state",
+                    "$toggle_binding_type": "collection",
+                    "$toggle_enabled_binding_name": "#custom_toggle_enabled",
+                    "$toggle_enabled_binding_type": "collection",
+                    "$toggle_grid_collection_name": "custom_form",
+                    "$option_tooltip_binding_type": "collection",
+                    "$option_tooltip_collection_name": "custom_form",
+                    "$option_tooltip_text_binding_name": "#custom_tooltip_text",
+                    "$option_tooltip_area": "inside_header_panel",
+                    "$label_bindings": [
+                        {
+                            "binding_name": "#custom_text",
+                            "binding_type": "collection",
+                            "binding_collection_name": "custom_form"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "shop_option_toggle_control@common.toggle": {
+        "layer": 2,
+        "$toggle_state_binding_name|default": "$option_binding_name",
+        "$toggle_enabled_binding_name|default": "$option_enabled_binding_name",
+        "$toggle_enabled_binding_type|default": "global",
+        "size": [
+            "100%",
+            "100%c"
+        ],
+        "$binding_type": "global",
+        "$binding_condition": "once",
+        "$unchecked_control": "shop.option_toggle_off",
+        "$checked_control": "shop.option_toggle_on",
+        "$unchecked_hover_control": "shop.option_toggle_off_hover",
+        "$checked_hover_control": "shop.option_toggle_on_hover",
+        "$unchecked_locked_control": "settings_common.option_toggle_off_locked",
+        "$unchecked_locked_hover_control": "settings_common.option_toggle_off_locked",
+        "$checked_locked_control": "settings_common.option_toggle_on_locked",
+        "$checked_locked_hover_control": "settings_common.option_toggle_on_locked",
+        "$enable_directional_toggling": false,
+        "enabled": "$enabled",
+        "variables": [
+            {
+                "requires": "(not $option_enabled_binding_name or not $enabled)",
+                "$toggle_enabled_binding_name": "#not_data_bound",
+                "$toggle_enabled_binding_type": "none"
+            }
+        ]
+    }
+}

@@ -1,0 +1,79 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.hams.ed_meat_hanger.idle": {
+			"loop": true,
+			"animation_length": 10,
+			"bones": {
+				"hasp": {
+					"rotation": {
+						"0.0": {
+							"post": [0, 5, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"2.5": {
+							"post": [0, -5, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"5.0": {
+							"post": [0, 5, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"7.5": {
+							"post": [0, -5, 0],
+							"lerp_mode": "catmullrom"
+						},
+						"10.0": {
+							"post": [0, 5, 0],
+							"lerp_mode": "catmullrom"
+						}
+					}
+				}
+			}
+		},
+		"animation.hams.ed_meat_hanger.half": {
+			"loop": true,
+			"bones": {
+				"piece6": {
+					"rotation": [0, 7.5, 0],
+					"position": [-1, 0, 0]
+				},
+				"left_body": {
+					"rotation": [0, -5, 0],
+					"position": [0.5, 0, 0]
+				},
+				"piece9": {
+					"rotation": [0, -7.5, 0],
+					"position": [1, 0, 0]
+				}
+			}
+		},
+		"animation.hams.ed_meat_hanger.setup_cow": {
+			"loop": true,
+			"bones": {
+				"meat": {
+					"position": [0, -2.4, 1.5],
+					"scale": [1.15, 1.15, 1.15]
+				}
+			}
+		},
+		"animation.hams.ed_meat_hanger.setup_limousin": {
+			"loop": true,
+			"bones": {
+				"meat": {
+					"position": [0, -2.75, 1],
+					"scale": [1.15, 1.15, 1.15]
+				}
+			}
+		},
+		"animation.hams.ed_meat_hanger.setup_goat": {
+			"loop": true,
+			"bones": {
+				"meat": {
+					"position": [0, 1.5, -1],
+					"scale": [0.9, 0.9, 0.9]
+				}
+			}
+		}
+	}
+}

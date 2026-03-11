@@ -1,0 +1,72 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "kisu:fishing_rod",
+      "materials": {
+        "default": "entity_alphatest",
+        "line": "kisu_fishing_line",
+        "bobber": "entity_alphatest_one_sided"
+      },
+      "textures": {
+        "default": "textures/entity/tools/rod/fishing_rod",
+        "line": "textures/entity/tools/rod/fishing_rod_line_001"
+      },
+      "geometry": {
+        "default": "geometry.fp_fishing_rod.mnp_ci",
+        "tp_base": "geometry.tp_fishing_rod.mnp_ci",
+        "line": "geometry.fishing_rod_line.mnp_ci"
+      },
+      "scripts": {
+        "initialize": [
+          "v.is_first_person = c.is_first_person;",
+          "v.prev_time_stamp = q.time_stamp;",
+          "v.prev_p_3p_x = q.position(0); v.prev_p_3p_y = q.position(1); v.prev_p_3p_z = q.position(2);",
+          "v.p_v_3p_x = 0; v.p_v_3p_y = 0; v.p_v_3p_z = 0;",
+          "v.p_v_3p_frame_alpha = 0;",
+          "v.casted_rot_y = q.body_y_rotation + q.target_y_rotation;",
+          "v.yaw = 0;",
+          "v.prev_yaw = 0;",
+          "v.yaw_delta = 0;",
+          "v.smooth_yaw_speed = math.clamp(q.yaw_speed * 0.05, -10, 10) * 0.1;",
+          "v.smooth_pitch_speed = 0;",
+          "v.smooth_p_local_vel_forward = 0; v.smooth_p_local_vel_right = 0; v.smooth_p_vel_up = 0; v.sway_forward = 0; v.sway_right = 0; v.sway_dir_angle = 0;",
+          "v.player_x_rotation = 0;"
+        ],
+        "pre_animation": [
+          "!q.is_in_ui && q.time_stamp > v.prev_time_stamp ? {v.p_v_3p_x = q.position(0) - v.prev_p_3p_x; v.prev_p_3p_x = q.position(0); v.p_v_3p_y = q.position(1) - v.prev_p_3p_y; v.prev_p_3p_y = q.position(1); v.p_v_3p_z = q.position(2) - v.prev_p_3p_z; v.prev_p_3p_z = q.position(2); v.p_v_3p_frame_alpha = 0;};",
+          "v.p_v_3p_frame_alpha = v.p_v_3p_frame_alpha + q.delta_time * 20;",
+          "t.yaw_speed = math.clamp(c.is_first_person ? v.yaw_delta : q.yaw_speed * 0.05, -10, 10) * 0.05; v.smooth_yaw_speed = math.lerp(t.yaw_speed, v.smooth_yaw_speed, math.exp((-5 + 4 * math.abs(t.yaw_speed)) * q.delta_time));",
+          "q.time_stamp > v.prev_time_stamp ? {v.prev_pitch = (v.pitch ?? v.player_x_rotation); v.pitch = v.player_x_rotation;};",
+          "t.pitch_coeff = -2 + math.sqrt(0.5 + math.clamp(v.smooth_pitch_speed * 0.4, -1, 1) * 0.5); v.smooth_pitch_speed = math.lerp(math.clamp(((v.pitch ?? v.player_x_rotation) - (v.prev_pitch ?? v.player_x_rotation)) * t.pitch_coeff * 0.3, -2, 1), v.smooth_pitch_speed, math.exp(-3 * q.delta_time));",
+          "t.local_p_vel_forward = math.cos(c.is_first_person ? v.yaw : q.body_y_rotation + q.target_y_rotation) * v.p_v_3p_z - math.sin(c.is_first_person ? v.yaw : q.body_y_rotation + q.target_y_rotation) * v.p_v_3p_x; v.smooth_p_local_vel_forward = math.lerp(t.local_p_vel_forward * 0.2 - math.clamp(-v.p_v_3p_y * 0.15, 0, 0.3), v.smooth_p_local_vel_forward, math.exp(-3 * q.delta_time));",
+          "t.local_p_vel_right = -math.cos(c.is_first_person ? v.yaw : q.body_y_rotation + q.target_y_rotation) * v.p_v_3p_x - math.sin(c.is_first_person ? v.yaw : q.body_y_rotation + q.target_y_rotation) * v.p_v_3p_z; v.smooth_p_local_vel_right = math.lerp(t.local_p_vel_right * 0.2, v.smooth_p_local_vel_right, math.exp(-3 * q.delta_time));",
+          "v.sway_forward = math.clamp(math.lerp(v.smooth_pitch_speed / (1 + v.smooth_yaw_speed * 0.5), v.smooth_pitch_speed / (1 + v.smooth_yaw_speed * 0.5) * 0.5 + v.smooth_p_local_vel_forward * 3, math.min(math.abs(v.smooth_p_local_vel_forward) * 40, 1)), -1, 1);",
+          "v.smooth_p_vel_up = math.lerp(math.clamp(-v.p_v_3p_y * 1.4, 0, 1), v.smooth_p_vel_up, math.exp(-4 * q.delta_time));",
+          "v.sway_right = math.clamp(math.lerp(v.smooth_yaw_speed / (1 + v.smooth_pitch_speed * 0.5 + math.abs(v.smooth_p_local_vel_forward) * 30), v.smooth_yaw_speed / (1 + v.smooth_pitch_speed * 0.5 + math.abs(v.smooth_p_local_vel_forward) * 30) * 0.5 + v.smooth_p_local_vel_right * 3, math.min(math.abs(v.smooth_p_local_vel_right) * 40, 1)), -1, 1);",
+          "t.sway_magn = math.sqrt(math.pow(v.sway_forward,2) + math.pow(v.sway_right,2)); v.sway_dir_angle = math.atan2(v.sway_right/(t.sway_magn + 0.0001), v.sway_forward/(t.sway_magn + 0.0001)) * math.clamp(t.sway_magn*5, 0, 1);",
+          "v.is_first_person = c.is_first_person;",
+          "v.prev_time_stamp = q.time_stamp;"
+        ],
+        "animate": [
+          {
+            "wield_first_person": "c.is_first_person"
+          },
+          {
+            "wield_third_person": "!c.is_first_person"
+          },
+          "sway"
+        ]
+      },
+      "animations": {
+        "wield_first_person": "animation.fishing_rod.mnp_ci.wield_first_person",
+        "wield_third_person": "animation.fishing_rod.mnp_ci.wield_third_person.not_player",
+        "sway": "animation.fishing_rod.mnp_ci.sway"
+      },
+      "render_controllers": [
+        "controller.render.fishing_rod.mnp_ci",
+        "controller.render.fishing_rod_line.mnp_ci"
+      ]
+    }
+  }
+}

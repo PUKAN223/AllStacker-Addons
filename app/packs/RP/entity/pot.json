@@ -1,0 +1,22 @@
+{
+  "format_version": "1.20.80",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "kisu:pot",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/tools/pot"
+      },
+      "geometry": {
+        "default": "geometry.pot"
+      },
+      "render_controllers": ["controller.render.default"],
+      "spawn_egg": {
+        "texture": "pot_spawn_egg",
+        "texture_index": 0
+      }
+    }
+  }
+}

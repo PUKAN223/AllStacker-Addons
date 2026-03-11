@@ -1,0 +1,10 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:camera_preset": {
+    "identifier": "mnp_ci:custom_follow_orbit_left",
+    "inherit_from": "minecraft:follow_orbit",
+    "view_offset": [-2.0, 0],
+    "radius": 3,
+    "listener": "player"
+  }
+}

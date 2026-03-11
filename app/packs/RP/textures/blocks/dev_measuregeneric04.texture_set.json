@@ -1,0 +1,7 @@
+{
+	"format_version": "1.16.100",
+	"minecraft:texture_set": {
+		"color": "dev_measuregeneric04",
+		"heightmap": "dev_measuregeneric02_height"
+	}
+}

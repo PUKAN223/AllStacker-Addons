@@ -1,0 +1,25 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "hams:ed_meat_hanger",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/meat_hanger/meat_hanger"
+      },
+      "geometry": {
+        "default": "geometry.hams.ed_meat_hanger"
+      },
+      "animations": {
+        "setup": "animation.hams.setup0",
+        "idle": "animation.hams.ed_meat_hanger.idle"
+      },
+      "scripts": {
+        "animate": ["setup", "idle"]
+      },
+      "render_controllers": ["controller.render.default"]
+    }
+  }
+}

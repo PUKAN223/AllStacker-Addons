@@ -1,0 +1,493 @@
+{
+  "format_version": "1.10.0",
+  "animations": {
+    "animation.fishing_rod.mnp_ci.wield_first_person": {
+      "loop": true,
+      "bones": {
+        "fishing_rod0": {
+          "rotation": [6, 65, -72],
+          "position": [-2, 3, 5]
+        },
+        "rod_line1": {
+          "rotation": [58, 1.5, 13]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.wield_third_person": {
+      "loop": true,
+      "bones": {
+        "rod_line1": {
+          "relative_to": {
+            "rotation": "entity"
+          },
+          "rotation": [0.1, 0, 0]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.wield_third_person.not_player": {
+      "loop": true,
+      "bones": {
+        "rod_line1": {
+          "relative_to": {
+            "rotation": "entity"
+          },
+          "rotation": [0.01, 0, 0]
+        },
+        "fishing_rod1": {
+          "rotation": [5, 0, 0]
+        },
+        "rod_bobber": {
+          "position": [0, 4, 0]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.fishing_line_first_person": {
+      "loop": true,
+      "bones": {
+        "line_root0": {
+          "rotation": ["v.player_x_rotation", 0, 0],
+          "position": ["v.line_trs.t.x", "v.line_trs.t.y", "v.line_trs.t.z"]
+        },
+        "line_root1": {
+          "rotation": ["v.line_pitch", "math.atan2(v.line.x,v.line.z) -v.yaw", 0]
+        },
+        "line_bobber0": {
+          "rotation": ["-v.line_pitch", 0, 0],
+          "position": [0, 0, "v.line_magn*16"]
+        },
+        "debug_line": {
+          "rotation": ["v.line_pitch", "math.atan2(v.line.x,v.line.z) -v.yaw", 0],
+          "scale": [1, 1, "v.line_magn*16"]
+        },
+        "line0": {
+          "rotation": ["math.atan2(v.line_segm1_y, v.line_segm_z)", 0, 0],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm1_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line1": {
+          "rotation": ["math.atan2(v.line_segm2_y-v.line_segm1_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm1_y", "v.line_segm_z"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm2_y-v.line_segm1_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line2": {
+          "rotation": ["math.atan2(v.line_segm3_y-v.line_segm2_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm2_y", "v.line_segm_z*2"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm3_y-v.line_segm2_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line3": {
+          "rotation": ["math.atan2(v.line_segm4_y-v.line_segm3_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm3_y", "v.line_segm_z*3"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm4_y-v.line_segm3_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line4": {
+          "rotation": ["math.atan2(v.line_segm5_y-v.line_segm4_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm4_y", "v.line_segm_z*4"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm5_y-v.line_segm4_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line5": {
+          "rotation": ["math.atan2(v.line_segm6_y-v.line_segm5_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm5_y", "v.line_segm_z*5"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm6_y-v.line_segm5_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line6": {
+          "rotation": ["math.atan2(v.line_segm7_y-v.line_segm6_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm6_y", "v.line_segm_z*6"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm7_y-v.line_segm6_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line7": {
+          "rotation": ["math.atan2(v.line_segm8_y-v.line_segm7_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm7_y", "v.line_segm_z*7"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm8_y-v.line_segm7_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line8": {
+          "rotation": ["math.atan2(v.line_segm9_y-v.line_segm8_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm8_y", "v.line_segm_z*8"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm9_y-v.line_segm8_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line9": {
+          "rotation": ["math.atan2(-v.line_segm9_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm9_y", "v.line_segm_z*9"],
+          "scale": [1, 1, "math.sqrt(math.pow(-v.line_segm9_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line_bobber1": {
+          "rotation": [0, "180-math.atan2(v.line.x,v.line.z)", 0]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.fishing_line_third_person_root_rotation": {
+      "loop": true,
+      "bones": {
+        "line_root0": {
+          "rotation": [0, "q.body_y_rotation -v.casted_rot_y", 0]
+        },
+        "line_root1": {
+          "rotation": ["v.line_pitch", "math.atan2(v.line.x,v.line.z) -q.body_y_rotation", 0],
+          "position": ["v.line_trs.t.x", "v.line_trs.t.y", "v.line_trs.t.z"]
+        },
+        "debug_line": {
+          "rotation": ["v.line_pitch", "math.atan2(v.line.x,v.line.z) -q.body_y_rotation", 0],
+          "position": ["v.line_trs.t.x-v.root_trs.t.x", "v.line_trs.t.y-v.root_trs.t.y", "v.line_trs.t.z-v.root_trs.t.z"],
+          "scale": [1, 1, "v.line_magn*16"]
+        },
+        "line_bobber0": {
+          "rotation": ["-v.line_pitch", 0, 0],
+          "position": [0, 0, "v.line_magn*16"]
+        },
+        "line3": {
+          "rotation": ["math.atan2(v.line_segm4_y-v.line_segm3_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm3_y", "v.line_segm_z*3"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm4_y-v.line_segm3_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line0": {
+          "rotation": ["math.atan2(v.line_segm1_y, v.line_segm_z)", 0, 0],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm1_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line1": {
+          "rotation": ["math.atan2(v.line_segm2_y-v.line_segm1_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm1_y", "v.line_segm_z"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm2_y-v.line_segm1_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line2": {
+          "rotation": ["math.atan2(v.line_segm3_y-v.line_segm2_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm2_y", "v.line_segm_z*2"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm3_y-v.line_segm2_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line4": {
+          "rotation": ["math.atan2(v.line_segm5_y-v.line_segm4_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm4_y", "v.line_segm_z*4"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm5_y-v.line_segm4_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line9": {
+          "rotation": ["math.atan2(-v.line_segm9_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm9_y", "v.line_segm_z*9"],
+          "scale": [1, 1, "math.sqrt(math.pow(-v.line_segm9_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line5": {
+          "rotation": ["math.atan2(v.line_segm6_y-v.line_segm5_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm5_y", "v.line_segm_z*5"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm6_y-v.line_segm5_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line6": {
+          "rotation": ["math.atan2(v.line_segm7_y-v.line_segm6_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm6_y", "v.line_segm_z*6"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm7_y-v.line_segm6_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line7": {
+          "rotation": ["math.atan2(v.line_segm8_y-v.line_segm7_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm7_y", "v.line_segm_z*7"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm8_y-v.line_segm7_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line8": {
+          "rotation": ["math.atan2(v.line_segm9_y-v.line_segm8_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm8_y", "v.line_segm_z*8"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm9_y-v.line_segm8_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line_bobber1": {
+          "rotation": [0, "-math.atan2(v.line.x,v.line.z)", 0]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.fishing_line_third_person": {
+      "loop": true,
+      "bones": {
+        "line_root0": {
+          "relative_to": {
+            "rotation": "entity"
+          },
+          "rotation": ["v.line_pitch", "math.atan2(v.line.x,v.line.z) -q.body_y_rotation", 0]
+        },
+        "debug_line": {
+          "rotation": ["v.line_pitch", "math.atan2(v.line.x,v.line.z) -q.body_y_rotation", 0],
+          "position": ["v.line_trs.t.x-v.root_trs.t.x", "v.line_trs.t.y-v.root_trs.t.y", "v.line_trs.t.z-v.root_trs.t.z"],
+          "scale": [1, 1, "v.line_magn*16"]
+        },
+        "line_bobber0": {
+          "rotation": ["-v.line_pitch", 0, 0],
+          "position": [0, 0, "v.line_magn*16"]
+        },
+        "line3": {
+          "rotation": ["math.atan2(v.line_segm4_y-v.line_segm3_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm3_y", "v.line_segm_z*3"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm4_y-v.line_segm3_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line0": {
+          "rotation": ["math.atan2(v.line_segm1_y, v.line_segm_z)", 0, 0],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm1_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line1": {
+          "rotation": ["math.atan2(v.line_segm2_y-v.line_segm1_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm1_y", "v.line_segm_z"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm2_y-v.line_segm1_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line2": {
+          "rotation": ["math.atan2(v.line_segm3_y-v.line_segm2_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm2_y", "v.line_segm_z*2"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm3_y-v.line_segm2_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line4": {
+          "rotation": ["math.atan2(v.line_segm5_y-v.line_segm4_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm4_y", "v.line_segm_z*4"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm5_y-v.line_segm4_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line9": {
+          "rotation": ["math.atan2(-v.line_segm9_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm9_y", "v.line_segm_z*9"],
+          "scale": [1, 1, "math.sqrt(math.pow(-v.line_segm9_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line5": {
+          "rotation": ["math.atan2(v.line_segm6_y-v.line_segm5_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm5_y", "v.line_segm_z*5"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm6_y-v.line_segm5_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line6": {
+          "rotation": ["math.atan2(v.line_segm7_y-v.line_segm6_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm6_y", "v.line_segm_z*6"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm7_y-v.line_segm6_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line7": {
+          "rotation": ["math.atan2(v.line_segm8_y-v.line_segm7_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm7_y", "v.line_segm_z*7"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm8_y-v.line_segm7_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line8": {
+          "rotation": ["math.atan2(v.line_segm9_y-v.line_segm8_y, v.line_segm_z)", 0, 0],
+          "position": [0, "v.line_segm8_y", "v.line_segm_z*8"],
+          "scale": [1, 1, "math.sqrt(math.pow(v.line_segm9_y-v.line_segm8_y, 2) + v.line_segm_z2)*0.0625"]
+        },
+        "line_bobber1": {
+          "rotation": [0, "-math.atan2(v.line.x,v.line.z)", 0]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.debug.cube_to_lure2": {
+      "loop": true,
+      "bones": {
+        "cancel": {
+          "rotation": ["-v.root_trs.r.x", "-v.root_trs.r.y", "-v.root_trs.r.z"]
+        },
+        "cancel1": {
+          "rotation": [0, "-q.body_y_rotation", 0],
+          "position": ["-v.root_trs.t.x", "-v.root_trs.t.y", "-v.root_trs.t.z"]
+        },
+        "test": {
+          "position": ["v.l.x*16 -q.position(0)*16", "v.l.y*16 -q.position(1)*16 +24", "-v.l.z*16 +q.position(2)*16"]
+        },
+        "cancel2": {
+          "rotation": ["-v.root_trs.r.x", "-v.root_trs.r.y", "-v.root_trs.r.z"]
+        },
+        "cancel3": {
+          "rotation": [0, "-q.body_y_rotation", 0],
+          "position": ["-v.root_trs.t.x", "-v.root_trs.t.y", "-v.root_trs.t.z"]
+        },
+        "test2": {
+          "position": ["(v.l.x - v.prev_p_3p.x + (v.p_v_3p.x - v.l_v.x) * (1-v.p_v_3p_frame_alpha))*16", "(v.l.y - v.prev_p_3p.y + (v.p_v_3p.y - v.l_v.y) * (1-v.p_v_3p_frame_alpha))*16 +24 +10", "(-v.l.z + v.prev_p_3p.z - (v.p_v_3p.z - v.l_v.z) * (1-v.p_v_3p_frame_alpha))*16"]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.charge_first_person": {
+      "loop": true,
+      "bones": {
+        "fishing_rod0": {
+          "rotation": ["math.sqrt(math.clamp(v.use_duration*2,0,1))*-10+math.clamp(v.use_duration*4,0,1)*-45+math.cos(math.max(v.use_duration-0.3,0)*1600)*0.2-0.2", 0, 0]
+        },
+        "rod_line1": {
+          "rotation": ["math.sin(math.clamp(v.use_duration*2,0,1)*90)*45-math.sin(math.min(v.use_duration,1)*360)* math.cos(math.clamp(v.use_duration-0.1,0,1)*90) * 20", "math.sin(math.clamp(v.use_duration,0,1)*90)*-15 +math.clamp(v.use_duration,0,1)*4", 0]
+        },
+        "fishing_rod1": {
+          "position": [0, "math.sin(math.clamp(v.use_duration*2.5,0,1)*120)*-3+1", "math.sin(math.clamp(v.use_duration*2.5,0,1)*90)*-1-1"]
+        },
+        "rod_line2": {
+          "rotation": ["-math.sin(math.min(v.use_duration*1.2,1)*360) * 10", 0, 0]
+        },
+        "rod_bobber": {
+          "rotation": ["-math.sin(math.min(v.use_duration*1.1,1)*360) * 10", 0, 0]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.cast_first_person": {
+      "loop": "hold_on_last_frame",
+      "animation_length": 0.32,
+      "bones": {
+        "fishing_rod0": {
+          "rotation": {
+            "0.0": ["math.sqrt(math.clamp(v.use_duration*2,0,1))*-10+math.clamp(v.use_duration*4,0,1)*-45+math.cos(math.max(v.use_duration-0.3,0)*1600)*0.2-0.2", 0, 0],
+            "0.04": [-80, 0, 0],
+            "0.16": [20, 0, 0]
+          }
+        },
+        "rod_line1": {
+          "rotation": {
+            "0.04": ["math.sin(math.clamp(v.use_duration*2,0,1)*90)*45-math.sin(math.min(v.use_duration,1)*360)* math.cos(math.clamp(v.use_duration-0.1,0,1)*90) * 20", "math.sin(math.clamp(v.use_duration,0,1)*90)*-15 +math.clamp(v.use_duration,0,1)*4", 0],
+            "0.12": [140, 0, 0],
+            "0.32": [340, 0, 0]
+          }
+        },
+        "fishing_rod1": {
+          "rotation": {
+            "0.0": [0, 0, 0],
+            "0.04": [0, "math.sin(q.anim_time*700)*10", "math.sin(q.anim_time*600)*10"],
+            "0.08": [0, "math.sin(q.anim_time*600)*40", "math.sin(q.anim_time*600)*20"],
+            "0.24": [0, 0, 0]
+          },
+          "position": {
+            "0.0": [0, "math.sin(math.clamp(v.use_duration*2.5,0,1)*120)*-3+1", "math.sin(math.clamp(v.use_duration*2.5,0,1)*90)*-1-1"],
+            "0.04": [-1, -2, -4],
+            "0.08": [-2, -2, -4],
+            "0.12": [0.5, -1.5, -4.25],
+            "0.24": [0, 0, -5]
+          }
+        },
+        "rod_line2": {
+          "rotation": {
+            "0.04": ["-math.sin(math.min(v.use_duration*1.2,1)*360) * 10", 0, 0],
+            "0.16": [-10, 0, 0],
+            "0.28": [0, 0, 0]
+          }
+        },
+        "rod_bobber": {
+          "rotation": {
+            "0.08": ["-math.sin(math.min(v.use_duration*1.1,1)*360) * 10", 0, 0],
+            "0.16": [-5, 0, 0],
+            "0.28": [0, 0, 0]
+          }
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.casted_first_person": {
+      "loop": true,
+      "bones": {
+        "fishing_rod0": {
+          "rotation": [20, 0, 0]
+        },
+        "rod_line1": {
+          "rotation": [340, 0, 0]
+        },
+        "fishing_rod1": {
+          "rotation": [0, 0, 0],
+          "position": [0, 0, -5]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.reel_add_first_person": {
+      "loop": true,
+      "bones": {
+        "fishing_rod1": {
+          "rotation": [-70, 0, 0],
+          "position": [0, 2, 1]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.reel_stuck_add_first_person": {
+      "loop": true,
+      "bones": {
+        "fishing_rod1": {
+          "rotation": ["math.sin(q.anim_time*1800)*0.6", 0, 0],
+          "position": [0, 0, "math.sin(q.anim_time*1800+60)*0.2 * (v.l_v < 0.05)"]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.debug.cube_to_lure_first_person": {
+      "loop": true,
+      "bones": {
+        "cancel": {
+          "rotation": ["v.player_x_rotation", 0, 0],
+          "position": [0, 24, 0]
+        },
+        "cancel1": {
+          "rotation": [0, "-v.yaw", 0]
+        },
+        "test": {
+          "position": ["(-v.l.x + v.prev_p_h.x - (v.p_h_v.x - v.l_v.x) * (1-v.script_frame_alpha))*16", "(v.l.y - v.prev_p_h.y + (v.p_h_v.y - v.l_v.y) * (1-v.script_frame_alpha))*16", "(v.l.z - v.prev_p_h.z + (v.p_h_v.z - v.l_v.z) * (1-v.script_frame_alpha))*16"]
+        },
+        "cancel2": {
+          "rotation": ["v.player_x_rotation", 0, 0],
+          "position": [0, 24, 0]
+        },
+        "cancel3": {
+          "rotation": [0, "-v.yaw", 0]
+        },
+        "test2": {
+          "position": ["(-v.l.x + v.prev_p_h.x - (v.p_h_v.x - v.l_v.x) * (1-v.script_frame_alpha))*16", "(v.l.y - v.prev_p_h.y + (v.p_h_v.y - v.l_v.y) * (1-v.script_frame_alpha))*16", "(v.l.z - v.prev_p_h.z + (v.p_h_v.z - v.l_v.z) * (1-v.script_frame_alpha))*16"]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.debug.cube_to_lure": {
+      "loop": true,
+      "bones": {
+        "cancel": {
+          "rotation": ["-v.root_trs.r.x", "-v.root_trs.r.y", "-v.root_trs.r.z"]
+        },
+        "cancel1": {
+          "rotation": [0, "-q.body_y_rotation", 0],
+          "position": ["-v.root_trs.t.x", "-v.root_trs.t.y", "-v.root_trs.t.z"]
+        },
+        "test": {
+          "position": ["v.l.x*16 -q.position(0)*16", "v.l.y*16 -q.position(1)*16 +24", "-v.l.z*16 +q.position(2)*16"]
+        },
+        "cancel2": {
+          "rotation": ["-28*q.is_sneaking", 0, 0]
+        },
+        "cancel3": {
+          "rotation": [0, "-(v.casted_rot_y??0)", 0],
+          "position": [0, "-1.25*q.is_sneaking", "-9*q.is_sneaking"]
+        },
+        "test2": {
+          "position": ["(v.l.x - v.prev_p_3p.x + (v.p_v_3p.x - v.l_v.x) * (1-v.p_v_3p_frame_alpha))*16", "(v.l.y - v.prev_p_3p.y + (v.p_v_3p.y - v.l_v.y) * (1-v.p_v_3p_frame_alpha))*16 +24", "(-v.l.z + v.prev_p_3p.z - (v.p_v_3p.z - v.l_v.z) * (1-v.p_v_3p_frame_alpha))*16"]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.sway_old": {
+      "loop": true,
+      "bones": {
+        "rod_line2": {
+          "rotation": ["math.cos(q.life_time*45+100) + v.sway_forward*(1-v.smooth_p_vel_up)*7+v.smooth_p_vel_up*45*math.cos(v.sway_right*90)*math.cos(math.clamp(v.sway_forward*10,-1,0)*180)", 0, "v.sway_right*(1-v.smooth_p_vel_up)*-25 + v.smooth_p_vel_up*-65*math.clamp(v.sway_right*4,-1,1)"]
+        },
+        "rod_bobber": {
+          "rotation": ["v.sway_forward*(1-v.smooth_p_vel_up)*20+v.smooth_p_vel_up*40*math.cos(v.sway_right*90)*math.cos(math.clamp(v.sway_forward*10,-1,0)*180)", "math.sin(v.sway_forward*90)*2 + math.clamp(v.sway_right*4,-1,1)*10", "v.sway_right*(1-v.smooth_p_vel_up)*-40 + v.smooth_p_vel_up*v.sway_right*-40"]
+        },
+        "rod_line1_1": {
+          "rotation": [
+            "v.sway_forward*(1-v.smooth_p_vel_up)*20 -(math.cos(math.min(0,v.player_x_rotation)*2)*8+8)+v.smooth_p_vel_up*25*math.cos(v.sway_right*90)*math.cos(math.clamp(v.sway_forward*10,-1,0)*180)*(1+math.clamp(v.sway_forward*3,-0.5,0))",
+            "math.sin(v.sway_forward*90)*5 + v.smooth_p_vel_up*math.cos(v.sway_right*90)*7",
+            "-v.sway_right*45 * (2-math.sqrt(1+math.clamp(v.sway_right,-1,1))*0.7)*(1-v.smooth_p_vel_up)+v.smooth_p_vel_up*-30*math.clamp(v.sway_right*4,-1,1)"
+          ]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.sway": {
+      "loop": true,
+      "bones": {
+        "rod_line2": {
+          "rotation": ["math.cos(q.life_time*45+100) + v.sway_forward*(1-v.smooth_p_vel_up)*7+v.smooth_p_vel_up*45*math.cos(v.sway_dir_angle)", 0, "v.sway_right*(1-v.smooth_p_vel_up)*-25 + v.smooth_p_vel_up*-65*math.sin(v.sway_dir_angle)"]
+        },
+        "rod_bobber": {
+          "rotation": ["v.sway_forward*(1-v.smooth_p_vel_up)*20+v.smooth_p_vel_up*40*math.cos(v.sway_dir_angle)", "math.sin(v.sway_forward*90)*2 + math.clamp(v.sway_right*4,-1,1)*10", "v.sway_right*(1-v.smooth_p_vel_up)*-40 + v.smooth_p_vel_up*-40*math.sin(v.sway_dir_angle)"]
+        },
+        "rod_line1_1": {
+          "rotation": [
+            "v.sway_forward*(1-v.smooth_p_vel_up)*20 -(math.cos(math.min(0,v.player_x_rotation)*2)*8+8)+v.smooth_p_vel_up*25*math.cos(v.sway_dir_angle)",
+            "math.sin(v.sway_forward*90)*5 + v.smooth_p_vel_up*math.sin(v.sway_dir_angle)*7",
+            "-v.sway_right*45 * (1.5-math.sqrt(1+math.clamp(v.sway_right,-1,1))*0.35)*(1-v.smooth_p_vel_up)+v.smooth_p_vel_up*-30*math.sin(v.sway_dir_angle)"
+          ]
+        }
+      }
+    },
+    "animation.fishing_rod.mnp_ci.flail": {
+      "loop": true,
+      "bones": {
+        "rod_line2": {
+          "rotation": ["math.cos(q.life_time*45+100)+math.cos(q.life_time*1440) * v.smooth_p_vel_up*-3", 0, 0]
+        },
+        "rod_line1_1": {
+          "rotation": [
+            "math.cos(q.life_time*45+100) + math.sin(q.life_time*720)*v.smooth_p_local_vel_right*5",
+            "math.sin(q.life_time*720) * v.smooth_p_local_vel_forward*5+math.sin(q.life_time*1440)*v.smooth_p_vel_up*5",
+            "math.sin(q.life_time*45) - math.cos(q.life_time*720-50)*v.smooth_p_local_vel_right*5+math.sin(q.life_time*720-50)*v.smooth_p_local_vel_forward*5"
+          ]
+        },
+        "rod_bobber": {
+          "rotation": ["math.cos(q.life_time*1440) * v.smooth_p_vel_up*10", 0, "math.sin(q.life_time*1440) * v.smooth_p_vel_up*10"]
+        }
+      }
+    }
+  }
+}

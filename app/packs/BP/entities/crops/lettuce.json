@@ -1,0 +1,71 @@
+{
+  "format_version": "1.20.80",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "kisu:lettuce",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "component_groups": {
+      "growing": {
+        "minecraft:scale": {
+          "value": 1
+        }
+      },
+      "grown": {
+        "minecraft:scale": {
+          "value": 1.7
+        }
+      }
+    },
+    "components": {
+      "minecraft:collision_box": {
+        "width": 1,
+        "height": 0.5
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "all",
+            "deals_damage": false
+          }
+        ]
+      },
+      "minecraft:nameable": {
+        "always_show": false
+      },
+      "minecraft:physics": {
+        "has_collision": true,
+        "has_gravity": true
+      },
+      "minecraft:health": {
+        "max": 20
+      },
+      "minecraft:scale": {
+        "value": 1.7
+      },
+      "minecraft:is_stackable": {
+        "value": true
+      }
+    },
+    "events": {
+      "kisu:growing": {
+        "add": {
+          "component_groups": ["growing"]
+        },
+        "remove": {
+          "component_groups": ["grown"]
+        }
+      },
+      "kisu:grown": {
+        "remove": {
+          "component_groups": ["growing"]
+        },
+        "add": {
+          "component_groups": ["grown"]
+        }
+      }
+    }
+  }
+}

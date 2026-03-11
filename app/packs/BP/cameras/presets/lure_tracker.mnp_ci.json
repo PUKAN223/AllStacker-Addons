@@ -1,0 +1,14 @@
+{
+  "format_version": "1.19.50",
+  "minecraft:camera_preset": {
+    "identifier": "mnp_ci:lure_tracker",
+    "inherit_from": "minecraft:free",
+    "listener": "player",
+    "rotation_speed": 0.0,
+    "snap_to_target": false,
+    "horizontal_rotation_limit": [0.0, 360.0],
+    "vertical_rotation_limit": [0.0, 180.0],
+    "continue_targeting": false,
+    "tracking_radius": 50.0
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "DamageCancel RP",
+    "description": "DamageCancel Addon Create For Minecraft Bedrock",
+    "uuid": "c858092b-7762-4b22-a853-f1b29a75fddc",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      60
+    ]
+  },
+  "modules": [
+    {
+      "description": "My Resource Pack",
+      "type": "resources",
+      "uuid": "a68bad99-24ac-42db-8e09-207787f72671",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "18861239-939f-412e-a77e-e94f48e42e55",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

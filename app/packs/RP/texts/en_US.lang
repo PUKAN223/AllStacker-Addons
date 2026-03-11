@@ -1,0 +1,88 @@
+item.spawn_egg.entity.kisu:lettuce.name=Spawn Lettuce
+entity.kisu:lettuce.name=Lettuce
+item.spawn_egg.entity.kisu:banana.name=Spawn Banana
+entity.kisu:banana.name=Banana
+item.spawn_egg.entity.kisu:basil.name=Spawn Basil
+entity.kisu:basil.name=Basil
+item.spawn_egg.entity.kisu:broccoli.name=Spawn Broccoli
+entity.kisu:broccoli.name=Broccoli
+item.spawn_egg.entity.kisu:cabbage.name=Spawn Cabbage
+entity.kisu:cabbage.name=Cabbage
+item.spawn_egg.entity.kisu:cassava.name=Spawn Cassava
+entity.kisu:cassava.name=Cassava
+item.spawn_egg.entity.kisu:corn.name=Spawn Corn
+entity.kisu:corn.name=Corn
+item.spawn_egg.entity.kisu:onion.name=Spawn Onion
+entity.kisu:onion.name=Onion
+
+item.spawn_egg.entity.kisu:pot.name=Spawn Pot
+entity.kisu:pot.name=Pot
+
+
+entity.kisu:bicycle.name=Bicycle
+
+action.hint.exit.player=Sneak to exit.
+
+item.spawn_egg.entity.rx115:maroon.name=Yamaha RX115 (Maroon)
+item.spawn_egg.entity.rx115:red.name=Yamaha RX115 (Red)
+item.spawn_egg.entity.rx115:white.name=Yamaha RX115 (White)
+item.spawn_egg.entity.kisu:bicycle.name=Spawn Bicycle
+
+action.hint.exit.kisu:bicycle=Press shift to exit.
+action.hint.exit.rx115:white=Sneak to exit.
+action.hint.exit.rx115:red=Sneak to exit.
+action.hint.exit.rx115:maroon=Sneak to exit.
+
+item.spawn_egg.entity.hams:ed_cow.name=Spawn Cow
+entity.hams:ed_cow.name=Cow
+item.spawn_egg.entity.hams:ed_goat.name=Spawn Goat
+entity.hams:ed_goat.name=Goat
+item.spawn_egg.entity.hams:ed_limousin.name=Spawn Limousin Cow
+entity.hams:ed_limousin.name=Limousin Cow
+entity.hams:ed_livestock_dealer.name=Livestock Dealer
+
+item.spawn_egg.entity.hams:ed_cow1.name=Dead Cow
+item.spawn_egg.entity.hams:ed_cow2.name=Dead Cow
+item.spawn_egg.entity.hams:ed_cow3.name=Dead Cow
+item.spawn_egg.entity.hams:ed_goat1.name=Dead Goat
+item.spawn_egg.entity.hams:ed_goat2.name=Dead Goat
+item.spawn_egg.entity.hams:ed_goat3.name=Dead Goat
+item.spawn_egg.entity.hams:ed_goat4.name=Dead Goat
+item.spawn_egg.entity.hams:ed_goat5.name=Dead Goat
+item.spawn_egg.entity.hams:ed_goat6.name=Dead Goat
+item.spawn_egg.entity.hams:ed_limousin1.name=Dead Limousin Cow
+
+item.hams:ed_basin.name=Basin
+item.hams:ed_butcher_knife.name=Butcher Knife
+item.hams:ed_machete.name=Machete
+item.hams:ed_machete_blooded.name=Machete (blooded)
+item.hams:ed_meat_hanger.name=Meat Hanger
+item.hams:ed_rope.name=Rope
+item.hams:ed_cattle_pen.name=Cattle Pen
+item.hams:ed_cow.name=Dead Cow
+
+action.interact.build=Build
+action.interact.knock=Drop
+action.interact.skin=Skin
+action.interact.hang=Hang
+action.interact.pickup=Pick
+action.interact.fill=Fill
+action.interact.wash=Wash
+tile.kisu:random_ore.name=Random Ore
+
+tile.brr:dev_measuregeneric01.name=Developer Tile 01
+tile.brr:dev_measuregeneric02.name=Developer Tile 02
+tile.brr:dev_measuregeneric03.name=Developer Tile 03
+tile.brr:dev_measuregeneric04.name=Developer Tile 04
+tile.brr:dev_measurewall01a.name=Developer Wall 01a
+tile.brr:dev_measurewall01b.name=Developer Wall 01b
+tile.brr:dev_measurewall01c.name=Developer Wall 01c
+tile.brr:dev_measurewall01d.name=Developer Wall 01d
+
+kisu:itemGroup.name.others=Others
+kisu:itemGroup.name.farm_tools=Farm Tools
+kisu:itemGroup.name.tools=Tools
+kisu:itemGroup.name.helpers=Helpers
+kisu:itemGroup.name.vegetables=Vegetables
+kisu:itemGroup.name.foods=Foods
+kisu:itemGroup.name.aquatic=Aquatic

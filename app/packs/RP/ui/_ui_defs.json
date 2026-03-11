@@ -1,0 +1,33 @@
+{
+  "ui_defs": [
+    "ui/huds/top_bar.json",
+    "ui/huds/bottom_bar.json",
+    "ui/huds/car_hud.json",
+
+    "ui/form/shop/template.json",
+    "ui/form/shop/long_form.json",
+    "ui/form/shop/custom_form.json",
+    "ui/form/wallet/template.json",
+    "ui/form/wallet/long_form.json",
+    "ui/form/action/template.json",
+    "ui/form/action/long_form.json",
+    "ui/form/default/long_form.json",
+    "ui/form/default/template.json",
+    "ui/form/default/custom_form.json",
+    "ui/form/minimap/long_form.json",
+    "ui/form/minimap/template.json",
+    "ui/form/cooking/template.json",
+    "ui/form/cooking/long_form.json",
+
+    "ui/smartphone_ui.json",
+    "ui/smartphone_ui/settings_app.json",
+    "ui/smartphone_ui/appstore_app.json",
+    "ui/smartphone_ui/store_app.json",
+    "ui/smartphone_ui/bank_app.json",
+    "ui/smartphone_ui/music_app.json",
+    "ui/smartphone_ui/daynight_app.json",
+    "ui/smartphone_ui/weather_app.json",
+    "ui/smartphone_ui/effect_app.json",
+    "ui/smartphone_ui/discraft_app.json"
+  ]
+}

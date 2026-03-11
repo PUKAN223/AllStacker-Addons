@@ -1,0 +1,173 @@
+{
+  "namespace": "car_hud",
+  "$schema": "https://kalmemarq.github.io/Bugrock-JSON-UI-Schemas/ui.schema.json",
+  "car_hud_bar": {
+    "type": "panel",
+    "$flag_title": "§m§k§a§r",
+    "controls": [
+      {
+        "car_hud_inner@car_hud.car_hud_inner": {
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "data_control_parent",
+              "resolve_sibling_scope": true,
+              "source_property_name": "#game_bar_text",
+              "target_property_name": "#text"
+            },
+            {
+              "source_property_name": "(not ((#text - $flag_title) = #text)) and (not ((#text - $flag_title) = ''))",
+              "binding_type": "view",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "data_control_parent": {
+          "type": "panel",
+          "size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string"
+            },
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_name_override": "#game_bar_text",
+              "binding_condition": "visibility_changed"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(not (#hud_title_text_string = #game_bar_text) and not ((#hud_title_text_string - $flag_title) = #hud_title_text_string))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "car_hud_inner": {
+    "$flag_title": "§m§k§a§r",
+    "type": "stack_panel",
+    "size": [170, 9],
+
+    "offset": [-6, -45],
+    "orientation": "horizontal",
+
+    "anchor_from": "bottom_middle",
+    "anchor_to": "bottom_middle",
+    "controls": [
+      {
+        "broken_empty": {
+          "type": "image",
+          "size": [81, 9],
+          "texture": "textures/ui/car_hud/broken_bar_empty",
+          "controls": [
+            {
+              "broken_full": {
+                "type": "image",
+                "size": ["100%", "100%"],
+                "texture": "textures/ui/car_hud/broken_bar_full",
+                "clip_direction": "left",
+                "$one": 1.0,
+                "$max": 100.0,
+                "bindings": [
+                  {
+                    "binding_type": "view",
+                    "source_control_name": "broken_empty",
+                    "resolve_sibling_scope": true,
+                    "source_property_name": "((('%.120s' * #bar_text) - ('%.111s' * #bar_text) - '\t') * $one)",
+                    "target_property_name": "#current_1"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(($max - #current_1) / $max)",
+                    "target_property_name": "#clip_ratio"
+                  }
+                ]
+              }
+            }
+          ],
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "data_control",
+              "resolve_sibling_scope": true,
+              "source_property_name": "(#bottom_bar_text)",
+              "target_property_name": "#bar_text"
+            }
+          ]
+        }
+      },
+      {
+        "padding": {
+          "type": "panel",
+          "size": [19, "100%"]
+        }
+      },
+      {
+        "fuel_empty": {
+          "type": "image",
+          "size": [81, 9],
+          "texture": "textures/ui/car_hud/fuel_bar_empty",
+          "controls": [
+            {
+              "fuel_full": {
+                "type": "image",
+                "size": ["100%", "100%"],
+                "texture": "textures/ui/car_hud/fuel_bar_full",
+                "clip_direction": "left",
+                "$one": 1.0,
+                "$max": 100.0,
+                "bindings": [
+                  {
+                    "binding_type": "view",
+                    "source_control_name": "fuel_empty",
+                    "resolve_sibling_scope": true,
+                    "source_property_name": "((('%.110s' * #bar_text) - ('%.100s' * #bar_text) - '\t') * $one)",
+                    "target_property_name": "#current"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(($max - #current) / $max)",
+                    "target_property_name": "#clip_ratio"
+                  }
+                ]
+              }
+            }
+          ],
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "data_control",
+              "resolve_sibling_scope": true,
+              "source_property_name": "(#bottom_bar_text)",
+              "target_property_name": "#bar_text"
+            }
+          ]
+        }
+      },
+      {
+        "data_control": {
+          "type": "panel",
+          "size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#hud_title_text_string"
+            },
+            {
+              "binding_name": "#hud_title_text_string",
+              "binding_name_override": "#bottom_bar_text",
+              "binding_condition": "visibility_changed"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(not (#hud_title_text_string = #bottom_bar_text) and not ((#hud_title_text_string - $flag_title) = #hud_title_text_string))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

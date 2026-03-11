@@ -1,0 +1,21 @@
+{
+	"format_version": "1.21.0",
+	"minecraft:block": {
+		"description": {
+			"identifier": "brr:dev_measuregeneric04",
+			"is_experimental": false,
+			"menu_category": {
+				"category": "construction",
+				"is_hidden_in_commands": false,
+				"group": "dev_decor"
+			}
+		},
+		"components": {
+			"minecraft:destructible_by_explosion": false,
+			"minecraft:destructible_by_mining": {
+				"seconds_to_destroy": 2
+			},
+			"minecraft:map_color": "#803b3b"
+		}
+	}
+}

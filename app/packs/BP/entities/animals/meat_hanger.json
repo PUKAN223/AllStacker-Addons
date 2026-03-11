@@ -1,0 +1,332 @@
+{
+  "format_version": "1.16.0",
+  "minecraft:entity": {
+    "component_groups": {
+      "hams:cow1": {
+        "minecraft:transformation": { "into": "hams:ed_hanging_cow<hams:cow1>" }
+      },
+      "hams:cow2": {
+        "minecraft:transformation": { "into": "hams:ed_hanging_cow<hams:cow2>" }
+      },
+      "hams:cow3": {
+        "minecraft:transformation": { "into": "hams:ed_hanging_cow<hams:cow3>" }
+      },
+      "hams:despawn": {
+        "minecraft:instant_despawn": {},
+        "minecraft:spawn_entity": {
+          "entities": {
+            "max_wait_time": 0,
+            "min_wait_time": 0,
+            "num_to_spawn": 1,
+            "single_use": true,
+            "spawn_item": "hams:ed_meat_hanger"
+          }
+        }
+      },
+      "hams:goat1": {
+        "minecraft:transformation": {
+          "into": "hams:ed_hanging_goat<hams:goat1>"
+        }
+      },
+      "hams:goat2": {
+        "minecraft:transformation": {
+          "into": "hams:ed_hanging_goat<hams:goat2>"
+        }
+      },
+      "hams:goat3": {
+        "minecraft:transformation": {
+          "into": "hams:ed_hanging_goat<hams:goat3>"
+        }
+      },
+      "hams:goat4": {
+        "minecraft:transformation": {
+          "into": "hams:ed_hanging_goat<hams:goat4>"
+        }
+      },
+      "hams:goat5": {
+        "minecraft:transformation": {
+          "into": "hams:ed_hanging_goat<hams:goat5>"
+        }
+      },
+      "hams:goat6": {
+        "minecraft:transformation": {
+          "into": "hams:ed_hanging_goat<hams:goat6>"
+        }
+      },
+      "hams:limousin": {
+        "minecraft:transformation": {
+          "into": "hams:ed_hanging_limousin<hams:spawn>"
+        }
+      }
+    },
+    "components": {
+      "minecraft:collision_box": { "height": 0, "width": 0 },
+      "minecraft:custom_hit_test": {
+        "hitboxes": [{ "height": 0.7, "pivot": [0, 0.65, 0], "width": 0.5 }]
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [{ "cause": "all", "deals_damage": false }]
+      },
+      "minecraft:fire_immune": {},
+      "minecraft:interact": {
+        "interactions": [
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:cow1",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_cow1_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:cow2",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_cow2_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:cow3",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_cow3_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:goat1",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_goat1_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:goat2",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_goat2_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:goat3",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_goat3_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:goat4",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_goat4_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:goat5",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_goat5_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:goat6",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_goat6_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          },
+          {
+            "interact_text": "action.interact.hang",
+            "on_interact": {
+              "event": "hams:limousin",
+              "filters": {
+                "all_of": [
+                  {
+                    "subject": "other",
+                    "test": "is_family",
+                    "value": "player"
+                  },
+                  {
+                    "domain": "hand",
+                    "subject": "other",
+                    "test": "has_equipment",
+                    "value": "hams:ed_limousin1_spawn_egg"
+                  }
+                ]
+              }
+            },
+            "swing": true,
+            "use_item": true
+          }
+        ]
+      },
+      "minecraft:physics": { "has_gravity": false },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:type_family": { "family": ["meat_hanger", "inanimate"] }
+    },
+    "description": {
+      "identifier": "hams:ed_meat_hanger",
+      "is_experimental": false,
+      "is_spawnable": false,
+      "is_summonable": true
+    },
+    "events": {
+      "hams:cow1": { "add": { "component_groups": ["hams:cow1"] } },
+      "hams:cow2": { "add": { "component_groups": ["hams:cow2"] } },
+      "hams:cow3": { "add": { "component_groups": ["hams:cow3"] } },
+      "hams:despawn": { "add": { "component_groups": ["hams:despawn"] } },
+      "hams:goat1": { "add": { "component_groups": ["hams:goat1"] } },
+      "hams:goat2": { "add": { "component_groups": ["hams:goat2"] } },
+      "hams:goat3": { "add": { "component_groups": ["hams:goat3"] } },
+      "hams:goat4": { "add": { "component_groups": ["hams:goat4"] } },
+      "hams:goat5": { "add": { "component_groups": ["hams:goat5"] } },
+      "hams:goat6": { "add": { "component_groups": ["hams:goat6"] } },
+      "hams:limousin": { "add": { "component_groups": ["hams:limousin"] } }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+    "namespace": "shop",
+    "shop_custom_form@common_dialogs.main_panel_no_buttons": {
+        "$title_size": [
+            "100% - 15px",
+            10
+        ],
+        "$title_max_size": [
+            "100% - 15px",
+            10
+        ],
+        "size": [
+            250,
+            288.75
+        ],
+        "$text_name": "#null",
+        "$title_text_binding_type": "none",
+        "layer": 2,
+        "controls": [
+            {
+                "title": {
+                    "type": "label",
+                    "font_type": "default",
+                    "font_size": "normal",
+                    "anchor_from": "top_middle",
+                    "anchor_to": "top_middle",
+                    "text": "#title_text",
+                    "layer": 8,
+                    "offset": [
+                        0,
+                        4
+                    ],
+                    "bindings": [
+                        {
+                            "binding_name": "#title_text"
+                        }
+                    ]
+                }
+            },
+            {
+                "shop_close_button@shop.shop_close_button": {
+                    "offset": [
+                        -12,
+                        10
+                    ],
+                    "layer": 64
+                }
+            },
+            {
+                "shop_background@shop.shop_background": {
+                    "size": [
+                        "100% - 16px",
+                        "100%"
+                    ]
+                }
+            },
+            {
+                "shop_custom_form_panel@shop.shop_custom_form_panel": {}
+            }
+        ]
+    },
+    "shop_custom_form_panel@common.scrolling_panel": {
+        "anchor_to": "top_left",
+        "anchor_from": "top_left",
+        "$show_background": false,
+        "size": [
+            "75%",
+            "60%"
+        ],
+        "offset": [
+            32,
+            55
+        ],
+        "$scrolling_content": "shop.shop_custom_form_scrolling_content",
+        "$scroll_size": [
+            5,
+            "100% - 4px"
+        ],
+        "$scrolling_pane_size": [
+            "100% - 4px",
+            "100% - 2px"
+        ],
+        "$scrolling_pane_offset": [
+            2,
+            0
+        ],
+        "$scroll_bar_right_padding_size": [
+            0,
+            0
+        ]
+    },
+    "shop_custom_form_scrolling_content": {
+        "type": "stack_panel",
+        "size": [
+            "100% - 4px",
+            "100%c"
+        ],
+        "offset": [
+            2,
+            0
+        ],
+        "orientation": "vertical",
+        "anchor_from": "top_left",
+        "anchor_to": "top_left",
+        "controls": [
+            {
+                "generated_form@shop.shop_generated_contents": {}
+            },
+            {
+                "submit_button@common_buttons.light_text_button": {
+                    "$pressed_button_name": "button.submit_custom_form",
+                    "anchor_from": "top_left",
+                    "anchor_to": "top_left",
+                    "size": [
+                        "100%",
+                        32
+                    ],
+                    "$button_text": "#submit_text",
+                    "$button_text_binding_type": "global",
+                    "$button_binding_condition": "once",
+                    "$default_button_texture": "textures/ui/shop_form/submit_button_default",
+                    "$hover_button_texture": "textures/ui/shop_form/submit_button_hover",
+                    "$border_visible": false,
+                    "bindings": [
+                        {
+                            "binding_name": "#submit_button_visible",
+                            "binding_name_override": "#visible"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

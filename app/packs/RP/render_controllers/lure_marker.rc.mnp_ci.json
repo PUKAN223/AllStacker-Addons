@@ -1,0 +1,19 @@
+{
+  "format_version": "1.10.0",
+  "render_controllers": {
+    "controller.render.lure_marker.mnp_ci": {
+      "geometry": "geometry.default",
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": ["texture.default"],
+      "part_visibility": [
+        {
+          "*": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+	"format_version": "1.8.0",
+	"render_controllers": {
+		"controller.render.hams.ed_body_cow": {
+			"geometry": "Geometry.default",
+			"materials": [ { "*": "Material.default" } ],
+			"textures": [ "Array.textures[query.variant]" ],
+			"arrays": {
+				"textures": {
+					"Array.textures": [
+						"Texture.variant1",
+						"Texture.variant2",
+						"Texture.variant3"
+					]
+				}
+			}
+		},
+		"controller.render.hams.ed_body_goat": {
+			"geometry": "Geometry.default",
+			"materials": [ { "*": "Material.default" } ],
+			"textures": [ "Array.textures[query.variant]" ],
+			"arrays": {
+				"textures": {
+					"Array.textures": [
+						"Texture.variant1",
+						"Texture.variant2",
+						"Texture.variant3",
+						"Texture.variant4",
+						"Texture.variant5",
+						"Texture.variant6"
+					]
+				}
+			}
+		},
+		"controller.render.hams.ed_hanging_cow": {
+			"geometry": "Geometry.default",
+			"part_visibility": [
+				{ "piece1": "query.mark_variant == 0" },
+				{ "piece2": "query.mark_variant <= 1" },
+				{ "piece3": "query.mark_variant <= 2" },
+				{ "piece4": "query.mark_variant <= 3" },
+				{ "piece5": "query.mark_variant <= 4" },
+				{ "piece6": "query.mark_variant <= 5" },
+				{ "piece7": "query.mark_variant <= 6" },
+				{ "piece8": "query.mark_variant <= 7" }
+			],
+			"materials": [ { "*": "Material.default" } ],
+			"textures": [ "Array.textures[query.variant]" ],
+			"arrays": {
+				"textures": {
+					"Array.textures": [
+						"Texture.variant1",
+						"Texture.variant2",
+						"Texture.variant3",
+						"Texture.skinned"
+					]
+				}
+			}
+		},
+		"controller.render.hams.ed_hanging_goat": {
+			"geometry": "Geometry.default",
+			"part_visibility": [
+				{ "piece1*": "query.mark_variant == 0" },
+				{ "piece2": "query.mark_variant <= 1" },
+				{ "piece3": "query.mark_variant <= 2" },
+				{ "piece4": "query.mark_variant <= 3" },
+				{ "piece5": "query.mark_variant <= 3" },
+				{ "piece6": "query.mark_variant <= 4" },
+				{ "piece7": "query.mark_variant <= 5" },
+				{ "piece8": "query.mark_variant <= 5" }
+			],
+			"materials": [ { "*": "Material.default" } ],
+			"textures": [ "Array.textures[query.variant]" ],
+			"arrays": {
+				"textures": {
+					"Array.textures": [
+						"Texture.variant1",
+						"Texture.variant2",
+						"Texture.variant3",
+						"Texture.variant4",
+						"Texture.variant5",
+						"Texture.variant6",
+						"Texture.skinned"
+					]
+				}
+			}
+		},
+		"controller.render.hams.ed_hanging_limousin": {
+			"geometry": "Geometry.default",
+			"part_visibility": [
+				{ "piece1": "query.mark_variant == 0" },
+				{ "piece2": "query.mark_variant <= 1" },
+				{ "piece3": "query.mark_variant <= 2" },
+				{ "piece4": "query.mark_variant <= 3" },
+				{ "piece5": "query.mark_variant <= 4" },
+				{ "piece6": "query.mark_variant <= 5" },
+				{ "piece7": "query.mark_variant <= 6" },
+				{ "piece8": "query.mark_variant <= 7" }
+			],
+			"materials": [ { "*": "Material.default" } ],
+			"textures": [ "Array.textures[query.variant]" ],
+			"arrays": {
+				"textures": {
+					"Array.textures": [
+						"Texture.default",
+						"Texture.skinned"
+					]
+				}
+			}
+		},
+		"controller.render.hams.ed_basin": {
+			"geometry": "Geometry.default",
+			"part_visibility": [
+				{ "water_1": "query.variant == 1" },
+				{ "water_2": "query.variant == 2" },
+				{ "water_3": "query.variant == 3" },
+				{ "water_4": "query.variant == 4" }
+			],
+			"materials": [
+				{ "*": "Material.default" },
+				{ "water*": "Material.transparent" }
+			],
+			"textures": [ "Texture.default" ]
+		}
+	}
+}

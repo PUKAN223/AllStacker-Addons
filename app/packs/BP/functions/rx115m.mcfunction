@@ -1,0 +1,1 @@
+playanimation @p[r=1] animation.player.rx115.ride controller.animation.player.base 0 "!query.is_riding"

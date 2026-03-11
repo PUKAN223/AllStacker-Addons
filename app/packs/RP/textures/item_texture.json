@@ -1,0 +1,142 @@
+{
+  "resource_pack_name": "vanilla",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "pot_spawn_egg": {
+      "textures": "textures/items/tools/pot"
+    },
+    "item_chicken_grill": {
+      "textures": "textures/items/food/chicken_grill"
+    },
+    "item_kangkaewwan": {
+      "textures": "textures/items/food/kangkaewwan"
+    },
+    "item_kawjee": {
+      "textures": "textures/items/food/kawjee"
+    },
+    "item_larb": {
+      "textures": "textures/items/food/larb"
+    },
+    "item_namprik": {
+      "textures": "textures/items/food/namprik"
+    },
+    "item_namtok": {
+      "textures": "textures/items/food/namtok"
+    },
+    "item_somtam": {
+      "textures": "textures/items/food/somtam"
+    },
+    "item_sticky_rice": {
+      "textures": "textures/items/food/sticky_rice"
+    },
+    "item_tomyam": {
+      "textures": "textures/items/food/tomyam"
+    },
+    "shovel_items": {
+      "textures": "textures/items/tools/shovel"
+    },
+    "smartphone": {
+      "textures": "textures/items/smartphone"
+    },
+    "gas": {
+      "textures": "textures/items/tools/gas"
+    },
+    "repair_tools": {
+      "textures": "textures/items/tools/repair_tools"
+    },
+    "rx115": {
+      "textures": "textures/items/rx115/rx115"
+    },
+    "banana_spawn_egg": {
+      "textures": "textures/items/spawn_egg/banana"
+    },
+    "basil_spawn_egg": {
+      "textures": "textures/items/spawn_egg/basil"
+    },
+    "broccoli_spawn_egg": {
+      "textures": "textures/items/spawn_egg/broccoli"
+    },
+    "cabbage_spawn_egg": {
+      "textures": "textures/items/spawn_egg/cabbage"
+    },
+    "cassava_spawn_egg": {
+      "textures": "textures/items/spawn_egg/cassava"
+    },
+    "corn_spawn_egg": {
+      "textures": "textures/items/spawn_egg/corn"
+    },
+    "onion_spawn_egg": {
+      "textures": "textures/items/spawn_egg/onion"
+    },
+    "lettuce_spawn_egg": {
+      "textures": "textures/items/spawn_egg/lettuce"
+    },
+    "item_lime": {
+      "textures": "textures/items/crops/lime"
+    },
+    "item_papaya": {
+      "textures": "textures/items/crops/papaya"
+    },
+    "item_pepper": {
+      "textures": "textures/items/crops/pepper"
+    },
+    "item_lettuce": {
+      "textures": "textures/items/crops/lettuce"
+    },
+    "item_banana": {
+      "textures": "textures/items/crops/banana"
+    },
+    "item_basil": {
+      "textures": "textures/items/crops/basil"
+    },
+    "item_broccoli": {
+      "textures": "textures/items/crops/broccoli"
+    },
+    "item_cabbage": {
+      "textures": "textures/items/crops/cabbage"
+    },
+    "item_cassava": {
+      "textures": "textures/items/crops/cassava"
+    },
+    "item_corn": {
+      "textures": "textures/items/crops/corn"
+    },
+    "item_onion": {
+      "textures": "textures/items/crops/onion"
+    },
+    "iron_sickle": {
+      "textures": "textures/items/tools/iron_sickle"
+    },
+    "fishing_rod": {
+      "textures": "textures/items/tools/fishing_rod"
+    },
+    "wallet": {
+      "textures": "textures/items/others/wallet"
+    },
+    "handcuff": {
+      "textures": "textures/items/tools/handcuff"
+    },
+    "spoon": {
+      "textures": "textures/items/tools/spoon"
+    },
+    "item_shrimp": {
+      "textures": "textures/items/food/shrimp"
+    },
+    "item_crab": {
+      "textures": "textures/items/food/crab"
+    },
+    "cow1": { "textures": "textures/items/spawn_egg/cow/cow1" },
+    "cow2": { "textures": "textures/items/spawn_egg/cow/cow2" },
+    "cow3": { "textures": "textures/items/spawn_egg/cow/cow3" },
+    "goat1": { "textures": "textures/items/spawn_egg/goat/goat1" },
+    "goat2": { "textures": "textures/items/spawn_egg/goat/goat2" },
+    "goat3": { "textures": "textures/items/spawn_egg/goat/goat3" },
+    "goat4": { "textures": "textures/items/spawn_egg/goat/goat4" },
+    "goat5": { "textures": "textures/items/spawn_egg/goat/goat5" },
+    "goat6": { "textures": "textures/items/spawn_egg/goat/goat6" },
+    "meat_hanger": { "textures": "textures/items/tools/meat_hanger" },
+    "butcher_knife": {
+      "textures": "textures/items/tools/butcher_knife"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "format_version": [1, 21, 10],
+  "kisu:random_ore": {
+    "sound": "stone",
+    "textures": "random_ore"
+  },
+  "brr:dev_measuregeneric01": {
+    "sound": "stone",
+    "textures": "brr_dev_measuregeneric01"
+  },
+  "brr:dev_measuregeneric02": {
+    "sound": "stone",
+    "textures": "brr_dev_measuregeneric02"
+  },
+  "brr:dev_measuregeneric03": {
+    "sound": "stone",
+    "textures": "brr_dev_measuregeneric03"
+  },
+  "brr:dev_measuregeneric04": {
+    "sound": "stone",
+    "textures": "brr_dev_measuregeneric04"
+  },
+  "brr:dev_measurewall01a": {
+    "sound": "stone",
+    "textures": "brr_dev_measurewall01a"
+  },
+  "brr:dev_measurewall01b": {
+    "sound": "stone",
+    "textures": "brr_dev_measurewall01b"
+  },
+  "brr:dev_measurewall01c": {
+    "sound": "stone",
+    "textures": "brr_dev_measurewall01c"
+  },
+  "brr:dev_measurewall01d": {
+    "sound": "stone",
+    "textures": "brr_dev_measurewall01d"
+  }
+}

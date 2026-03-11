@@ -1,0 +1,68 @@
+{
+    "namespace": "actions",
+    "action_form": {
+        "type": "panel",
+        "size": [
+            150,
+            150
+        ],
+        "offset": [
+            0,
+            90
+        ],
+        "controls": [
+            {
+                "background@default.background": {}
+            },
+            {
+                "cornor@default.cornor": {
+                    "offset": [
+                        20,
+                        23
+                    ],
+                    "controls": [
+                        {
+                            "close_button@default.close_button": {}
+                        }
+                    ]
+                }
+            },
+            {
+                "top_bar@default.top_bar": {
+                    "offset": [
+                        0,
+                        29
+                    ],
+                    "controls": [
+                        {
+                            "title": {
+                                "type": "label",
+                                "text": "#title_text",
+                                "anchor_to": "center",
+                                "anchor_from": "center",
+                                "color": [
+                                    1,
+                                    1,
+                                    1
+                                ],
+                                "bindings": [
+                                    {
+                                        "binding_name": "#title_text"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "content@actions.action_form_panel": {
+                    "offset": [
+                        0,
+                        37
+                    ]
+                }
+            }
+        ]
+    }
+}

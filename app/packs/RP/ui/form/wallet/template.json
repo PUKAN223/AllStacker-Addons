@@ -1,0 +1,160 @@
+{
+  "namespace": "wallet",
+  "wallet_background": {
+    "type": "image",
+    "size": ["100%", "100%"],
+    "offset": [0, -10],
+    "texture": "textures/ui/wallet_form/wallet_bg",
+    "alpha": 1
+  },
+
+  "custom_button": {
+    "type": "panel",
+    "size": [50, 40],
+    "controls": [
+      {
+        "main_ui": {
+          "type": "panel",
+          "size": ["100%", "100%"],
+          "controls": [
+            {
+              "panel_name": {
+                "type": "panel",
+                "size": [40, 40],
+                "bindings": [
+                  {
+                    "binding_type": "view",
+                    "source_control_name": "image",
+                    "resolve_sibling_scope": true,
+                    "source_property_name": "(not (#texture = ''))",
+                    "target_property_name": "#visible"
+                  }
+                ],
+                "controls": [
+                  {
+                    "image": {
+                      "type": "image",
+                      "layer": 200,
+                      "size": [24, 24],
+                      "offset": [0, -6],
+                      "bindings": [
+                        {
+                          "binding_name": "#form_button_texture",
+                          "binding_name_override": "#texture",
+                          "binding_type": "collection",
+                          "binding_collection_name": "form_buttons"
+                        },
+                        {
+                          "binding_name": "#form_button_texture_file_system",
+                          "binding_name_override": "#texture_file_system",
+                          "binding_type": "collection",
+                          "binding_collection_name": "form_buttons"
+                        },
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+                          "target_property_name": "#visible"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "text": {
+                      "type": "label",
+                      "text": "#form_button_text",
+                      "font_size": "normal",
+                      "layer": 32,
+                      "color": [0, 0, 0],
+                      "offset": [0, -8],
+                      "font_scale_factor": 0.9,
+                      "text_alignment": "center",
+                      "anchor_from": "bottom_middle",
+                      "bindings": [
+                        {
+                          "binding_name": "#form_button_text",
+                          "binding_type": "collection",
+                          "binding_collection_name": "form_buttons"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "form_button@common_buttons.light_text_button": {
+                "$pressed_button_name": "button.form_button_click",
+                "anchor_from": "top_left",
+                "anchor_to": "top_left",
+                "size": ["100%", "100% - 15px"],
+                "offset": [0, 15],
+                "$default_button_texture": "textures/ui/shop_form/button_default",
+                "$hover_button_texture": "textures/ui/shop_form/button_hover",
+                "$button_text": "#null",
+                "$button_text_binding_type": "collection",
+                "$button_text_grid_collection_name": "form_buttons",
+                "$button_text_max_size": ["100%", "100%"],
+                "$border_visible": false,
+                "bindings": [
+                  {
+                    "binding_type": "collection_details",
+                    "binding_collection_name": "form_buttons"
+                  }
+                ]
+              }
+            },
+            {
+              "padding": {
+                "type": "panel",
+                "size": ["100%", 15]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "close_button": {
+    "type": "button",
+    "default_control": "default",
+    "hover_control": "hover",
+    "$default_texture|default": "textures/ui/shop_form/close_button_default",
+    "$hover_texture|default": "textures/ui/shop_form/close_button_hover",
+    "$alpha|default": 1,
+    "$size|default": [16, 16],
+    "anchor_from": "top_right",
+    "anchor_to": "top_right",
+    "size": [14, 14],
+    "sound_name": "random.click",
+    "controls": [
+      {
+        "default": {
+          "type": "image",
+          "size": "$size",
+          "texture": "$default_texture",
+          "alpha": "$alpha"
+        }
+      },
+      {
+        "hover": {
+          "type": "image",
+          "size": "$size",
+          "texture": "$hover_texture",
+          "alpha": "$alpha"
+        }
+      }
+    ],
+    "button_mappings": [
+      {
+        "from_button_id": "button.menu_select",
+        "to_button_id": "button.menu_exit",
+        "mapping_type": "pressed"
+      },
+      {
+        "from_button_id": "button.menu_ok",
+        "to_button_id": "button.menu_exit",
+        "mapping_type": "focused"
+      }
+    ]
+  }
+}

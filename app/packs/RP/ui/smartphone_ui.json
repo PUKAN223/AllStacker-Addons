@@ -1,0 +1,1209 @@
+{
+  "namespace": "smartphone_ui",
+  // "$schema": "https://kalmemarq.github.io/Bugrock-JSON-UI-Schemas/ui.schema.json",
+  "custom_form_panel@common.scrolling_panel": {
+    "anchor_to": "top_left",
+    "anchor_from": "top_left",
+    "$show_background": false,
+    "size": ["90%", "65% - 1px"],
+    "$scrolling_content": "server_form.custom_form_scrolling_content",
+    "$scroll_size": [5, "100% - 4px"],
+    "$scrolling_pane_size": ["100% - 4px", "100% - 2px"],
+    "$scrolling_pane_offset": [10, 34],
+    "$scroll_bar_right_padding_size": [0, 0]
+  },
+  "smartphone_title_label": {
+    "type": "label",
+    "size": ["default", 0],
+    "offset": [0, 0],
+    "color": "$title_text_color",
+    "text": "$text_name",
+    "layer": 10,
+    "shadow": false,
+    "property_bag": {
+      "#tts_dialog_title": "$text_name"
+    }
+  },
+  "smartphone_form_panel": {
+    "type": "stack_panel",
+    "size": ["100%", "100%"],
+    "orientation": "vertical",
+    "layer": 6,
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "label_offset_panel": {
+          "type": "panel",
+          "size": ["100%", "100%c"],
+          "controls": [
+            {
+              "main_label": {
+                "type": "label",
+                "offset": [4, -9],
+                "color": "$main_header_text_color",
+                "size": ["100%", "default"],
+                "shadow": true,
+                "anchor_from": "top_left",
+                "anchor_to": "top_left",
+                "text": "#form_text"
+              }
+            },
+            {
+              "bank_money_label": {
+                "type": "label",
+                "size": ["default", 10],
+                "color": "$f_color_format",
+                "text": "#newtext",
+                "text_alignment": "left",
+                "layer": 7,
+                "offset": [-25, -14],
+                "shadow": true,
+                "bindings": [
+                  {
+                    "binding_name": "#newtext"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text - 'title.smartphone_bank')",
+                    "target_property_name": "#newtext"
+                  },
+                  {
+                    "binding_name": "#title_text"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text = 'title.smartphone_bank' + #newtext)",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            },
+            {
+              "bank_deposite_money_label": {
+                "type": "label",
+                "size": ["default", 10],
+                "color": "$f_color_format",
+                "text": "#newtext",
+                "text_alignment": "left",
+                "layer": 7,
+                "offset": [-25, -14],
+                "shadow": true,
+                "bindings": [
+                  {
+                    "binding_name": "#newtext"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text - 'title.smartphone_deposite')",
+                    "target_property_name": "#newtext"
+                  },
+                  {
+                    "binding_name": "#title_text"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text = 'title.smartphone_deposite' + #newtext)",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            },
+            {
+              "appstore_money_label": {
+                "type": "label",
+                "size": ["default", 10],
+                "color": "$f_color_format",
+                "text": "#newtext",
+                "text_alignment": "left",
+                "layer": 7,
+                "offset": [-25, -14],
+                "shadow": true,
+                "bindings": [
+                  {
+                    "binding_name": "#newtext"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text - 'title.smartphone_appstore')",
+                    "target_property_name": "#newtext"
+                  },
+                  {
+                    "binding_name": "#title_text"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text = 'title.smartphone_appstore' + #newtext)",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            },
+            {
+              "store_money_label": {
+                "type": "label",
+                "size": ["default", 10],
+                "color": "$f_color_format",
+                "text": "#newtext",
+                "text_alignment": "left",
+                "layer": 7,
+                "offset": [-25, -14],
+                "shadow": true,
+                "bindings": [
+                  {
+                    "binding_name": "#newtext"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text - 'title.smartphone_store')",
+                    "target_property_name": "#newtext"
+                  },
+                  {
+                    "binding_name": "#title_text"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text = 'title.smartphone_store' + #newtext)",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            },
+            {
+              "store_items_money_label": {
+                "type": "label",
+                "size": ["default", 10],
+                "color": "$f_color_format",
+                "text": "#newtext",
+                "text_alignment": "left",
+                "layer": 7,
+                "offset": [-25, -14],
+                "shadow": true,
+                "bindings": [
+                  {
+                    "binding_name": "#newtext"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text - 'title.smartphone_itemsstore')",
+                    "target_property_name": "#newtext"
+                  },
+                  {
+                    "binding_name": "#title_text"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(#title_text = 'title.smartphone_itemsstore' + #newtext)",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "wrapper": {
+          "type": "panel",
+          "size": ["100%", 137],
+          "controls": [
+            {
+              "default_scrolling_panel@common.scrolling_panel": {
+                "anchor_to": "top_middle",
+                "anchor_from": "top_middle",
+                "$show_background": false,
+                "size": ["100%", "100%"],
+                "offset": [18, 5],
+                "$scrolling_content": "smartphone_ui.default_smartphone_form_scrolling_content",
+                "$scroll_size": [1, "100% - 4px"],
+                "$scrolling_pane_size": ["100% - 5px", "100% - 2px"],
+                "$scrolling_pane_offset": [0, 0],
+                "$scroll_bar_right_padding_size": [0, 0]
+              }
+            }
+          ],
+          "bindings": [
+            {
+              "binding_name": "#appstore_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_appstore')",
+              "target_property_name": "#appstore_text"
+            },
+            {
+              "binding_name": "#store_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_store')",
+              "target_property_name": "#store_text"
+            },
+            {
+              "binding_name": "#store_items_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_itemsstore')",
+              "target_property_name": "#store_items_text"
+            },
+            {
+              "binding_name": "#bank_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_bank')",
+              "target_property_name": "#bank_text"
+            },
+            {
+              "binding_name": "#bank_deposite_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_deposite')",
+              "target_property_name": "#bank_deposite_text"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(not (#title_text = 'title.smartphone_settings' or (#title_text = 'title.smartphone_appstore' + #appstore_text) or (#title_text = 'title.smartphone_store' + #store_text) or (#title_text = 'title.smartphone_itemsstore' + #store_items_text) or (#title_text = 'title.smartphone_bank' + #bank_text) or (#title_text = 'title.smartphone_deposite' + #bank_deposite_text) or #title_text = 'title.smartphone_music' or #title_text = 'title.smartphone_daynight' or #title_text = 'title.smartphone_weather' or #title_text = 'title.smartphone_effect') or #title_text = 'title.smartphone_discraft')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_settings_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 165],
+          "$scrolling_content": "settings_app.smartphone_form_settings_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% - 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [0, 0],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#form_button_length",
+              "binding_name_override": "#maximum_grid_items"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_settings')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_appstore_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 113],
+          "$scrolling_content": "appstore_app.smartphone_form_appstore_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% - 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [-5, 10],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#newtext"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_appstore')",
+              "target_property_name": "#newtext"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_appstore' + #newtext)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_store_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 113],
+          "$scrolling_content": "store_app.smartphone_form_store_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% - 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [-1, 10],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#newtext"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_store')",
+              "target_property_name": "#newtext"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_store' + #newtext)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_store_items_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 113],
+          "$scrolling_content": "store_app.smartphone_form_store_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% - 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [-1, 10],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#newtext"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_itemsstore')",
+              "target_property_name": "#newtext"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_itemsstore' + #newtext)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_bank_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 113],
+          "$scrolling_content": "bank_app.smartphone_form_bank_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% + 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [-5, 10],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#newtext"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_bank')",
+              "target_property_name": "#newtext"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_bank' + #newtext)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_bank_deposite_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 113],
+          "$scrolling_content": "bank_app.smartphone_form_bank_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% + 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [-5, 10],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#newtext"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_deposite')",
+              "target_property_name": "#newtext"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_deposite' + #newtext)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_music_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 113],
+          "$scrolling_content": "music_app.smartphone_form_music_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% - 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [0, 15],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#form_button_length",
+              "binding_name_override": "#maximum_grid_items"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_music')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_daynight_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 113],
+          "$scrolling_content": "daynight_app.smartphone_form_daynight_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% - 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [0, 20],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#form_button_length",
+              "binding_name_override": "#maximum_grid_items"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_daynight')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "scrolling_panel_weather_app": {
+          "type": "panel",
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", "100% - 20px"],
+          "clips_children": true,
+          "controls": []
+        }
+      },
+      {
+        "scrolling_panel_effect_app@common.scrolling_panel": {
+          "anchor_to": "top_left",
+          "anchor_from": "top_left",
+          "$show_background": false,
+          "size": ["100%", 113],
+          "$scrolling_content": "effect_app.smartphone_form_effect_app_scrolling_content",
+          "$scroll_size": [1, "100% - 4px"],
+          "$scrolling_pane_size": ["100% - 2px", "100% - 2px"],
+          "$scrolling_pane_offset": [0, 15],
+          "$scroll_bar_right_padding_size": [0, 0],
+          "bindings": [
+            {
+              "binding_name": "#form_button_length",
+              "binding_name_override": "#maximum_grid_items"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_effect')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "default_smartphone_form_scrolling_content": {
+    "type": "stack_panel",
+    "size": ["100%", "100%c"],
+    "orientation": "vertical",
+    "anchor_from": "top_middle",
+    "anchor_to": "top_middle",
+    "controls": [
+      {
+        "padding": {
+          "type": "panel",
+          "size": ["100%", 4]
+        }
+      },
+      {
+        "wrapping_panel": {
+          "type": "panel",
+          "size": [80, "100%c"],
+          "controls": [
+            {
+              "default_smartphone_form_buttons_panel@smartphone_ui.default_smartphone_form_buttons_panel": {}
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "default_smartphone_form_buttons_panel": {
+    "type": "grid",
+    "size": ["150%", "100%c"],
+    "offset": [-8, -4],
+    "grid_item_template": "smartphone_ui.default_smartphone_button",
+    "grid_rescaling_type": "horizontal",
+    "anchor_from": "center",
+    "anchor_to": "center",
+    "collection_name": "form_buttons",
+    "bindings": [
+      {
+        "binding_name": "#form_button_length",
+        "binding_name_override": "#maximum_grid_items"
+      }
+    ]
+  },
+  "default_smartphone_button": {
+    "type": "stack_panel",
+    "size": ["33.3333%", 40],
+    "orientation": "horizontal",
+    "controls": [
+      {
+        "panel_name": {
+          "type": "panel",
+          "size": [34, "100%c"],
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "image",
+              "resolve_sibling_scope": true,
+              "source_property_name": "(not (#texture = ''))",
+              "target_property_name": "#visible"
+            }
+          ],
+          "controls": [
+            {
+              "image": {
+                "type": "image",
+                "layer": 10,
+                "size": [30, 30],
+                "offset": [33, 1],
+                "bindings": [
+                  {
+                    "binding_name": "#form_button_texture",
+                    "binding_name_override": "#texture",
+                    "binding_type": "collection",
+                    "binding_collection_name": "form_buttons"
+                  },
+                  {
+                    "binding_name": "#form_button_texture_file_system",
+                    "binding_name_override": "#texture_file_system",
+                    "binding_type": "collection",
+                    "binding_collection_name": "form_buttons"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            },
+            {
+              "progress@progress.progress_loading_bars": {
+                "size": [30, 4],
+                "offset": [-2, 16],
+                "bindings": [
+                  {
+                    "binding_type": "view",
+                    "source_control_name": "image",
+                    "resolve_sibling_scope": true,
+                    "source_property_name": "(#texture = 'loading')",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "form_button@common_buttons.light_text_button": {
+          "$pressed_button_name": "button.form_button_click",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "size": [32, 32],
+          "$button_text": "#form_button_text",
+          "$button_text_binding_type": "collection",
+          "$button_text_grid_collection_name": "form_buttons",
+          "$button_text_max_size": ["100%", 30],
+          "$button_offset": [0, 20],
+          "$button_font_scale_factor": 0.7,
+          "bindings": [
+            {
+              "binding_type": "collection_details",
+              "binding_collection_name": "form_buttons"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "apps_titles": {
+    "type": "panel",
+    "controls": [
+      {
+        "settings_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "text.settings_title",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_settings')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "appstore_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "text.appstore_title",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#newtext"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_appstore')",
+              "target_property_name": "#newtext"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_appstore' + #newtext)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "store_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "text.store_title",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#store_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_store')",
+              "target_property_name": "#store_text"
+            },
+            {
+              "binding_name": "#store_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_store' + #store_text)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "store_items_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "text.store_items_title",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#store_items_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_itemsstore')",
+              "target_property_name": "#store_items_text"
+            },
+            {
+              "binding_name": "#store_items_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_itemsstore' + #store_items_text)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "bank_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "text.bank_title",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#bank_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_bank')",
+              "target_property_name": "#bank_text"
+            },
+            {
+              "binding_name": "#bank_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_bank' + #bank_text)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "bank_deposite_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "text.bank_deposite_title",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#bank_deposite_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_deposite')",
+              "target_property_name": "#bank_deposite_text"
+            },
+            {
+              "binding_name": "#bank_deposite_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_deposite' + #bank_deposite_text)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "music_app_title": {
+          "type": "image",
+          "texture": "textures/icons_apps/music_app/title",
+          "size": [115, 15],
+          "offset": [54, 31],
+          "layer": 5,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_music')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "daynight_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "text.daynight_title",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_daynight')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "weather_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "GPS",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_weather')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "effect_app_title": {
+          "type": "label",
+          "color": "$f_color_format",
+          "layer": 8,
+          "text": "text.effect_title",
+          "shadow": true,
+          "font_type": "MinecraftTen",
+          "font_size": "normal",
+          "font_scale_factor": 1.6,
+          "offset": [0, -60],
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_effect')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "apps_backgrounds": {
+    "type": "panel",
+    "controls": [
+      {
+        "smartphone_appstore_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#newtext"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_appstore')",
+              "target_property_name": "#newtext"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_appstore' + #newtext)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "smartphone_bank_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#bank_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_bank')",
+              "target_property_name": "#bank_text"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_bank' + #bank_text)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "smartphone_bank_deposite_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#bank_deposite_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_deposite')",
+              "target_property_name": "#bank_deposite_text"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_deposite' + #bank_deposite_text)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "smartphone_settings_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_settings')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "store_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#store_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_store')",
+              "target_property_name": "#store_text"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_store' + #store_text)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "store_items_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#store_items_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text - 'title.smartphone_itemsstore')",
+              "target_property_name": "#store_items_text"
+            },
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_itemsstore' + #store_items_text)",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "smartphone_music_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_music')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "daynight_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_daynight')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "weather_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_weather')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "effect_app_background": {
+          "type": "image",
+          "texture": "textures/ui/smartphone_default_app_background",
+          "size": [161.25, 175],
+          "offset": [32, 23],
+          "layer": 4,
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "(#title_text = 'title.smartphone_effect')",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

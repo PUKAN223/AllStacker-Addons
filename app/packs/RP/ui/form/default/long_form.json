@@ -1,0 +1,109 @@
+{
+  "namespace": "default",
+  "default_long_form": {
+    "type": "stack_panel",
+    "size": [200, 250],
+    "orientation": "vertical",
+    "controls": [
+      {
+        "background@default.background": {
+          "controls": [
+            {
+              "cornor@default.cornor": {
+                "controls": [
+                  {
+                    "close_button@default.close_button": {}
+                  }
+                ]
+              }
+            },
+            {
+              "top_bar@default.top_bar": {
+                "controls": [
+                  {
+                    "title": {
+                      "type": "label",
+                      "text": "#title_text",
+                      "anchor_to": "center",
+                      "anchor_from": "center",
+                      "bindings": [
+                        {
+                          "binding_name": "#title_text"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "wrapper": {
+                "type": "panel",
+                "size": ["100%", "80%"],
+                "offset": [0, 10],
+                "controls": [
+                  {
+                    "scrolling_panel@common.scrolling_panel": {
+                      "anchor_to": "left_middle",
+                      "anchor_from": "left_middle",
+                      "$show_background": false,
+                      "offset": [7, 2],
+                      "size": ["100%", "100%"],
+                      "$scrolling_content": "default.custom_panel_main",
+                      "$scroll_size": [0, 0],
+                      "$scrolling_pane_size": ["100%", "100%"],
+                      "$scrolling_pane_offset": [2, 0],
+                      "$scroll_bar_right_padding_size": [0, 0]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "bottom_bar": {
+          "type": "image",
+          "texture": "textures/ui/assets/bottom_bar",
+          "size": ["100%", "fill"],
+          "anchor_to": "bottom_middle",
+          "anchor_from": "bottom_middle",
+          "controls": [
+            {
+              "bottom_wrapper": {
+                "type": "image",
+                "anchor_to": "center",
+                "anchor_from": "center",
+                "texture": "textures/ui/assets/bottom_wrapper",
+                "size": ["90%", "75%"],
+                "offset": [0, 0],
+                "controls": [
+                  {
+                    "body_text": {
+                      "type": "label",
+                      "text": "#form_text",
+                      "anchor_to": "top_left",
+                      "anchor_from": "top_left",
+                      "offset": [5, 5],
+                      "bindings": [
+                        {
+                          "binding_name": "#title_text"
+                        },
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "((#title_text - '§m§t§r') = #title_text)",
+                          "target_property_name": "#visible"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

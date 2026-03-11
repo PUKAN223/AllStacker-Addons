@@ -1,0 +1,139 @@
+{
+  "namespace": "weather_app",
+  "smartphone_form_weather_app_scrolling_content": {
+    "type": "stack_panel",
+    "size": ["100%", "100%c"],
+    "offset": [-3, 0],
+    "orientation": "vertical",
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "controls": [
+      {
+        "minimap@common.button": {
+          "type": "input_panel",
+          "prevent_touch_input": true,
+          "draggable": "both",
+          "size": [2048, 2048],
+          "controls": [
+            {
+              "black": {
+                "type": "image",
+                "size": ["100%", "100%"],
+                "texture": "textures/ui/map"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "smartphone_form_weather_app_buttons_panel": {
+    "type": "grid",
+    "size": ["140%", "100%c"],
+    "offset": [25, 0],
+    "grid_item_template": "weather_app.weather_app_button",
+    "grid_rescaling_type": "horizontal",
+    "anchor_from": "center",
+    "anchor_to": "center",
+    "collection_name": "form_buttons",
+    "bindings": [
+      {
+        "binding_name": "#form_button_length",
+        "binding_name_override": "#maximum_grid_items"
+      }
+    ]
+  },
+  "weather_app_button": {
+    "type": "stack_panel",
+    "size": ["100%", 32],
+    "orientation": "horizontal",
+    "controls": [
+      {
+        "panel_name": {
+          "type": "panel",
+          "size": [34, "100%c"],
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "image",
+              "resolve_sibling_scope": true,
+              "source_property_name": "(not (#texture = ''))",
+              "target_property_name": "#visible"
+            }
+          ],
+          "controls": [
+            {
+              "image": {
+                "type": "image",
+                "layer": 10,
+                "size": [32, 32],
+                "offset": [-1, 0],
+                "bindings": [
+                  {
+                    "binding_name": "#form_button_texture",
+                    "binding_name_override": "#texture",
+                    "binding_type": "collection",
+                    "binding_collection_name": "form_buttons"
+                  },
+                  {
+                    "binding_name": "#form_button_texture_file_system",
+                    "binding_name_override": "#texture_file_system",
+                    "binding_type": "collection",
+                    "binding_collection_name": "form_buttons"
+                  },
+                  {
+                    "binding_type": "view",
+                    "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            },
+            {
+              "progress@progress.progress_loading_bars": {
+                "size": [30, 4],
+                "offset": [-2, 16],
+                "bindings": [
+                  {
+                    "binding_type": "view",
+                    "source_control_name": "image",
+                    "resolve_sibling_scope": true,
+                    "source_property_name": "(#texture = 'loading')",
+                    "target_property_name": "#visible"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "form_button@common_buttons.dark_text_button": {
+          "$pressed_button_name": "button.form_button_click",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "size": [78, 32],
+          "$button_text": "#form_button_text",
+          "$button_text_binding_type": "collection",
+          "$button_text_grid_collection_name": "form_buttons",
+          "$button_text_max_size": ["100%", 50],
+          "$button_font_scale_factor": 0.8,
+          "$text_alignment": "center",
+          "$default_button_texture|default": "textures/ui/custom_button_smartphone_default",
+          "$hover_button_texture|default": "textures/ui/custom_button_smartphone_hover",
+          "$pressed_button_texture|default": "textures/ui/custom_button_smartphone_pressed",
+          "$default_state_border_visible": false,
+          "$hover_state_border_visible": false,
+          "$pressed_state_border_visible": false,
+          "$border_visible": false,
+          "bindings": [
+            {
+              "binding_type": "collection_details",
+              "binding_collection_name": "form_buttons"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.rx115m": {
+			"states": {
+				"default": {
+					"transitions": [
+						{
+							"riding": "(1.0)"
+						}
+					],
+					"on_entry": [
+						"/function rx115m"
+					]
+				},
+				"riding": {
+					"transitions": [
+						{
+							"default": "query.has_rider"
+						}
+					],
+					"on_entry": [
+						"/function rx115m"
+					]
+				}
+			}
+		}
+	}
+}

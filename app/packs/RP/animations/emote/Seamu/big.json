@@ -1,0 +1,16 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.big": {
+			"loop": true,
+			"bones": {
+				"root": {
+					"scale": [2.6, 1, 1]
+				},
+				"head": {
+					"scale": [2.6, 1, 1]
+				}
+			}
+		}
+	}
+}

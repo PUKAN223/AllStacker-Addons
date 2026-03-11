@@ -1,0 +1,24 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "kisu:handcuff",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/handcuff"
+      },
+      "geometry": {
+        "default": "geometry.handcuff"
+      },
+      "render_controllers": ["controller.render.default"],
+      "scripts": {
+        "initialize": [
+          "v.is_casted = 0;",
+          "v.use_duration = q.main_hand_item_use_duration > 0;"
+        ]
+      }
+    }
+  }
+}

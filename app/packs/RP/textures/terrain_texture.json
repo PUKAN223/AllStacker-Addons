@@ -1,0 +1,31 @@
+{
+  "texture_data": {
+    "random_ore": {
+      "textures": "textures/blocks/random_ore"
+    },
+    "brr_dev_measuregeneric01": {
+      "textures": "textures/blocks/dev_measuregeneric01"
+    },
+    "brr_dev_measuregeneric02": {
+      "textures": "textures/blocks/dev_measuregeneric02"
+    },
+    "brr_dev_measurewall01a": {
+      "textures": "textures/blocks/dev_measurewall01a"
+    },
+    "brr_dev_measurewall01d": {
+      "textures": "textures/blocks/dev_measurewall01d"
+    },
+    "brr_dev_measuregeneric03": {
+      "textures": "textures/blocks/dev_measuregeneric03"
+    },
+    "brr_dev_measuregeneric04": {
+      "textures": "textures/blocks/dev_measuregeneric04"
+    },
+    "brr_dev_measurewall01b": {
+      "textures": "textures/blocks/dev_measurewall01b"
+    },
+    "brr_dev_measurewall01c": {
+      "textures": "textures/blocks/dev_measurewall01c"
+    }
+  }
+}

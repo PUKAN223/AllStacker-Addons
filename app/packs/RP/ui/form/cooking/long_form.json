@@ -1,0 +1,314 @@
+{
+  "namespace": "cooking",
+  "long_form": {
+    "type": "stack_panel",
+    "size": [400, 250],
+    "orientation": "horizontal",
+    "controls": [
+      {
+        "left_side": {
+          "type": "stack_panel",
+          "size": ["fill", "100%"],
+          "orientation": "vertical",
+          "controls": [
+            {
+              "background@default.background": {
+                "size": ["100%", "80%"],
+                "controls": [
+                  {
+                    "cornor@default.cornor": {
+                      "controls": [
+                        {
+                          "close_button@default.close_button": {}
+                        }
+                      ],
+                      "bindings": [
+                        {
+                          "binding_name": "#title_text"
+                        },
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "((#title_text - '§o§p§r') = #title_text)",
+                          "target_property_name": "#visible"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "top_bar@default.top_bar": {
+                      "controls": [
+                        {
+                          "title": {
+                            "type": "label",
+                            "text": "#title_text",
+                            "anchor_to": "center",
+                            "anchor_from": "center",
+                            "bindings": [
+                              {
+                                "binding_name": "#title_text"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "wrapper": {
+                      "type": "panel",
+                      "size": ["100%", "80%"],
+                      "offset": [0, 10],
+                      "controls": [
+                        {
+                          "scrolling_panel@common.scrolling_panel": {
+                            "anchor_to": "left_middle",
+                            "anchor_from": "left_middle",
+                            "$show_background": false,
+                            "offset": [7, 2],
+                            "size": ["100%", "100%"],
+                            "$scrolling_content": "cooking.custom_panel_main",
+                            "$scroll_size": [0, 0],
+                            "$scrolling_pane_size": ["100%", "100%"],
+                            "$scrolling_pane_offset": [2, 0],
+                            "$scroll_bar_right_padding_size": [0, 0]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "bottom_bar": {
+                "type": "image",
+                "texture": "textures/ui/assets/bottom_bar",
+                "size": ["100%", "fill"],
+                "anchor_to": "bottom_middle",
+                "anchor_from": "bottom_middle",
+                "controls": [
+                  {
+                    "bottom_wrapper": {
+                      "type": "image",
+                      "anchor_to": "center",
+                      "anchor_from": "center",
+                      "texture": "textures/ui/assets/bottom_wrapper",
+                      "size": ["95%", "75%"],
+                      "offset": [0, 0],
+                      "controls": [
+                        {
+                          "body_text": {
+                            "type": "label",
+                            "text": "#text",
+                            "anchor_to": "top_left",
+                            "anchor_from": "top_left",
+                            "offset": [5, 5],
+                            "bindings": [
+                              {
+                                "binding_name": "#title_text"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "((#title_text - '§m§t§r') = #title_text)",
+                                "target_property_name": "#visible"
+                              },
+                              {
+                                "binding_name": "#title_text"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(('%.200s' * #form_text - '\t'))",
+                                "target_property_name": "#text"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "right_side": {
+          "type": "image",
+          "texture": "textures/ui/assets/bottom_bar",
+          "size": ["55%", "100%"],
+          "controls": [
+            {
+              "cornor@default.cornor": {
+                "controls": [
+                  {
+                    "close_button@default.close_button": {}
+                  }
+                ]
+              }
+            },
+            {
+              "wrapper": {
+                "type": "stack_panel",
+                "size": ["100%", "100%"],
+                "offset": [0, 10],
+                "controls": [
+                  {
+                    "top_panel": {
+                      "type": "stack_panel",
+                      "size": ["100%", 70],
+                      "anchor_from": "top_left",
+                      "anchor_to": "top_left",
+                      "offset": [0, 10],
+                      "orientation": "horizontal",
+                      "controls": [
+                        {
+                          "padding": {
+                            "type": "panel",
+                            "size": [15, "100%"]
+                          }
+                        },
+                        {
+                          "icon_wrapper": {
+                            "type": "image",
+                            "size": [70, 70],
+                            "texture": "textures/ui/assets/icon_wrapper",
+                            "controls": [
+                              {
+                                "icon": {
+                                  "type": "image",
+                                  "size": ["80%", "80%"],
+                                  "anchor_to": "center",
+                                  "anchor_from": "center",
+                                  "texture": "#texture",
+                                  "bindings": [
+                                    {
+                                      "binding_name": "#form_text"
+                                    },
+                                    {
+                                      "binding_type": "view",
+                                      "source_property_name": "(('%.350s' * #form_text) - ('%.201s' * #form_text) - '\t')",
+                                      "target_property_name": "#texture"
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "padding": {
+                            "type": "panel",
+                            "size": [15, "100%"]
+                          }
+                        },
+                        {
+                          "foodInfo": {
+                            "type": "label",
+                            "text": "#food_text",
+                            "color": [1, 1, 1],
+                            "text_alignment": "left",
+                            "bindings": [
+                              {
+                                "binding_name": "#form_text"
+                              },
+                              {
+                                "binding_type": "view",
+                                "source_property_name": "(('%.650s' * #form_text) - ('%.351s' * #form_text) - '\t')",
+                                "target_property_name": "#food_text"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "padding": {
+                      "type": "panel",
+                      "size": ["100%", 10]
+                    }
+                  },
+                  {
+                    "content": {
+                      "type": "panel",
+                      "size": ["100%", "fill"],
+                      "controls": [
+                        {
+                          "background": {
+                            "type": "image",
+                            "size": ["86%", "63%"],
+                            "anchor_to": "top_middle",
+                            "anchor_from": "top_middle",
+                            "texture": "textures/ui/assets/icon_wrapper",
+                            "controls": [
+                              {
+                                "scrolling_panel@common.scrolling_panel": {
+                                  "anchor_to": "left_middle",
+                                  "anchor_from": "left_middle",
+                                  "$show_background": false,
+                                  "offset": [7, 5],
+                                  "size": ["100%", "95%"],
+                                  "$scrolling_content": "cooking.ingredient_panel_main",
+                                  "$scroll_size": [0, 0],
+                                  "$scrolling_pane_size": ["100%", "100%"],
+                                  "$scrolling_pane_offset": [2, 0],
+                                  "$scroll_bar_right_padding_size": [0, 0]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "panel_main": {
+                            "type": "panel",
+                            "size": ["100%", "100%"],
+                            "controls": [
+                              {
+                                "ingredient_panel_main": {
+                                  "type": "stack_panel",
+                                  "size": ["90%", "100%c"],
+                                  "orientation": "vertical",
+                                  "anchor_from": "center",
+                                  "anchor_to": "center",
+                                  "offset": [0, 51],
+                                  "factory": {
+                                    "name": "buttons",
+                                    "control_name": "cooking.cook_button"
+                                  },
+
+                                  "collection_name": "form_buttons",
+                                  "bindings": [
+                                    {
+                                      "binding_name": "#form_button_contents",
+                                      "binding_name_override": "#collection_length"
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "bindings": [
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "binding_condition": "once",
+              "source_property_name": "(not ((#title_text - '§o§p§r') = #title_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "DamageCancel BP",
+    "description": "DamageCancel Addon Create For Minecraft Bedrock",
+    "uuid": "18861239-939f-412e-a77e-e94f48e42e55",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 60]
+  },
+  "modules": [
+    {
+      "description": "Script resources",
+      "language": "javascript",
+      "type": "script",
+      "uuid": "68e24fb0-6aa3-4c7d-8eba-81a4ba6d2354",
+      "version": [1, 0, 0],
+      "entry": "scripts/index.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.5.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "2.0.0"
+    },
+    {
+      "uuid": "c858092b-7762-4b22-a853-f1b29a75fddc",
+      "version": [1, 0, 0]
+    }
+  ],
+  "metadata": {
+    "product_type": "addon",
+    "authors": ["KisuX3"]
+  }
+}

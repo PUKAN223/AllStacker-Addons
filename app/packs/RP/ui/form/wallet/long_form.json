@@ -1,0 +1,158 @@
+{
+  "namespace": "wallet",
+  "$schema": "https://kalmemarq.github.io/Bugrock-JSON-UI-Schemas/ui.schema.json",
+  "wallet_long_form": {
+    "type": "panel",
+    "size": [400, 234],
+    "layer": 2,
+    "controls": [
+      {
+        "wallet_close_button@wallet.close_button": {
+          "offset": [-12, 10],
+          "layer": 64
+        }
+      },
+      {
+        "indent_panel": {
+          "type": "panel",
+          "size": ["100% - 16px", "100%"],
+          "controls": [
+            {
+              "wallet_background@wallet.wallet_background": {
+                "size": ["100%", "100%"]
+              }
+            },
+            {
+              "card_side": {
+                "type": "stack_panel",
+                "size": ["35%", "50%"],
+                "anchor_from": "right_middle",
+                "anchor_to": "right_middle",
+                "offset": [-40, 10],
+                "controls": [
+                  {
+                    "padding": {
+                      "type": "panel",
+                      "size": ["100%", 15]
+                    }
+                  },
+                  {
+                    "wallet_body@wallet.wallet_body": {
+                      "anchor_to": "top_middle",
+                      "anchor_from": "top_middle",
+                      "size": ["100%", -1]
+                    }
+                  },
+                  {
+                    "scrolling_panel@common.scrolling_panel": {
+                      "anchor_to": "top_middle",
+                      "anchor_from": "top_middle",
+                      "$show_background": false,
+                      "size": ["100%", "fill"],
+                      "$scrolling_content": "wallet.wallet_super_custom_panel_main",
+                      "$scroll_size": [0, 0],
+                      "$scrolling_pane_size": ["100% - 4px", "100%"],
+                      "$scrolling_pane_offset": [2, 18],
+                      "$scroll_bar_right_padding_size": [0, 0]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "card_side": {
+                "type": "panel",
+                "size": ["35%", "50%"],
+                "anchor_from": "left_middle",
+                "anchor_to": "left_middle",
+                "offset": [26, 8],
+                "controls": [
+                  {
+                    "wapper": {
+                      "type": "panel",
+                      "size": ["28%", "50%"],
+                      "offset": [-20, -3],
+                      "clips_children": true,
+                      "controls": [
+                        {
+                          "black": {
+                            "type": "custom",
+
+                            "layer": 5,
+                            "renderer": "paper_doll_renderer",
+                            "size": [100, 100],
+                            "offset": [0, 10]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "info": {
+                      "type": "label",
+                      "text": "#title_text",
+                      "anchor_from": "top_middle",
+                      "anchor_to": "top_middle",
+                      "font_type": "default",
+                      "color": "black",
+                      "font_scale_factor": 0.7,
+                      "text_alignment": "left",
+                      "line_padding": 2.5,
+                      "offset": [4, 30],
+                      "bindings": [
+                        {
+                          "binding_name": "#title_text"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "wallet_super_custom_panel_main": {
+    "type": "grid",
+    "size": ["95%", "100%c"],
+    "grid_dimensions": [3, 3],
+    "grid_item_template": "wallet.custom_button",
+    "grid_fill_direction": "horizontal",
+    "grid_rescaling_type": "horizontal",
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "factory": {
+      "name": "buttons",
+      "control_name": "wallet.custom_button"
+    },
+    "collection_name": "form_buttons",
+    "bindings": [
+      {
+        "binding_name": "#form_button_length",
+        "binding_name_override": "#maximum_grid_items"
+      }
+    ]
+  },
+  "wallet_body": {
+    "type": "panel",
+    "anchor_from": "top_middle",
+    "size": ["100%", 28],
+    "layer": 8,
+    "controls": [
+      {
+        "form_body_text": {
+          "type": "label",
+          "text": "#form_text",
+          "layer": 8,
+          "bindings": [
+            {
+              "binding_name": "#form_text"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

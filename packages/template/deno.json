@@ -1,0 +1,13 @@
+{
+  "name": "@axeth/template",
+  "version": "0.0.1",
+  "exports": "./index.ts",
+  "fmt": {
+    "semiColons": true
+  },
+  "imports": {
+    "chalk": "npm:chalk@5.6.2",
+    "jszip": "npm:jszip@3.10.1",
+    "@std/path": "jsr:@std/path@1.1.4"
+  }
+}

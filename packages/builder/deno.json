@@ -1,0 +1,12 @@
+{
+  "name": "@axeth/builder",
+  "version": "0.0.1",
+  "exports": "./index.ts",
+  "fmt": {
+    "semiColons": true
+  },
+  "imports": {
+    "colors": "npm:colors@1.4.0",
+    "@std/path": "jsr:@std/path@1.1.4"
+  }
+}

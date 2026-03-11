@@ -1,0 +1,48 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.a14": {
+			"animation_length": 10000,
+			"override_previous_animation": true,
+			"bones": {
+				"root": {
+					"rotation": [0, 37.5, 0],
+					"position": [0, -1, 0]
+				},
+				"waist": {
+					"rotation": [27.5, 0, 0]
+				},
+				"head": {
+					"rotation": [1.77926, -32.42494, -5.72393]
+				},
+				"leftArm": {
+					"rotation": [25, 0, 0],
+					"position": [0, -1.5, 1]
+				},
+				"Left2": {
+					"rotation": [0, 0, 67.5]
+				},
+				"rightArm": {
+					"rotation": [22.5, 0, 0],
+					"position": [0, -1, 1]
+				},
+				"Right2": {
+					"rotation": [0, 0, -65]
+				},
+				"leftLeg": {
+					"rotation": [-29.62165, -4.98093, -8.6822]
+				},
+				"LeftX": {
+					"rotation": [37.5, 0, 0]
+				},
+				"rightLeg": {
+					"rotation": [-33.37372, 2.85508, 3.85485]
+				},
+				"RightX": {
+					"rotation": [35, 0, 0],
+					"scale": [1, 1.15, 1]
+				}
+			}
+		}
+	}
+}

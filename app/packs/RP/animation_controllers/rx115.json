@@ -1,0 +1,22 @@
+{
+	"format_version": "1.10.0",
+	"animation_controllers": {
+		"controller.animation.rx115.general": {
+			"states": {
+				"default": {
+					"variables": {
+						"moving_speed": {
+							"input": "query.modified_move_speed"
+						}
+					},
+					"animations": [
+						"turning",
+						{
+							"drive": "variable.moving_speed"
+						}
+					]
+				}
+			}
+		}
+	}
+}

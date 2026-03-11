@@ -1,0 +1,15 @@
+// @buildsys IMPORTED: DO NOT EDIT! 
+{
+    "materials": {
+        "version": "1.0.0",
+		"mnp_ci_entity_uv_anim:entity": {
+            "+defines": ["USE_UV_ANIM"]
+		},
+		"mnp_ci_alphatest_one_sided_uv_anim:entity_alphatest_one_sided": {
+            "+defines": ["USE_UV_ANIM"]
+		},
+		"kisu_fishing_line:entity": {
+            "-defines": ["FANCY"]
+		}
+    }
+}

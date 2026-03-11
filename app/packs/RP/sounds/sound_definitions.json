@@ -1,0 +1,1458 @@
+{
+  "format_version": "1.14.0",
+  "sound_definitions": {
+    "record.background": {
+      "max_distance": 512.0,
+      "sounds": [
+        {
+          "name": "rrecords/background",
+          "stream": true,
+          "volume": 0.5,
+          "load_on_low_memory": true
+        }
+      ]
+    },
+    "hams.ed_knife_slash": {
+      "category": "neutral",
+      "sounds": [{ "name": "sounds/misc/knife_slash", "volume": 1.5 }]
+    },
+    "hams.ed_meat_chop": {
+      "category": "neutral",
+      "sounds": [{ "name": "sounds/misc/meat_chop_1", "volume": 1 }]
+    },
+    "hams.ed_meat_chopped": {
+      "category": "neutral",
+      "sounds": [{ "name": "sounds/misc/meat_chopped_1", "volume": 1 }]
+    },
+    "vehicle.rx115.drive": {
+      "category": "neutral",
+      "sounds": ["sounds/rx115/rx115"]
+    },
+    "mob.mnp_ci.piranha.small_bite": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/bite_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/bite_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/bite_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.small_burp": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/burp_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/burp_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/burp_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.small_die": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/die_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/die_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/die_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.small_grow": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/grow_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/grow_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/grow_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.small_hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/hurt_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/hurt_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/hurt_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.small_idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/idle_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/idle_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/idle_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.small_sprint": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/sprint_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/sprint_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/sprint_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.mid_bite": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/bite_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/bite_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/bite_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.mid_burp": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/burp_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/burp_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/burp_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.mid_die": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/die_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/die_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/die_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.mid_grow": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/grow_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/grow_2",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.mid_hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/hurt_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/hurt_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/hurt_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.mid_idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/idle_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/idle_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/idle_3",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/idle_4",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.mid_sprint": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/sprint_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/sprint_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/mid/sprint_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.big_bite": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/bite_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/bite_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/bite_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.big_burp": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/burp_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/burp_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/burp_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.big_die": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/die_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/die_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/die_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.big_hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/hurt_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/hurt_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/hurt_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.big_idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/idle_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/idle_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/idle_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.piranha.big_sprint": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/sprint_1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/sprint_2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/sprint_3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.fish_shared.idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_idle1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_idle2",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_idle3",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_idle4",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_idle5",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_idle6",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_idle7",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.fish_shared.hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_hurt1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_hurt2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_hurt3",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_hurt4",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.fish_shared.death": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_death1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_death2",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_death3",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_death4",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.fish_shared.attack": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish/barracuda_bite1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/barracuda_bite2",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.fish_shared.flop": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_flop1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_flop2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_flop3",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish/fish_shared_flop4",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.seagull.idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_idle1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_idle2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_idle3",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_idle4",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.seagull.hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_hurt1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_hurt2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_hurt3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.seagull.death": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_death1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_death2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/seagull/seagull_death3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.squid.ink_squirt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/ink_squirt1",
+          "volume": 3
+        }
+      ]
+    },
+    "mob.mnp_ci.whale.spout_breach": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/whale/whale_breach1",
+          "volume": 3
+        }
+      ]
+    },
+    "mob.mnp_ci.whale.idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/whale/whale_idle1",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_idle2",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_idle3",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_idle4",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_idle5",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_idle6",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_idle7",
+          "volume": 3
+        }
+      ]
+    },
+    "mob.mnp_ci.whale.hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/whale/whale_hurt1",
+          "volume": 4
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_hurt2",
+          "volume": 4
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_hurt3",
+          "volume": 4
+        }
+      ]
+    },
+    "mob.mnp_ci.whale.death": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/whale/whale_death1",
+          "volume": 4
+        },
+        {
+          "name": "sounds/mnp/ci/whale/whale_death2",
+          "volume": 4
+        }
+      ]
+    },
+    "mob.mnp_ci.orca.attack": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/orca/orca_bites1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/orca/orca_bites2",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.orca.idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/orca/orca_idle1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/orca/orca_idle2",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/orca/orca_idle3",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/orca/orca_idle4",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.orca.hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/orca/orca_hurt1",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/orca/orca_hurt2",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/orca/orca_hurt3",
+          "volume": 3
+        }
+      ]
+    },
+    "mob.mnp_ci.orca.death": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/orca/orca_death1",
+          "volume": 3
+        },
+        {
+          "name": "sounds/mnp/ci/orca/orca_death2",
+          "volume": 3
+        }
+      ]
+    },
+    "mob.mnp_ci.pelican.idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/pelican/pelican_idle1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/pelican/pelican_idle2",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/pelican/pelican_idle3",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.pelican.hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/pelican/pelican_hurt1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/pelican/pelican_hurt2",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.pelican.death": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/pelican/pelican_death1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/pelican/pelican_death2",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.crab.idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/crab/crab_idle1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/crab/crab_idle2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/crab/crab_idle3",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/crab/crab_idle4",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.crab.hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/crab/crab_hurt1",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/crab/crab_hurt2",
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/crab/crab_hurt3",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.crab.death": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/crab/crab_death1",
+          "volume": 1
+        }
+      ]
+    },
+    "mob.mnp_ci.fish_big_shared.idle": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_idle1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_idle2",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_idle3",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_idle4",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.fish_big_shared.hurt": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_hurt1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_hurt2",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_hurt3",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_hurt4",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.fish_big_shared.death": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_death1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_death2",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/big_bubbles_death3",
+          "volume": 2
+        }
+      ]
+    },
+    "mob.mnp_ci.shark.attack": {
+      "category": "neutral",
+      "max_distance": null,
+      "min_distance": null,
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/shark_bites1",
+          "volume": 2
+        },
+        {
+          "name": "sounds/mnp/ci/shared_fish_big/shark_bites2",
+          "volume": 2
+        }
+      ]
+    },
+    "mnp_ci.critical_error": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/critical_error",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.message": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/message",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.error": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/error",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.small_fail": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/small_fail",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.reel": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_reel1",
+          "stream": false,
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_reel2",
+          "stream": false,
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_reel3",
+          "stream": false,
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_reel4",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.reel_pulling": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_fish_pulling1",
+          "stream": false,
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_fish_pulling2",
+          "stream": false,
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_fish_pulling3",
+          "stream": false,
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_fish_pulling4",
+          "stream": false,
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_fish_pulling5",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.fishing_rod_swish": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_cast1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.fishing_rod_line_break": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/line_break1",
+          "stream": false,
+          "volume": 1
+        },
+        {
+          "name": "sounds/mnp/ci/fishing_rod/line_break2",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.fishing_rod_charging": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_charge_cast1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.fish_appears": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fish_appears",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.fish_caught": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fish_caught",
+          "stream": false,
+          "volume": 1.4
+        }
+      ]
+    },
+    "mnp_ci.fish_escaped": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fish_escaped",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.fish_alert": {
+      "category": "neutral",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fish_alert",
+          "stream": false,
+          "volume": 1,
+          "is3D": false
+        }
+      ]
+    },
+    "mnp_ci.lure_splash": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/lure_splash",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.reel_complete": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/reel_stage",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.bite_1": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/bite_1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.bite_2": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/bite_2",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.bite_3": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/bite_3",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.burp_1": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/burp_1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.burp_2": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/burp_2",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.burp_3": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/burp_3",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.die_1": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/die_1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.die_2": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/die_2",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.die_3": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/die_3",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.hurt_1": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/hurt_1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.hurt_2": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/hurt_2",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.hurt_3": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/hurt_3",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.idle_1": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/idle_1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.idle_2": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/idle_2",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.idle_3": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/idle_3",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.sprint_1": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/sprint_1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.sprint_3": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/sprint_3",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.sprint_2": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/big/sprint_2",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.grow_1": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/grow_1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.grow_2": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/grow_2",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.grow_3": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/grow_3",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.idle_4": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/partner_fish/honeyfrost/small/idle_4",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.rod_charged": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fishing_rod_cast_charge_complete1",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.release_fish": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fish_release_start",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.catch_fish": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fish_catch",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.release_fish_splash": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_rod/fish_release_end",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.recycle.plastic_crumple": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/recycle/recycle_plastic_crumple",
+          "stream": false,
+          "volume": 1
+        }
+      ]
+    },
+    "mnp_ci.recycle.jingle": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/recycle/recycle_jingle",
+          "stream": false,
+          "volume": 0.5
+        }
+      ]
+    },
+    "mnp_ci.fishing_cancel": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fishing_cancel",
+          "stream": false,
+          "volume": 0.5
+        }
+      ]
+    },
+    "mnp_ci.cast_fail": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/cast_fail",
+          "stream": false,
+          "volume": 0.5
+        }
+      ]
+    },
+    "mnp_ci.fish_jump_out": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fish/fish_jump_out1",
+          "stream": false,
+          "volume": 0.5
+        },
+        {
+          "name": "sounds/mnp/ci/fish/fish_jump_out2",
+          "stream": false,
+          "volume": 0.5
+        }
+      ]
+    },
+    "mnp_ci.fish_jump_land": {
+      "category": "ui",
+      "sounds": [
+        {
+          "name": "sounds/mnp/ci/fish/fish_jump_land1",
+          "stream": false,
+          "volume": 0.5
+        },
+        {
+          "name": "sounds/mnp/ci/fish/fish_jump_land2",
+          "stream": false,
+          "volume": 0.5
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+	"format_version": "1.10.0",
+	"minecraft:client_entity": {
+		"description": {
+			"identifier": "hams:ed_cow1",
+			"materials": {
+				"default": "entity_alphatest"
+			},
+			"textures": {
+				"default": "textures/entity/blank"
+			},
+			"geometry": {
+				"default": "geometry.hams.ed_cow"
+			},
+			"spawn_egg": {
+				"texture": "cow1"
+			},
+			"render_controllers": [
+				"controller.render.default"
+			]
+		}
+	}
+}

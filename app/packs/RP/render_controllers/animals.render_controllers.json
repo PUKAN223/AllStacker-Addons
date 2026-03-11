@@ -1,0 +1,50 @@
+{
+	"format_version": "1.8.0",
+	"render_controllers": {
+		"controller.render.hams.ed_cow": {
+			"geometry": "Geometry.default",
+			"part_visibility": [
+				{ "eyelid": false }
+			],
+			"materials": [ { "*": "Material.default" } ],
+			"textures": [ "Array.textures[query.variant]" ],
+			"arrays": {
+				"textures": {
+					"Array.textures": [
+						"Texture.variant1",
+						"Texture.variant2",
+						"Texture.variant3"
+					]
+				}
+			}
+		},
+		"controller.render.hams.ed_limousin": {
+			"geometry": "Geometry.default",
+			"part_visibility": [
+				{ "eyelid": false }
+			],
+			"materials": [ { "*": "Material.default" } ],
+			"textures": [ "Texture.default" ]
+		},
+		"controller.render.hams.ed_goat": {
+			"geometry": "Geometry.default",
+			"part_visibility": [
+				{ "eyelid": false }
+			],
+			"materials": [ { "*": "Material.default" } ],
+			"textures": [ "Array.textures[query.variant]" ],
+			"arrays": {
+				"textures": {
+					"Array.textures": [
+						"Texture.variant1",
+						"Texture.variant2",
+						"Texture.variant3",
+						"Texture.variant4",
+						"Texture.variant5",
+						"Texture.variant6"
+					]
+				}
+			}
+		}
+	}
+}

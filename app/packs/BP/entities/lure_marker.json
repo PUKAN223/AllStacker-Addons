@@ -1,0 +1,72 @@
+{
+  "format_version": "1.21.100",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "kisu:lure_marker",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "component_groups": {
+      "fs:instant_despawn": {
+        "minecraft:instant_despawn": {
+          "remove_child_entities": false
+        }
+      }
+    },
+    "components": {
+      "minecraft:physics": {},
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": false
+      },
+      "minecraft:damage_sensor": {
+        "triggers": [
+          {
+            "cause": "all",
+            "deals_damage": "no"
+          }
+        ]
+      },
+      "minecraft:collision_box": {
+        "width": 0.25,
+        "height": 0.8
+      },
+      "minecraft:buoyant": {
+        "apply_gravity": false,
+        "liquid_blocks": ["minecraft:flowing_water", "minecraft:water"]
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:persistent": {},
+      "minecraft:rideable": {
+        "controlling_seat": 0,
+        "crouching_skip_interact": false,
+        "family_types": ["mnp_ci", "fish"],
+        "interact_text": "action.interact.entity.mnp_ci_lure_marker.ride",
+        "pull_in_entities": false,
+        "rider_can_interact": false,
+        "seat_count": 1,
+        "seats": [
+          {
+            "position": [0, -0.25, 0],
+            "lock_rider_rotation": 90
+          }
+        ]
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+        "add": {
+          "component_groups": []
+        }
+      },
+      "fs:instant_despawn": {
+        "add": {
+          "component_groups": ["fs:instant_despawn"]
+        }
+      }
+    }
+  }
+}

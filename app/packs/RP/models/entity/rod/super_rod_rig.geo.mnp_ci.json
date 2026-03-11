@@ -1,0 +1,37 @@
+{
+	"format_version": "1.21.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.fishing_rod_rig.mnp_ci",
+				"texture_width": 32,
+				"texture_height": 32,
+				"visible_bounds_width": 7,
+				"visible_bounds_height": 86,
+				"visible_bounds_offset": [0, 40, 0]
+			},
+			"bones": [
+				{
+					"name": "root",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "fishing_rod0",
+					"parent": "root",
+					"pivot": [0, -1.5, 0],
+					"binding": "q.item_slot_to_bone_name(c.item_slot)"
+				},
+				{
+					"name": "fishing_rod1",
+					"parent": "fishing_rod0",
+					"pivot": [0, -1.5, 0]
+				},
+				{
+					"name": "rod_line1",
+					"parent": "fishing_rod1",
+					"pivot": [0, -3.5, -23]
+				}
+			]
+		}
+	]
+}

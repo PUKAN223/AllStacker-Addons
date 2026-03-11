@@ -1,0 +1,23 @@
+{
+	"format_version": "1.10.0",
+	"minecraft:client_entity": {
+		"description": {
+			"identifier": "hams:ed_goat5",
+			"materials": {
+				"default": "entity_alphatest"
+			},
+			"textures": {
+				"default": "textures/entity/blank"
+			},
+			"geometry": {
+				"default": "geometry.hams.ed_goat"
+			},
+			"spawn_egg": {
+				"texture": "goat5"
+			},
+			"render_controllers": [
+				"controller.render.default"
+			]
+		}
+	}
+}

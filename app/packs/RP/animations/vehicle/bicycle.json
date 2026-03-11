@@ -1,0 +1,60 @@
+{
+	"format_version": "1.10.0",
+	"animations": {
+		"animation.bicycle.ride": {
+			"loop": true,
+			"anim_time_update": "query.modified_distance_moved",
+			"bones": {
+				"main": {
+					"rotation": [
+						0,
+						0,
+						"(math.cos(query.anim_time*20)*3)+math.clamp(-query.yaw_speed*0.1,-30,30)"
+					]
+				},
+				"front": {
+					"rotation": [
+						0,
+						"math.clamp(query.yaw_speed*0.3,-45,45)",
+						0
+					]
+				},
+				"frontWheel": {
+					"rotation": [
+						"query.anim_time*36",
+						0,
+						0
+					]
+				},
+				"backWheel": {
+					"rotation": [
+						"query.anim_time*36",
+						0,
+						0
+					]
+				},
+				"pedals": {
+					"rotation": [
+						"query.anim_time*24",
+						0,
+						0
+					]
+				},
+				"rightPedal": {
+					"rotation": [
+						"query.anim_time*-24",
+						0,
+						0
+					]
+				},
+				"leftPedal": {
+					"rotation": [
+						"query.anim_time*-24",
+						0,
+						0
+					]
+				}
+			}
+		}
+	}
+}

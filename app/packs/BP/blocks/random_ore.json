@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.60",
+  "minecraft:block": {
+    "description": {
+      "identifier": "kisu:random_ore"
+    },
+    "components": {
+      "minecraft:geometry": "minecraft:geometry.full_block",
+      "minecraft:custom_components": [
+        "kisu:random_ore_component"
+      ],
+      "minecraft:loot": "loot_tables/empty.json",
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 1.5
+      }
+    }
+  }
+}

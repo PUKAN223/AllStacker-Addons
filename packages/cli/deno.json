@@ -1,0 +1,13 @@
+{
+  "name": "@axeth/cli",
+  "version": "0.0.1",
+  "exports": "./index.ts",
+  "fmt": {
+    "semiColons": true
+  },
+  "imports": {
+    "@clack/prompts": "npm:@clack/prompts@0.11.0",
+    "@utils/string": "jsr:@utils/string@^0.2.0",
+    "colors": "npm:colors@1.4.0"
+  }
+}
