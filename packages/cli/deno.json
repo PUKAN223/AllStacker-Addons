@@ -1,6 +1,7 @@
 {
   "name": "@axeth/cli",
   "version": "0.0.1",
+  "license": "MIT",
   "exports": "./index.ts",
   "fmt": {
     "semiColons": true
