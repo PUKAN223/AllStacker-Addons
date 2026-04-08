@@ -8,7 +8,7 @@ export * from "./class/PageBuilders.ts";
 export * from "./class/PluginBase.ts";
 export * from "./class/PluginManagers.ts";
 
-export * from "./class/forms/IActionForm.ts"
+export * from "./class/forms/IActionForm.ts";
 export * from "./class/forms/IModalForm.ts";
 export * from "./class/forms/IMessageForm.ts";
 

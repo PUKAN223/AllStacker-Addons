@@ -7,14 +7,14 @@
   },
   "imports": {
     "@kisu/api": "./lib/@kisu/api/index.ts",
-    "@kisu/cli": "./lib/@kisu/cli/index.ts"
+    "@kisu/cli": "./lib/@kisu/cli/index.ts",
+    "@minecraft/server": "npm:@minecraft/server@2.6.0",
+    "@minecraft/server-ui": "npm:@minecraft/server-ui@2.0.0"
   },
   "lint": {
     "rules": {
       "exclude": ["no-import-prefix"]
     }
   },
-  "exclude": [
-    "./data/dist"
-  ]
+  "exclude": ["./data/dist"]
 }
