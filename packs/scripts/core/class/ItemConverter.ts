@@ -1,4 +1,8 @@
-import { Enchantment, ItemLockMode, ItemStack } from "npm:@minecraft/server@2.3.0";
+import {
+  Enchantment,
+  ItemLockMode,
+  ItemStack,
+} from "@minecraft/server";
 import { ItemJson } from "../types/ItemJson.ts";
 
 class ItemConverter {
@@ -20,18 +24,24 @@ class ItemConverter {
   }
 
   public ItemToJson(item: ItemStack): ItemJson {
-    const itemDynamic: { id: string, data: unknown }[] = [];
+    const itemDynamic: { id: string; data: unknown }[] = [];
     let itemDurability: number = 0;
     let itemEnchantment: Enchantment[] = [];
     if (item.getDynamicPropertyIds().length !== 0) {
-      item.getDynamicPropertyIds().forEach(ids => {
+      item.getDynamicPropertyIds().forEach((ids) => {
         itemDynamic.push({ id: ids, data: item.getDynamicProperty(ids) });
       });
     }
-    if (item.getComponent("durability") && item.getComponent("durability")!.damage !== 0) {
+    if (
+      item.getComponent("durability") &&
+      item.getComponent("durability")!.damage !== 0
+    ) {
       itemDurability = item.getComponent("durability")!.damage;
     }
-    if (item.getComponent("enchantable") && item.getComponent("enchantable")!.getEnchantments().length !== 0) {
+    if (
+      item.getComponent("enchantable") &&
+      item.getComponent("enchantable")!.getEnchantments().length !== 0
+    ) {
       itemEnchantment = item.getComponent("enchantable")!.getEnchantments();
     }
     const data = {
@@ -46,7 +56,7 @@ class ItemConverter {
       can_destroy: item.getCanDestroy(),
       can_placeon: item.getCanPlaceOn(),
       durability: itemDurability,
-      enchants: itemEnchantment ?? []
+      enchants: itemEnchantment ?? [],
     };
     return data;
   }
@@ -63,12 +73,16 @@ class ItemConverter {
         items.setDynamicProperty(id, data as number | string | boolean);
       });
       if (itemJson.enchants) {
-        itemJson.enchants.forEach(enc => {
-          items.getComponent("enchantable")!.addEnchantment({ type: enc.type, level: enc.level });
+        itemJson.enchants.forEach((enc) => {
+          items.getComponent("enchantable")!.addEnchantment({
+            type: enc.type,
+            level: enc.level,
+          });
         });
       }
       items.keepOnDeath = itemJson.keepOnDeath ?? false;
-      items.lockMode = ItemLockMode[itemJson.lockMode as keyof typeof ItemLockMode];
+      items.lockMode =
+        ItemLockMode[itemJson.lockMode as keyof typeof ItemLockMode];
       items.setLore(itemJson.lores);
       items.nameTag = itemJson.nameTag;
       return items;

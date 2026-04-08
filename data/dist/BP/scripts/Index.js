@@ -1,5 +1,8 @@
 // packs/scripts/kisux3/plugins/ItemStacker/index.ts
-import { system as system5, world as world8 } from "@minecraft/server";
+import {
+  system as system5,
+  world as world8
+} from "@minecraft/server";
 
 // packs/scripts/core/events/index.ts
 import { system, world } from "@minecraft/server";
@@ -10,6 +13,22 @@ var PluginManager = class _PluginManager {
   static instance;
   constructor() {
   }
+  /**
+   * Gets the singleton instance of PluginManager.
+   * @returns The PluginManager instance
+   */
+  static getInstance() {
+    if (!_PluginManager.instance) {
+      _PluginManager.instance = new _PluginManager();
+    }
+    return _PluginManager.instance;
+  }
+  /**
+   * Checks if a plugin is currently enabled.
+   * @param plugin - The name of the plugin to check
+   * @returns True if the plugin is enabled
+   * @throws Error if plugin is not registered
+   */
   static isEnabled(plugin) {
     const pluginInstance = _PluginManager.getInstance().getPluginByName(plugin);
     if (!pluginInstance) {
@@ -17,46 +36,80 @@ var PluginManager = class _PluginManager {
     }
     return pluginInstance.setting.enabled;
   }
-  static getInstance() {
-    if (!_PluginManager.instance) {
-      _PluginManager.instance = new _PluginManager();
-    }
-    return _PluginManager.instance;
-  }
+  /**
+   * Registers a single plugin with the manager.
+   * @param plugin - The plugin setting to register
+   * @throws Error if a plugin with the same name already exists
+   */
   registerPlugin(plugin) {
     if (this.plugins.find((p) => p.name === plugin.name)) {
       throw new Error(`Plugin with name ${plugin.name} is already registered.`);
     }
     this.plugins.push(plugin);
   }
+  /**
+   * Registers multiple plugins at once.
+   * @param plugins - Array of plugin settings to register
+   */
   registerPlugins(plugins) {
     plugins.forEach((plugin) => this.registerPlugin(plugin));
   }
+  /**
+   * Unregisters a plugin by name.
+   * @param pluginName - The name of the plugin to unregister
+   * @throws Error if plugin is not found
+   */
   unregisterPlugin(pluginName) {
-    const index = this.plugins.findIndex((plugin) => plugin.name === pluginName);
+    const index = this.plugins.findIndex(
+      (plugin) => plugin.name === pluginName
+    );
     if (index === -1) {
       throw new Error(`Plugin with name ${pluginName} is not registered.`);
     }
     this.plugins.splice(index, 1);
   }
+  /**
+   * Gets all registered plugins.
+   * @returns Array of all plugin settings
+   */
   getPlugins() {
     return this.plugins;
   }
+  /**
+   * Gets a specific plugin by name.
+   * @param name - The name of the plugin to find
+   * @returns The plugin setting or undefined if not found
+   */
   getPluginByName(name) {
     return this.plugins.find((plugin) => plugin.name === name);
   }
+  /**
+   * Loads all enabled plugins by calling their onLoad method.
+   * @param plugins - Array of plugins to load
+   * @param ev - The world load event
+   */
   loadPlugins(plugins, ev) {
     plugins.forEach((plugin) => {
       if (!plugin.setting.enabled) return;
       plugin.main.onLoad(ev);
     });
   }
+  /**
+   * Calls onStartup for all enabled plugins.
+   * @param plugins - Array of plugins to start
+   * @param ev - The startup event
+   */
   startupPlugins(plugins, ev) {
     plugins.forEach((plugin) => {
       if (!plugin.setting.enabled) return;
       plugin.main.onStartup(ev);
     });
   }
+  /**
+   * Calls onShutdown for all enabled plugins.
+   * @param plugins - Array of plugins to shut down
+   * @param ev - The shutdown event
+   */
   shutdownPlugins(plugins, ev) {
     plugins.forEach((plugin) => {
       if (!plugin.setting.enabled) return;
@@ -68,6 +121,12 @@ var PluginManager = class _PluginManager {
 // packs/scripts/core/class/EventEmitter.ts
 var KXEvents = class {
   static events = /* @__PURE__ */ new Map();
+  /**
+   * Subscribes a callback to an event.
+   * @param plugin - The plugin registering the event (null for global)
+   * @param eventName - The name of the event to listen for
+   * @param callback - The function to call when the event fires
+   */
   static on(plugin, eventName, callback) {
     if (plugin === null) {
       const key2 = "__global__";
@@ -92,6 +151,12 @@ var KXEvents = class {
     }
     pluginEvents[eventName].push(callback);
   }
+  /**
+   * Emits an event to all registered listeners.
+   * @param plugin - The plugin emitting the event (null for global)
+   * @param eventName - The name of the event to emit
+   * @param data - Optional data to pass to callbacks
+   */
   // deno-lint-ignore no-explicit-any
   static emit(plugin, eventName, data) {
     if (plugin === null) {
@@ -103,7 +168,10 @@ var KXEvents = class {
             try {
               cb(data);
             } catch (err) {
-              console.error(`[KXEvents] Error in global event "${eventName}":`, err.stack);
+              console.error(
+                `[KXEvents] Error in global event "${eventName}":`,
+                err.stack
+              );
             }
           }
         }
@@ -117,7 +185,10 @@ var KXEvents = class {
           try {
             cb(data);
           } catch (err) {
-            console.error(`[KXEvents] Error in event "${eventName}" from ${key2}:`, err.stack);
+            console.error(
+              `[KXEvents] Error in event "${eventName}" from ${key2}:`,
+              err.stack
+            );
           }
         }
       }
@@ -133,7 +204,10 @@ var KXEvents = class {
       try {
         cb(data);
       } catch (err) {
-        console.error(`[KXEvents] Error in event "${eventName}" from ${plugin.getName()}:`, err.stack);
+        console.error(
+          `[KXEvents] Error in event "${eventName}" from ${plugin.getName()}:`,
+          err.stack
+        );
       }
     }
   }
@@ -158,24 +232,32 @@ function initializeEvents() {
     systemAfterEvents.push(key);
   }
   afterEvents.forEach((event) => {
-    world.afterEvents[event].subscribe((ev) => {
-      KXEvents.emit(null, `after:${event}`, ev);
-    });
+    world.afterEvents[event].subscribe(
+      (ev) => {
+        KXEvents.emit(null, `after:${event}`, ev);
+      }
+    );
   });
   beforeEvents.forEach((event) => {
-    world.beforeEvents[event].subscribe((ev) => {
-      KXEvents.emit(null, `before:${event}`, ev);
-    });
+    world.beforeEvents[event].subscribe(
+      (ev) => {
+        KXEvents.emit(null, `before:${event}`, ev);
+      }
+    );
   });
   systemAfterEvents.forEach((event) => {
-    system.afterEvents[event].subscribe((ev) => {
-      KXEvents.emit(null, `after:${event}`, ev);
-    });
+    system.afterEvents[event].subscribe(
+      (ev) => {
+        KXEvents.emit(null, `after:${event}`, ev);
+      }
+    );
   });
   systemBeforeEvents.forEach((event) => {
-    system.beforeEvents[event].subscribe((ev) => {
-      KXEvents.emit(null, `before:${event}`, ev);
-    });
+    system.beforeEvents[event].subscribe(
+      (ev) => {
+        KXEvents.emit(null, `before:${event}`, ev);
+      }
+    );
   });
   system.runInterval(() => {
     KXEvents.emit(null, "after:tick", { currentTick: system.currentTick });
@@ -183,7 +265,10 @@ function initializeEvents() {
 }
 
 // packs/scripts/core/class/ItemConverter.ts
-import { ItemLockMode, ItemStack } from "@minecraft/server";
+import {
+  ItemLockMode,
+  ItemStack
+} from "@minecraft/server";
 var ItemConverter = class _ItemConverter {
   static instance;
   static isLoaded = false;
@@ -244,7 +329,10 @@ var ItemConverter = class _ItemConverter {
       });
       if (itemJson.enchants) {
         itemJson.enchants.forEach((enc) => {
-          items.getComponent("enchantable").addEnchantment({ type: enc.type, level: enc.level });
+          items.getComponent("enchantable").addEnchantment({
+            type: enc.type,
+            level: enc.level
+          });
         });
       }
       items.keepOnDeath = itemJson.keepOnDeath ?? false;
@@ -264,24 +352,48 @@ var Logger = class _Logger {
   static instance;
   constructor() {
   }
+  /**
+   * Gets the singleton instance of the Logger.
+   * @returns The Logger instance
+   */
   static getInstance() {
     if (!_Logger.instance) {
       _Logger.instance = new _Logger();
     }
     return _Logger.instance;
   }
+  /**
+   * Logs a general message.
+   * @param message - The message to log
+   */
   log(message) {
     console.info(`[ LOG ] ${message}`);
   }
+  /**
+   * Logs an error message.
+   * @param message - The error message to log
+   */
   error(message) {
-    console.info(`[ ERROR ] ${message}`);
+    console.error(`[ ERROR ] ${message}`);
   }
+  /**
+   * Logs a warning message.
+   * @param message - The warning message to log
+   */
   warn(message) {
-    console.info(`[ WARN ] ${message}`);
+    console.warn(`[ WARN ] ${message}`);
   }
+  /**
+   * Logs a debug message.
+   * @param message - The debug message to log
+   */
   debug(message) {
     console.info(`[ DEBUG ] ${message}`);
   }
+  /**
+   * Logs an info message.
+   * @param message - The info message to log
+   */
   info(message) {
     console.info(`[ INFO ] ${message}`);
   }
@@ -652,7 +764,10 @@ var IMessageForm = class _IMessageForm {
    * Create a simple yes/no dialog
    */
   static createYesNo(title, body, onYes, onNo) {
-    return new _IMessageForm(title, body).setButton1("No", onNo).setButton2("Yes", onYes);
+    return new _IMessageForm(title, body).setButton1("No", onNo).setButton2(
+      "Yes",
+      onYes
+    );
   }
   /**
    * Create a simple OK dialog
@@ -751,7 +866,13 @@ var IModalForm = class {
    * Add a slider
    */
   addSlider(label, minimumValue, maximumValue, valueStep, defaultValue) {
-    this.elements.push({ label, minimumValue, maximumValue, valueStep, defaultValue });
+    this.elements.push({
+      label,
+      minimumValue,
+      maximumValue,
+      valueStep,
+      defaultValue
+    });
     return this;
   }
   /**
@@ -873,7 +994,6 @@ var IModalForm = class {
   getElements() {
     return this.elements;
   }
-  // deno-lint-ignore no-explicit-any
   addCallback(callback) {
     this.callback = callback;
     return this;
@@ -893,16 +1013,22 @@ var IModalForm = class {
       } else if (this.isLabel(element)) {
         form.label(element.text_label);
       } else if (this.isTextField(element)) {
-        form.textField(element.label, element.placeholderText || "", { defaultValue: element.defaultValue || "" });
+        form.textField(element.label, element.placeholderText || "", {
+          defaultValue: element.defaultValue || ""
+        });
       } else if (this.isToggle(element)) {
-        form.toggle(element.label, { defaultValue: element.defaultValue || false });
+        form.toggle(element.label, {
+          defaultValue: element.defaultValue || false
+        });
       } else if (this.isSlider(element)) {
         form.slider(element.label, element.minimumValue, element.maximumValue, {
           defaultValue: element.defaultValue || 0,
           valueStep: element.valueStep
         });
       } else if (this.isDropdown(element)) {
-        form.dropdown(element.label, element.options, { defaultValueIndex: element.defaultValueIndex || 0 });
+        form.dropdown(element.label, element.options, {
+          defaultValueIndex: element.defaultValueIndex || 0
+        });
       }
     });
     try {
@@ -991,7 +1117,9 @@ var PageBuilder = class {
   async showPage(player, pageId) {
     const page = this.getPages()[pageId];
     if (!page) {
-      return await Promise.reject(new Error(`Page with ID ${pageId} does not exist`));
+      return await Promise.reject(
+        new Error(`Page with ID ${pageId} does not exist`)
+      );
     }
     if (page instanceof IActionForm_default) {
       return page.show(player).then(() => {
@@ -1010,47 +1138,91 @@ var PageBuilder = class {
 
 // packs/scripts/core/class/PluginBase.ts
 var PluginBase = class {
+  /** The name of the plugin */
   name;
+  /** A brief description of what the plugin does */
   description;
+  /** The current version of the plugin */
   version;
+  /** Logger instance for this plugin */
   logger;
+  /**
+   * Creates a new PluginBase instance.
+   * @param name - The name of the plugin
+   * @param description - A brief description of the plugin
+   * @param version - The version string of the plugin
+   */
   constructor(name, description, version) {
     this.name = name;
     this.description = description;
     this.version = version;
     this.logger = Logger.getInstance();
   }
+  /**
+   * Gets the configuration object for this plugin.
+   * @returns The plugin's configuration record
+   */
   getConfig() {
     const plugin = PluginLoader.find((plugin2) => plugin2.name === this.name);
     if (!plugin) return {};
     return plugin.setting.config;
   }
+  /**
+   * Gets the name of this plugin.
+   * @returns The plugin name
+   */
   getName() {
     return this.name;
   }
-  onLoad(ev) {
-    void ev;
+  /**
+   * Lifecycle hook called when the plugin is first loaded.
+   * Override this method to perform initialization logic.
+   * @param _ev - Optional world load event
+   */
+  onLoad(_ev) {
   }
-  onStartup(ev) {
-    void ev;
+  /**
+   * Lifecycle hook called during server startup.
+   * Override this method to run startup logic.
+   * @param _ev - The startup event
+   */
+  onStartup(_ev) {
   }
-  onShutdown(ev) {
-    void ev;
+  /**
+   * Lifecycle hook called during server shutdown.
+   * Override this method to perform cleanup logic.
+   * @param _ev - The shutdown event
+   */
+  onShutdown(_ev) {
   }
-  addConfig(pl, page, showUI = true) {
-    pl;
-    page;
-    showUI;
+  /**
+   * Adds configuration UI for this plugin.
+   * Override this method to add custom settings UI.
+   * @param _pl - The player to show the UI to
+   * @param _page - The page builder for adding UI elements
+   * @param _showUI - Whether to show the UI (default: true)
+   * @returns True if UI was added, false otherwise
+   */
+  addConfig(_pl, _page, _showUI = true) {
     return false;
   }
 };
 
 // packs/scripts/core/database/Database.js
-import { world as world2, World, Entity, system as system2 } from "@minecraft/server";
+import { Entity, system as system2, World, world as world2 } from "@minecraft/server";
 import * as mc from "@minecraft/server";
 var mc_world = world2;
-var { setDynamicProperty: wSDP, getDynamicProperty: wGDP, getDynamicPropertyIds: wGDPI } = World.prototype;
-var { isValid: isValidEntity, setDynamicProperty: eSDP, getDynamicProperty: eGDP, getDynamicPropertyIds: eGDPI } = Entity.prototype;
+var {
+  setDynamicProperty: wSDP,
+  getDynamicProperty: wGDP,
+  getDynamicPropertyIds: wGDPI
+} = World.prototype;
+var {
+  isValid: isValidEntity,
+  setDynamicProperty: eSDP,
+  getDynamicProperty: eGDP,
+  getDynamicPropertyIds: eGDPI
+} = Entity.prototype;
 var DYNAMIC_DB_PREFIX = "\u1221\u2112";
 var ROOT_CONTENT_TABLE_UUID = "c0211201-0001-4001-8001-4f90af596647";
 var STRING_LIMIT = 32e3;
@@ -1082,7 +1254,7 @@ var DynamicSource = class {
   getIds() {
     return this.gDPI.call(this.source);
   }
-  /**@param {string} key  @returns {number | boolean | string | import("npm:@minecraft/server@2.3.0").Vector3}*/
+  /**@param {string} key  @returns {number | boolean | string | import("@minecraft/server").Vector3}*/
   get(key) {
     return this.gDP.call(this.source, key);
   }
@@ -1124,39 +1296,53 @@ var DynamicDatabase = class extends Map {
     if (MAP_INSTANCES.has(PRE)) return MAP_INSTANCES.get(PRE);
     MAP_INSTANCES.set(PRE, this);
     DDB_SUBINSTANCES.set(SOURCE, MAP_INSTANCES);
-    if (!SOURCE.isValid()) throw new ReferenceError("Source is no longer valid: " + SOURCE.source);
+    if (!SOURCE.isValid()) {
+      throw new ReferenceError("Source is no longer valid: " + SOURCE.source);
+    }
     this._prefix = PRE;
     this._prefixLength = LENGTH;
     this._STRINGIFY = parser.stringify;
     this._notDisposed = true;
-    for (const K of SOURCE.getIds()) if (K.startsWith(PRE)) {
-      const key = K.substring(LENGTH);
-      const value = SOURCE.get(K);
-      if (typeof value === "string") super.set(key, PARSE(value));
+    for (const K of SOURCE.getIds()) {
+      if (K.startsWith(PRE)) {
+        const key = K.substring(LENGTH);
+        const value = SOURCE.get(K);
+        if (typeof value === "string") super.set(key, PARSE(value));
+      }
     }
   }
   /**@param {string} key @param {any} value */
   set(key, value) {
-    if (!this.isValid()) throw new ReferenceError("This database instance is no longer valid");
-    if (key.length + this._prefixLength > STRING_LIMIT) throw new TypeError("Key is too long: " + key.length);
+    if (!this.isValid()) {
+      throw new ReferenceError("This database instance is no longer valid");
+    }
+    if (key.length + this._prefixLength > STRING_LIMIT) {
+      throw new TypeError("Key is too long: " + key.length);
+    }
     if (value === void 0) {
       this.delete(key);
       return this;
     }
     const data = this._STRINGIFY(value);
-    if (data.length > STRING_LIMIT) throw new TypeError("Size of data in string is too long: " + data.length);
+    if (data.length > STRING_LIMIT) {
+      throw new TypeError("Size of data in string is too long: " + data.length);
+    }
     this._source.set(this._prefix + key, data);
     return super.set(key, value);
   }
   /**@param {string} key  */
   delete(key) {
-    if (!this.isValid()) throw new ReferenceError("This database instance is no longer valid");
+    if (!this.isValid()) {
+      throw new ReferenceError("This database instance is no longer valid");
+    }
     if (!this.has(key)) return false;
     this._source.delete(this._prefix + key);
     return super.delete(key);
   }
   clear() {
-    if (!this.isValid()) throw new ReferenceError("This database instance is no longer valid");
+    if (!this.isValid()) {
+      throw new ReferenceError("This database instance is no longer valid");
+    }
     const P = this._prefix;
     const s = this._source;
     for (const key of this.keys()) s.delete(P + key);
@@ -1236,9 +1422,15 @@ var Serializer = {
     return false;
   },
   registrySerializer(kind, serializer, deserializer) {
-    if (SERIALIZERS.has(kind)) throw new ReferenceError("Duplicate serialization kind: " + kind);
-    if (typeof kind != "string") throw new TypeError("Kind must be type of string.");
-    if (typeof serializer != "function" || typeof deserializer != "function") throw new TypeError("serializer or deserializer is not a function");
+    if (SERIALIZERS.has(kind)) {
+      throw new ReferenceError("Duplicate serialization kind: " + kind);
+    }
+    if (typeof kind != "string") {
+      throw new TypeError("Kind must be type of string.");
+    }
+    if (typeof serializer != "function" || typeof deserializer != "function") {
+      throw new TypeError("serializer or deserializer is not a function");
+    }
     SERIALIZERS.set(kind, { serializer, deserializer });
     return kind;
   },
@@ -1256,10 +1448,14 @@ var Serializer = {
   setSerializableClass(construct, kind, serializer, deserializer) {
     if (typeof serializer !== "function" || typeof deserializer !== "function") throw new TypeError("Serializer or deserializer is not a function");
     Serializer.registrySerializer(kind, function(obj) {
-      if (obj == null) throw new TypeError("Null or Undefined is not possible to serialize.");
+      if (obj == null) {
+        throw new TypeError("Null or Undefined is not possible to serialize.");
+      }
       return serializer(obj);
     }, function(obj) {
-      if (obj[GENERATOR_DESERIALIZER_SYMBOL] !== true) throw new TypeError("Null or Undefined is not possible to serialize.");
+      if (obj[GENERATOR_DESERIALIZER_SYMBOL] !== true) {
+        throw new TypeError("Null or Undefined is not possible to serialize.");
+      }
       return deserializer(obj);
     });
     Serializer.setSerializableKind(construct.prototype, kind);
@@ -1271,8 +1467,12 @@ var Serializer = {
     return SERIALIZERS.keys();
   },
   overrideSerializers(kind, serializer, deserializer) {
-    if (typeof kind != "string") throw new TypeError("Kind must be type of string.");
-    if (typeof serializer != "function" || typeof deserializer != "function") throw new TypeError("serializer or deserializer is not a function");
+    if (typeof kind != "string") {
+      throw new TypeError("Kind must be type of string.");
+    }
+    if (typeof serializer != "function" || typeof deserializer != "function") {
+      throw new TypeError("serializer or deserializer is not a function");
+    }
     SERIALIZERS.set(kind, { serializer, deserializer });
     return kind;
   }
@@ -1284,7 +1484,9 @@ var DATABASE_MANAGER = {
     return JSONReadable(data);
   },
   serialize(rootRef, source, object) {
-    if (!Serializer.isRegistredKind(Serializer.getSerializerKind(object))) throw new TypeError("object is not serializeable.");
+    if (!Serializer.isRegistredKind(Serializer.getSerializerKind(object))) {
+      throw new TypeError("object is not serializeable.");
+    }
     const kind = Serializer.getSerializerKind(object);
     const serializer = Serializer.getSerializer(kind);
     if (!serializer) throw new ReferenceError("No serializer for " + kind);
@@ -1308,7 +1510,11 @@ var DATABASE_MANAGER = {
       let genNext = gen.next();
       if (!genNext.done) {
         const headerData = genNext.value + "";
-        if (headerData.length > TABLE_STRING_LENGTH) gen.throw(new RangeError("Yielded stirng is too big: " + headerData.length));
+        if (headerData.length > TABLE_STRING_LENGTH) {
+          gen.throw(
+            new RangeError("Yielded stirng is too big: " + headerData.length)
+          );
+        }
         genNext = gen.next();
         while (!genNext.done) {
           const key = prefix + newLength;
@@ -1320,7 +1526,10 @@ var DATABASE_MANAGER = {
           }
           genNext = gen.next();
         }
-        source.set(rootRef, JSONWritable({ length: newLength.toString(36), kind }, headerData));
+        source.set(
+          rootRef,
+          JSONWritable({ length: newLength.toString(36), kind }, headerData)
+        );
       }
       return newLength;
     } catch (er) {
@@ -1339,10 +1548,20 @@ var DATABASE_MANAGER = {
       const prefix = rootRef + "::";
       const [{ length: le, kind }, data] = oldHeader;
       let length = parseInt(le, 36);
-      if (!Serializer.isRegistredKind(kind)) throw new ReferenceError("Unknown parser kind: " + kind);
+      if (!Serializer.isRegistredKind(kind)) {
+        throw new ReferenceError("Unknown parser kind: " + kind);
+      }
       const deserializeResolver = Serializer.getDeserializer(kind);
-      if (!deserializeResolver) throw new ReferenceError("No deserializer for: " + kind);
-      const deserializer = this.deserializer(source, rootRef, prefix, length, data);
+      if (!deserializeResolver) {
+        throw new ReferenceError("No deserializer for: " + kind);
+      }
+      const deserializer = this.deserializer(
+        source,
+        rootRef,
+        prefix,
+        length,
+        data
+      );
       DESERIALIZER_INFO.set(deserializer, {
         source,
         rootRef,
@@ -1363,7 +1582,13 @@ var DATABASE_MANAGER = {
     let i = 0;
     while (i < length) {
       const data = source.get(prefix + i);
-      if (!data) throw new DataCoruptionError(source, root, "No continual data at index of " + i);
+      if (!data) {
+        throw new DataCoruptionError(
+          source,
+          root,
+          "No continual data at index of " + i
+        );
+      }
       yield data;
       i++;
     }
@@ -1380,31 +1605,42 @@ var DATABASE_MANAGER = {
     return true;
   }
 };
-Object.defineProperties(DATABASE_MANAGER.deserializer.prototype, Object.getOwnPropertyDescriptors({
-  [GENERATOR_DESERIALIZER_SYMBOL]: true,
-  return() {
-    return { done: true };
-  },
-  continue() {
-    return this.next(...arguments).value;
-  },
-  get source() {
-    if (!DESERIALIZER_INFO.has(this)) throw new ReferenceError("Object bound to prototype does not exist.");
-    return DESERIALIZER_INFO.get(this).source;
-  },
-  get rootKey() {
-    if (!DESERIALIZER_INFO.has(this)) throw new ReferenceError("Object bound to prototype does not exist.");
-    return DESERIALIZER_INFO.get(this).rootRef;
-  },
-  get length() {
-    if (!DESERIALIZER_INFO.has(this)) throw new ReferenceError("Object bound to prototype does not exist.");
-    return DESERIALIZER_INFO.get(this).length;
-  },
-  get kind() {
-    if (!DESERIALIZER_INFO.has(this)) throw new ReferenceError("Object bound to prototype does not exist.");
-    return DESERIALIZER_INFO.get(this).kind;
-  }
-}));
+Object.defineProperties(
+  DATABASE_MANAGER.deserializer.prototype,
+  Object.getOwnPropertyDescriptors({
+    [GENERATOR_DESERIALIZER_SYMBOL]: true,
+    return() {
+      return { done: true };
+    },
+    continue() {
+      return this.next(...arguments).value;
+    },
+    get source() {
+      if (!DESERIALIZER_INFO.has(this)) {
+        throw new ReferenceError("Object bound to prototype does not exist.");
+      }
+      return DESERIALIZER_INFO.get(this).source;
+    },
+    get rootKey() {
+      if (!DESERIALIZER_INFO.has(this)) {
+        throw new ReferenceError("Object bound to prototype does not exist.");
+      }
+      return DESERIALIZER_INFO.get(this).rootRef;
+    },
+    get length() {
+      if (!DESERIALIZER_INFO.has(this)) {
+        throw new ReferenceError("Object bound to prototype does not exist.");
+      }
+      return DESERIALIZER_INFO.get(this).length;
+    },
+    get kind() {
+      if (!DESERIALIZER_INFO.has(this)) {
+        throw new ReferenceError("Object bound to prototype does not exist.");
+      }
+      return DESERIALIZER_INFO.get(this).kind;
+    }
+  })
+);
 var DynamicTable = class _DynamicTable extends Map {
   /**@readonly */
   static get KIND() {
@@ -1415,21 +1651,41 @@ var DynamicTable = class _DynamicTable extends Map {
     return TABLE_ID.get(this);
   }
   constructor() {
-    if (!isNativeCall) throw new ReferenceError("No constructor for " + _DynamicTable.name);
+    if (!isNativeCall) {
+      throw new ReferenceError("No constructor for " + _DynamicTable.name);
+    }
     super();
   }
   get(key) {
-    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::get()].");
+    if (!this.isValid()) {
+      throw new ReferenceError(
+        "Object bound to prototype doesn't not exist at [DynamicTable::get()]."
+      );
+    }
     if (!this.has(key)) return;
     const source = TABLE_SOURCES.get(this);
     const dataId = super.get(key);
     return DATABASE_MANAGER.deserialize(dataId, source);
   }
   set(key, value) {
-    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::get()].");
-    if (value == null) throw new ReferenceError("You can not assign property to null or undefined");
-    if (!Serializer.isRegistredKind(Serializer.getSerializerKind(value))) throw new TypeError("value is not serializeable.");
-    if (value instanceof _DynamicTable) throw new TypeError("You can't set value as DynamicTable please use AddTable");
+    if (!this.isValid()) {
+      throw new ReferenceError(
+        "Object bound to prototype doesn't not exist at [DynamicTable::get()]."
+      );
+    }
+    if (value == null) {
+      throw new ReferenceError(
+        "You can not assign property to null or undefined"
+      );
+    }
+    if (!Serializer.isRegistredKind(Serializer.getSerializerKind(value))) {
+      throw new TypeError("value is not serializeable.");
+    }
+    if (value instanceof _DynamicTable) {
+      throw new TypeError(
+        "You can't set value as DynamicTable please use AddTable"
+      );
+    }
     const has = this.has(key);
     const source = TABLE_SOURCES.get(this);
     let newKey;
@@ -1450,7 +1706,11 @@ var DynamicTable = class _DynamicTable extends Map {
     return this;
   }
   clear() {
-    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::clear()].");
+    if (!this.isValid()) {
+      throw new ReferenceError(
+        "Object bound to prototype doesn't not exist at [DynamicTable::clear()]."
+      );
+    }
     const source = TABLE_SOURCES.get(this);
     const KIND = _DynamicTable.KIND;
     for (const k of super.keys()) {
@@ -1467,7 +1727,11 @@ var DynamicTable = class _DynamicTable extends Map {
     super.clear();
   }
   delete(key) {
-    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::delete()].");
+    if (!this.isValid()) {
+      throw new ReferenceError(
+        "Object bound to prototype doesn't not exist at [DynamicTable::delete()]."
+      );
+    }
     const source = TABLE_SOURCES.get(this);
     if (!this.has(key)) return false;
     const dataId = super.get(key);
@@ -1482,14 +1746,22 @@ var DynamicTable = class _DynamicTable extends Map {
     return super.delete();
   }
   *entries() {
-    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::entries()].");
+    if (!this.isValid()) {
+      throw new ReferenceError(
+        "Object bound to prototype doesn't not exist at [DynamicTable::entries()]."
+      );
+    }
     for (const [k, v] of super.entries()) yield [k, this.get(k)];
   }
   [Symbol.iterator]() {
     return this.entries();
   }
   *values() {
-    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::values()].");
+    if (!this.isValid()) {
+      throw new ReferenceError(
+        "Object bound to prototype doesn't not exist at [DynamicTable::values()]."
+      );
+    }
     for (const k of super.keys()) yield this.get(k);
   }
   isValid() {
@@ -1500,8 +1772,14 @@ var DynamicTable = class _DynamicTable extends Map {
     let fromTable = getRootTable();
     let a = fromTable.get(id);
     if (a === void 0) {
-      if (!fromTable.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::get()].");
-      if (Map.prototype.has.call(fromTable, id)) throw new ReferenceError("Value of this key already exists");
+      if (!fromTable.isValid()) {
+        throw new ReferenceError(
+          "Object bound to prototype doesn't not exist at [DynamicTable::get()]."
+        );
+      }
+      if (Map.prototype.has.call(fromTable, id)) {
+        throw new ReferenceError("Value of this key already exists");
+      }
       const source = TABLE_SOURCES.get(fromTable);
       let newKey = "t" + v4uuid();
       isNativeCall = true;
@@ -1515,7 +1793,9 @@ var DynamicTable = class _DynamicTable extends Map {
       SetTable(source, newKey, value);
       TABLE_VALIDS.add(value);
       a = value;
-    } else if (!(a instanceof _DynamicTable)) throw new TypeError(`Value saved in ${id} is not a dynamic table.`);
+    } else if (!(a instanceof _DynamicTable)) {
+      throw new TypeError(`Value saved in ${id} is not a dynamic table.`);
+    }
     return a;
   }
   static ClearAll() {
@@ -1533,7 +1813,11 @@ function SaveState(table) {
     table._task = system2.run(() => {
       table._task = void 0;
       if (table.isValid()) {
-        DATABASE_MANAGER.serialize(table.tableId, TABLE_SOURCES.get(table), table);
+        DATABASE_MANAGER.serialize(
+          table.tableId,
+          TABLE_SOURCES.get(table),
+          table
+        );
       }
     });
   }
@@ -1552,7 +1836,9 @@ var DataCoruptionError = class extends ReferenceError {
     this.source = source;
   }
   remove() {
-    if (!this.source.isValid()) throw new ReferenceError("Source is no longer valid");
+    if (!this.source.isValid()) {
+      throw new ReferenceError("Source is no longer valid");
+    }
     DATABASE_MANAGER.removeTree(this.rootKey, this.source);
   }
 };
@@ -1585,23 +1871,41 @@ Serializer.setSerializableClass(
     const length = Number(n.continue());
     for (let i = 0; i < length; i++) {
       const data = n.continue();
-      if (!data) throw new DataCoruptionError(n.source, n.rootKey, "Data for this dynamic table are corupted.");
+      if (!data) {
+        throw new DataCoruptionError(
+          n.source,
+          n.rootKey,
+          "Data for this dynamic table are corupted."
+        );
+      }
       const obj = JSON.parse(data);
-      for (const k of Object.getOwnPropertyNames(obj)) set.call(table, k, obj[k]);
+      for (const k of Object.getOwnPropertyNames(obj)) {
+        set.call(table, k, obj[k]);
+      }
     }
     return table;
   }
 );
-Serializer.setSerializableClass(Boolean, SerializableKinds.Boolean, function* (n) {
-  yield n;
-}, function(n) {
-  for (const a of n) return a === "true";
-});
-Serializer.setSerializableClass(Number, SerializableKinds.Number, function* (n) {
-  yield n;
-}, function(n) {
-  for (const a of n) return Number(a);
-});
+Serializer.setSerializableClass(
+  Boolean,
+  SerializableKinds.Boolean,
+  function* (n) {
+    yield n;
+  },
+  function(n) {
+    for (const a of n) return a === "true";
+  }
+);
+Serializer.setSerializableClass(
+  Number,
+  SerializableKinds.Number,
+  function* (n) {
+    yield n;
+  },
+  function(n) {
+    for (const a of n) return Number(a);
+  }
+);
 Serializer.setSerializableClass(
   String,
   SerializableKinds.String,
@@ -1628,16 +1932,11 @@ Serializer.setSerializableClass(
     return l.join("");
   }
 );
-Serializer.setSerializableClass(
-  Object,
-  SerializableKinds.Object,
-  function(n) {
-    return Serializer.getSerializer(SerializableKinds.String)(JSON.stringify(n));
-  },
-  function(n) {
-    return JSON.parse(Serializer.getDeserializer(SerializableKinds.String)(n));
-  }
-);
+Serializer.setSerializableClass(Object, SerializableKinds.Object, function(n) {
+  return Serializer.getSerializer(SerializableKinds.String)(JSON.stringify(n));
+}, function(n) {
+  return JSON.parse(Serializer.getDeserializer(SerializableKinds.String)(n));
+});
 function v4uuid(timestamp = Date.now()) {
   const { random, floor } = Math;
   const uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -1668,10 +1967,18 @@ function JSONWritable(json, text) {
 initializeEvents();
 
 // packs/scripts/kisux3/plugins/ItemStacker/services/utils.ts
-import { ItemEnchantableComponent as ItemEnchantableComponent2, ItemStack as ItemStack2, system as system3, world as world5 } from "@minecraft/server";
+import {
+  ItemEnchantableComponent as ItemEnchantableComponent2,
+  ItemStack as ItemStack2,
+  system as system3,
+  world as world5
+} from "@minecraft/server";
 
 // packs/scripts/core/utils/EntityManagers.ts
-import { DimensionTypes, world as world3 } from "@minecraft/server";
+import {
+  DimensionTypes,
+  world as world3
+} from "@minecraft/server";
 function getEntitiesAtDim(dim, filter) {
   const entities = world3.getDimension(dim).getEntities();
   if (filter) {
@@ -1680,7 +1987,9 @@ function getEntitiesAtDim(dim, filter) {
   return entities;
 }
 function getAllEntities(filter) {
-  const dims = DimensionTypes.getAll().map((type) => type.typeId);
+  const dims = DimensionTypes.getAll().map(
+    (type) => type.typeId
+  );
   const entities = [];
   dims.forEach((dim) => {
     entities.push(...getEntitiesAtDim(dim, filter));
@@ -1688,12 +1997,12 @@ function getAllEntities(filter) {
   return entities;
 }
 
-// ../../../../AppData/Local/deno/deno_esbuild/registry.npmjs.org/@minecraft/math@2.2.11_@minecraft+server@2.3.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.21.124/node_modules/@minecraft/math/lib/general/clamp.js
+// ../../../../AppData/Local/deno/deno_esbuild/registry.npmjs.org/@minecraft/math@2.2.11_@minecraft+server@2.6.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.26.13/node_modules/@minecraft/math/lib/general/clamp.js
 function clampNumber(val, min, max) {
   return Math.min(Math.max(val, min), max);
 }
 
-// ../../../../AppData/Local/deno/deno_esbuild/registry.npmjs.org/@minecraft/math@2.2.11_@minecraft+server@2.3.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.21.124/node_modules/@minecraft/math/lib/vector3/coreHelpers.js
+// ../../../../AppData/Local/deno/deno_esbuild/registry.npmjs.org/@minecraft/math@2.2.11_@minecraft+server@2.6.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.26.13/node_modules/@minecraft/math/lib/vector3/coreHelpers.js
 var Vector3Utils = class _Vector3Utils {
   /**
    * equals
@@ -1891,42 +2200,59 @@ function getAllPlayers(filter) {
 }
 
 // packs/scripts/kisux3/plugins/ItemStacker/services/utils.ts
+function combineItemStack(en, config) {
+  if (!en.isValid) return;
+  const item = en.getComponent("item").itemStack;
+  const UnStackList = config.ItemStackConfig.get("UnStackItem") || [];
+  if (item.nameTag || item.typeId.includes("potion") || item.typeId.includes("shulker_box") || item.typeId.includes("bundle") || item.typeId.includes("bed") || item.typeId.includes("bottle") || UnStackList.some((x) => item.typeId.includes(x))) return;
+  const itemNearBy = getItemNearBy(en, config);
+  let totalAmount = 0;
+  if (itemNearBy.length > 0) {
+    for (const target of itemNearBy) {
+      totalAmount += config.ItemStackData.get(target.id).amount;
+      if (config.ItemStackData.has(target.id)) {
+        config.ItemStackData.delete(target.id);
+      }
+      if (config.ItemListStack.has(target)) config.ItemListStack.delete(target);
+      target.addTag("fakeItem");
+      target.remove();
+    }
+  }
+  config.ItemStackData.set(en.id, {
+    amount: totalAmount + item.amount,
+    item: ItemConvert.ItemToJson(item),
+    life: system3.currentTick,
+    currAmount: totalAmount,
+    nowAmount: en.getComponent("item").itemStack.amount
+  });
+  config.ItemListStack.delete(en);
+}
+function updateItemStack(enData, config) {
+  const en = world5.getDimension("overworld").getEntities().filter(
+    (x) => x.id == enData[0]
+  )[0];
+  if (en && en.isValid) {
+    const data = config.ItemStackData.get(en.id);
+    const item = en.getComponent("item").itemStack;
+    config.ItemStackData.set(en.id, {
+      amount: data.currAmount + item.amount,
+      item: data.item,
+      life: data.life,
+      currAmount: data.currAmount,
+      nowAmount: en.getComponent("item").itemStack.amount
+    });
+  }
+}
 function* StackingItem(config) {
   try {
-    const UnStackItem = config.ItemStackConfig.has("UnStackItem") ? config.ItemStackConfig.get("UnStackItem") : [];
-    const CombineItemStack = (en) => {
-      if (!en.isValid) return;
-      const item = en.getComponent("item").itemStack;
-      let totalAmount = 0;
-      if (!(item.nameTag || item.typeId.includes("potion") || item.typeId.includes("shulker_box") || item.typeId.includes("bundle") || item.typeId.includes("bed") || item.typeId.includes("bottle") || [...UnStackItem].some((x) => item.typeId.includes(x)))) {
-        const itemNearBy = getItemNearBy(en, config);
-        for (const target of itemNearBy) {
-          totalAmount += config.ItemStackData.get(target.id).amount;
-          if (config.ItemStackData.has(target.id)) config.ItemStackData.delete(target.id);
-          if (config.ItemListStack.has(target)) config.ItemListStack.delete(target);
-          target.addTag("fakeItem");
-          target.remove();
-        }
-      }
-      config.ItemStackData.set(en.id, { amount: totalAmount + item.amount, item: ItemConvert.ItemToJson(item), life: system3.currentTick, currAmount: totalAmount, nowAmount: en.getComponent("item").itemStack.amount });
-      config.ItemListStack.delete(en);
-    };
-    const UpdateItemStack = (enData) => {
-      const en = world5.getDimension("overworld").getEntities().filter((x) => x.id == enData[0])[0];
-      if (en && en.isValid) {
-        const data = config.ItemStackData.get(en.id);
-        const item = en.getComponent("item").itemStack;
-        config.ItemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount, nowAmount: en.getComponent("item").itemStack.amount });
-      }
-    };
     if (system3.currentTick % 2 === 0) {
       for (const en of config.ItemListStack) {
-        CombineItemStack(en);
+        combineItemStack(en, config);
         yield;
       }
     } else {
       for (const enData of config.ItemStackData) {
-        UpdateItemStack(enData);
+        updateItemStack(enData, config);
         yield;
       }
     }
@@ -1934,7 +2260,7 @@ function* StackingItem(config) {
     if (fastModeStacking) {
       system3.run(() => FastModeStacking(config));
     } else {
-      system3.run(() => system3.runJob(StackingItem(config)));
+      system3.runJob(StackingItem(config));
     }
   } catch (_e) {
     system3.run(() => {
@@ -1944,39 +2270,13 @@ function* StackingItem(config) {
 }
 function FastModeStacking(config) {
   try {
-    const UnStackItem = config.ItemStackConfig.has("UnStackItem") ? config.ItemStackConfig.get("UnStackItem") : [];
-    const CombineItemStack = (en) => {
-      if (!en.isValid) return;
-      const item = en.getComponent("item").itemStack;
-      let totalAmount = 0;
-      if (!(item.nameTag || item.typeId.includes("potion") || item.typeId.includes("shulker_box") || item.typeId.includes("bundle") || item.typeId.includes("bed") || item.typeId.includes("bottle") || [...UnStackItem].some((x) => item.typeId.includes(x)))) {
-        const itemNearBy = getItemNearBy(en, config);
-        for (const target of itemNearBy) {
-          totalAmount += config.ItemStackData.get(target.id).amount;
-          if (config.ItemStackData.has(target.id)) config.ItemStackData.delete(target.id);
-          if (config.ItemListStack.has(target)) config.ItemListStack.delete(target);
-          target.addTag("fakeItem");
-          target.remove();
-        }
-      }
-      config.ItemStackData.set(en.id, { amount: totalAmount + item.amount, item: ItemConvert.ItemToJson(item), life: system3.currentTick, currAmount: totalAmount, nowAmount: en.getComponent("item").itemStack.amount });
-      config.ItemListStack.delete(en);
-    };
-    const UpdateItemStack = (enData) => {
-      const en = world5.getDimension("overworld").getEntities().filter((x) => x.id == enData[0])[0];
-      if (en && en.isValid) {
-        const data = config.ItemStackData.get(en.id);
-        const item = en.getComponent("item").itemStack;
-        config.ItemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount, nowAmount: en.getComponent("item").itemStack.amount });
-      }
-    };
     if (system3.currentTick % 2 === 0) {
       for (const en of config.ItemListStack) {
-        CombineItemStack(en);
+        combineItemStack(en, config);
       }
     } else {
       for (const enData of config.ItemStackData) {
-        UpdateItemStack(enData);
+        updateItemStack(enData, config);
       }
     }
     const fastModeStacking = config.ItemStackConfig.get("FastModeStacking");
@@ -1994,11 +2294,15 @@ function FastModeStacking(config) {
 }
 function* SeeingItem(config) {
   try {
-    const ListStack = [...config.ItemStackData.keys()];
+    const ListStack = new Set(config.ItemStackData.keys());
     const radiusSeeing = config.ItemStackConfig.get("RadiusSeeing") || 7;
     for (const pl of world5.getAllPlayers()) {
-      const allEnititys = pl.dimension.getEntities({ type: "minecraft:item" }).filter((x) => ListStack.some((d) => d == x.id));
-      const filterEntitys = pl.dimension.getEntities({ maxDistance: radiusSeeing, location: pl.location, type: "minecraft:item" }).filter((x) => ListStack.some((d) => d == x.id));
+      const allEnititys = pl.dimension.getEntities({ type: "minecraft:item" }).filter((x) => ListStack.has(x.id));
+      const filterEntitys = pl.dimension.getEntities({
+        maxDistance: radiusSeeing,
+        location: pl.location,
+        type: "minecraft:item"
+      }).filter((x) => ListStack.has(x.id));
       const updateItemName = (en) => {
         const itemData = config.ItemStackData.get(en.id);
         const displayText = config.ItemStackConfig.get("DisplayText") || "";
@@ -2006,7 +2310,10 @@ function* SeeingItem(config) {
           const timeData = getTimeRemaining(5, 30, itemData.life);
           let text = displayText;
           text = `\xA7e\uE10E ` + text;
-          text = text.replace(/%a/g, `${getItemColorCode(itemData.amount)}x${itemData.amount}\xA7r`);
+          text = text.replace(
+            /%a/g,
+            `${getItemColorCode(itemData.amount)}x${itemData.amount}\xA7r`
+          );
           text = text.replace(/%n/g, ItemsToName(en) ?? "Unknown Item");
           text = text.replace(/%m/g, `${Math.max(timeData.m, 0)}`);
           text = text.replace(/%s/g, `${timeData.s}`);
@@ -2026,7 +2333,6 @@ function* SeeingItem(config) {
           });
           if (playerNears.length == 0) en.nameTag = "";
         }
-        ;
       };
       for (const en of filterEntitys) {
         updateItemName(en);
@@ -2048,9 +2354,36 @@ function* SeeingItem(config) {
     });
   }
 }
+function canStack(item, target) {
+  if (item.nameTag || target.nameTag) return false;
+  if (item.typeId !== target.typeId) return false;
+  if (item.getLore().join(",") !== target.getLore().join(",")) return false;
+  if ([...item.getTags()].sort().join(",") !== [...target.getTags()].sort().join(",")) return false;
+  if (item.hasComponent("minecraft:potion") || target.hasComponent("minecraft:potion")) return false;
+  if (item.hasComponent("minecraft:book") || target.hasComponent("minecraft:book")) return false;
+  if (item.hasComponent("minecraft:inventory") || target.hasComponent("minecraft:inventory")) return false;
+  if (item.hasComponent("minecraft:dyeable") && target.hasComponent("minecraft:dyeable")) {
+    const itemColor = item.getComponent("minecraft:dyeable").color;
+    const targetColor = target.getComponent("minecraft:dyeable").color;
+    if (itemColor && targetColor && itemColor !== targetColor) return false;
+  }
+  if (item.hasComponent(ItemEnchantableComponent2.componentId) && target.hasComponent(ItemEnchantableComponent2.componentId)) {
+    const itemEn = item.getComponent(ItemEnchantableComponent2.componentId);
+    const targetEn = target.getComponent(ItemEnchantableComponent2.componentId);
+    const itemEnchants = itemEn.getEnchantments();
+    const targetEnchants = targetEn.getEnchantments();
+    if (itemEnchants.length !== targetEnchants.length) return false;
+    for (let i = 0; i < itemEnchants.length; i++) {
+      if (itemEnchants[i].type.id !== targetEnchants[i].type.id || itemEnchants[i].level !== targetEnchants[i].level) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
 function getItemNearBy(en, config) {
   const radius = config.ItemStackConfig.get("RadiusCombine") || 15;
-  const UnStackItem = config.ItemStackConfig.get("UnStackItem") || [];
+  const UnStackList = config.ItemStackConfig.get("UnStackItem") || [];
   const itemStack = en.getComponent("item").itemStack;
   const allEntities = getAllEntities((x) => {
     if (x.dimension !== en.dimension) return false;
@@ -2058,42 +2391,13 @@ function getItemNearBy(en, config) {
     if (Vector3Utils.distance(en.location, x.location) > radius) return false;
     return true;
   });
-  const jsonItem = ItemConvert.ItemToJson(itemStack);
-  jsonItem.amount = 0;
   return allEntities.filter((target) => {
     if (!en.isValid || !target.isValid) return false;
     if (target.id === en.id) return false;
-    const jsonTarget = ItemConvert.ItemToJson(target.getComponent("item").itemStack);
-    jsonTarget.amount = 0;
-    if (JSON.stringify(jsonItem) !== JSON.stringify(jsonTarget)) return false;
-    const targetItemStack = target.getComponent("item").itemStack;
-    if ([...UnStackItem].some((x) => x == targetItemStack.typeId)) return false;
-    if (targetItemStack.nameTag) return false;
     if (!config.ItemStackData.has(target.id)) return false;
-    if (itemStack.getLore().join(",") !== targetItemStack.getLore().join(",")) return false;
-    if (itemStack.typeId !== targetItemStack.typeId) return false;
-    if (itemStack.getTags().join(",") !== targetItemStack.getTags().join(",")) return false;
-    if (itemStack.hasComponent("minecraft:potion") || targetItemStack.hasComponent("minecraft:potion")) return false;
-    if (itemStack.hasComponent("minecraft:book") || targetItemStack.hasComponent("minecraft:book")) return false;
-    if (itemStack.hasComponent("minecraft:inventory") || targetItemStack.hasComponent("minecraft:inventory")) return false;
-    if (itemStack.hasComponent("minecraft:dyeable") && targetItemStack.hasComponent("minecraft:dyeable")) {
-      const itemDyeable = itemStack.getComponent("minecraft:dyeable");
-      const targetDyeable = targetItemStack.getComponent("minecraft:dyeable");
-      console.info(itemDyeable, targetDyeable);
-    }
-    if (itemStack.hasComponent(ItemEnchantableComponent2.componentId) && targetItemStack.hasComponent(ItemEnchantableComponent2.componentId)) {
-      const itemEn = itemStack.getComponent(ItemEnchantableComponent2.componentId);
-      const targetEn = targetItemStack.getComponent(ItemEnchantableComponent2.componentId);
-      const itemEnchants = itemEn.getEnchantments();
-      const targetEnchants = targetEn.getEnchantments();
-      if (itemEnchants.length !== targetEnchants.length) return false;
-      for (let i = 0; i < itemEnchants.length; i++) {
-        if (itemEnchants[i].type.id !== targetEnchants[i].type.id || itemEnchants[i].level !== targetEnchants[i].level) {
-          return false;
-        }
-      }
-    }
-    return true;
+    const targetItemStack = target.getComponent("item").itemStack;
+    if (UnStackList.some((x) => targetItemStack.typeId.includes(x))) return false;
+    return canStack(itemStack, targetItemStack);
   });
 }
 function getTimeRemaining(minutes, seconds, referenceTick) {
@@ -2131,12 +2435,22 @@ function deStackItemStack(config, itemRemovedData) {
       const itemSetData = { ...itemData };
       itemSetData.currAmount -= itemStackSpawn.amount;
       itemSetData.amount -= itemStackSpawn.amount;
-      const enBase = world5.getDimension(itemRemovedData.dim).spawnItem(itemStackSpawn, { ...itemRemovedData.location, y: world5.getDimension(itemRemovedData.dim).heightRange.max });
+      const enBase = world5.getDimension(itemRemovedData.dim).spawnItem(
+        itemStackSpawn,
+        {
+          ...itemRemovedData.location,
+          y: world5.getDimension(itemRemovedData.dim).heightRange.max
+        }
+      );
       const itemStackData = config.ItemStackData;
       itemStackData.set(enBase.id, itemSetData);
       system3.run(() => {
         if (!enBase.isValid) return;
-        enBase.teleport({ x: itemRemovedData.location.x, y: itemRemovedData.location.y, z: itemRemovedData.location.z });
+        enBase.teleport({
+          x: itemRemovedData.location.x,
+          y: itemRemovedData.location.y,
+          z: itemRemovedData.location.z
+        });
       });
     }
     config.ItemStackData.delete(itemRemovedData.id);
@@ -2148,17 +2462,25 @@ function deStackItemStack(config, itemRemovedData) {
     console.warn(e.message);
     if (e.message.includes("Trying to")) {
       config.DimensionDataBackUp.set(itemRemovedData.id, itemData);
-      console.info(`ItemStacker: Item ${itemRemovedData.id} is in a different dimension, saving data for later.`);
+      console.info(
+        `ItemStacker: Item ${itemRemovedData.id} is in a different dimension, saving data for later.`
+      );
       return;
     }
-    ;
     system3.run(() => {
       const itemStack = ItemConvert.JsonToItem(itemData.item);
-      const sizeStack = getSizeStack(itemData.amount - itemData.currAmount, itemData.amount, itemStack.maxAmount);
+      const sizeStack = getSizeStack(
+        itemData.amount - itemData.currAmount,
+        itemData.amount,
+        itemStack.maxAmount
+      );
       const itemStackSpawn = ItemConvert.JsonToItem(itemData.item).clone ? ItemConvert.JsonToItem(itemData.item).clone() : new ItemStack2(itemData.item.typeId, itemData.item.amount);
       sizeStack.forEach((item) => {
         itemStackSpawn.amount = item;
-        const enBase = world5.getDimension(itemRemovedData.dim).spawnItem(ItemConvert.JsonToItem(itemStackSpawn), { ...itemRemovedData.location, y: itemRemovedData.location.y + 100 });
+        const enBase = world5.getDimension(itemRemovedData.dim).spawnItem(
+          ItemConvert.JsonToItem(itemStackSpawn),
+          { ...itemRemovedData.location, y: itemRemovedData.location.y + 100 }
+        );
         enBase.addTag("fakeItem");
         system3.runTimeout(() => {
           if (enBase.isValid) {
@@ -2172,11 +2494,19 @@ function deStackItemStack(config, itemRemovedData) {
 }
 function getSizeStack(current, amount, maxStack) {
   const remaining = amount - current;
-  return [...Array(Math.floor(remaining / maxStack)).fill(maxStack), remaining % maxStack].filter(Boolean);
+  return [
+    ...Array(Math.floor(remaining / maxStack)).fill(maxStack),
+    remaining % maxStack
+  ].filter(Boolean);
 }
 
 // packs/scripts/kisux3/plugins/ConfigMenu/index.ts
-import { ItemStack as ItemStack3, system as system4, world as world7 } from "@minecraft/server";
+import {
+  ItemStack as ItemStack3,
+  PlayerPermissionLevel,
+  system as system4,
+  world as world7
+} from "@minecraft/server";
 
 // packs/scripts/kisux3/configs/Lang.ts
 import { world as world6 } from "@minecraft/server";
@@ -2209,6 +2539,7 @@ var LangguageContext_default = LanguageContext;
 var LanguageContext2 = new LangguageContext_default();
 KXEvents.on(null, "after:worldLoad", () => {
   LanguageContext2.setLanguage("en", {
+    "allstacker.text.wantOP": () => "\xA77You must be an Operator (OP) to use settings",
     "allstacker.toggle.fast_mode_stacking": () => "\xA7cOFF\xA77/\xA7aON \xA7rFast Mode Stacking\xA7r",
     "allstacker.message.fast_mode_stacking.changed": () => "\xA7aFast Mode Stacking\xA7r changed to: %value",
     "allstacker.title.configmenu": () => "\xA78All Stackers Settings",
@@ -2406,7 +2737,8 @@ You can manage settings here.`,
     "allstacker.message.stacking_radius.changed": () => "\xA7a\u0E2D\u0E31\u0E1B\u0E40\u0E14\u0E15\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E40\u0E1B\u0E47\u0E19 %value \u0E1A\u0E25\u0E47\u0E2D\u0E01.",
     "allstacker.message.mob_display_text.changed": () => "\xA7a\u0E2D\u0E31\u0E1B\u0E40\u0E14\u0E15\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25\u0E40\u0E1B\u0E47\u0E19: %value",
     "allstacker.message.mobstacker.enabled": () => "\xA7a\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 Mob Stacker \u0E40\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E41\u0E25\u0E49\u0E27.",
-    "allstacker.message.mobstacker.disabled": () => "\xA7a\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 Mob Stacker \u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E41\u0E25\u0E49\u0E27."
+    "allstacker.message.mobstacker.disabled": () => "\xA7a\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 Mob Stacker \u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E41\u0E25\u0E49\u0E27.",
+    "allstacker.text.wantOP": () => "\xA77\u0E04\u0E38\u0E13\u0E15\u0E49\u0E2D\u0E07\u0E40\u0E1B\u0E47\u0E19 Operator (OP) \u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E43\u0E0A\u0E49\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32"
   });
   world6.getPlayers().forEach((pl) => {
     if (!pl.getDynamicProperty("language")) {
@@ -2430,7 +2762,9 @@ var ConfigMenu = class extends PluginBase {
       const config = configLoadder.main.getConfig();
       if (config && config.PluginEnabled) {
         config.PluginEnabled.set(pluginName, enabled);
-        const isLoadded = PluginLoader.find((p) => p.name === pluginName).setting.config.isLoadded;
+        const isLoadded = PluginLoader.find(
+          (p) => p.name === pluginName
+        ).setting.config.isLoadded;
         if (!isLoadded) {
           PluginLoader.find((p) => p.name === pluginName).setting.config.isLoadded = true;
           PluginLoader.find((p) => p.name === pluginName).main.onLoad();
@@ -2439,40 +2773,91 @@ var ConfigMenu = class extends PluginBase {
     }
   }
   showConfig(pl) {
-    const pluginSettingList = PluginLoader.filter((plugin) => plugin.name !== this.name);
+    const pluginSettingList = PluginLoader.filter(
+      (plugin) => plugin.name !== this.name
+    );
     const configPage = new PageBuilder("configMenu");
-    const pluginListPage = new IActionForm_default(`${LanguageContext2.getTranslation("allstacker.title.configmenu", pl)}`, `${LanguageContext2.getTranslation("allstacker.body.configmenu", pl)}`);
-    pluginListPage.addButton(`${LanguageContext2.getTranslation("allstacker.button.language", pl)}`, "textures/ui/world_glyph_color_2x_black_outline", () => {
-      const langPage = new IActionForm_default(`${LanguageContext2.getTranslation("allstacker.title.language", pl)}`, `${LanguageContext2.getTranslation("allstacker.body.language", pl)}`);
-      langPage.addDivider();
-      langPage.addButton("\xA7cEnglish \xA78[ENG]\xA7r", "textures/kisux3/ENG_Lang", () => {
-        world7.sendMessage(LanguageContext2.getTranslation("allstacker.message.language.set.english", pl));
-        LanguageContext2.setPlayerLanguage(pl, "en");
-      });
-      langPage.addButton("\xA72\u0E44\u0E17\u0E22 \xA78[TH]\xA7r", "textures/kisux3/TH_Lang", () => {
-        world7.sendMessage(LanguageContext2.getTranslation("allstacker.message.language.set.thai", pl));
-        LanguageContext2.setPlayerLanguage(pl, "th");
-      });
-      langPage.addDivider();
-      langPage.addButton(`${LanguageContext2.getTranslation("allstacker.button.back", pl)}`, "", () => {
-        configPage.showPage(pl, "plugin-settings");
-      });
-      configPage.addPage("language-settings", langPage);
-      configPage.showPage(pl, "language-settings");
-    });
+    const pluginListPage = new IActionForm_default(
+      `${LanguageContext2.getTranslation("allstacker.title.configmenu", pl)}`,
+      `${LanguageContext2.getTranslation("allstacker.body.configmenu", pl)}`
+    );
+    pluginListPage.addButton(
+      `${LanguageContext2.getTranslation("allstacker.button.language", pl)}`,
+      "textures/ui/world_glyph_color_2x_black_outline",
+      () => {
+        const langPage = new IActionForm_default(
+          `${LanguageContext2.getTranslation("allstacker.title.language", pl)}`,
+          `${LanguageContext2.getTranslation("allstacker.body.language", pl)}`
+        );
+        langPage.addDivider();
+        langPage.addButton(
+          "\xA7cEnglish \xA78[ENG]\xA7r",
+          "textures/kisux3/ENG_Lang",
+          () => {
+            world7.sendMessage(
+              LanguageContext2.getTranslation(
+                "allstacker.message.language.set.english",
+                pl
+              )
+            );
+            LanguageContext2.setPlayerLanguage(pl, "en");
+          }
+        );
+        langPage.addButton("\xA72\u0E44\u0E17\u0E22 \xA78[TH]\xA7r", "textures/kisux3/TH_Lang", () => {
+          world7.sendMessage(
+            LanguageContext2.getTranslation(
+              "allstacker.message.language.set.thai",
+              pl
+            )
+          );
+          LanguageContext2.setPlayerLanguage(pl, "th");
+        });
+        langPage.addDivider();
+        langPage.addButton(
+          `${LanguageContext2.getTranslation("allstacker.button.back", pl)}`,
+          "",
+          () => {
+            configPage.showPage(pl, "plugin-settings");
+          }
+        );
+        configPage.addPage("language-settings", langPage);
+        configPage.showPage(pl, "language-settings");
+      }
+    );
     pluginListPage.addDivider();
-    pluginListPage.addLabel(`${LanguageContext2.getTranslation("allstacker.label.plugin.list", pl)} \xA77(\xA7c${pluginSettingList.length}\xA77)\xA7r`);
+    pluginListPage.addLabel(
+      `${LanguageContext2.getTranslation("allstacker.label.plugin.list", pl)} \xA77(\xA7c${pluginSettingList.length}\xA77)\xA7r`
+    );
     pluginSettingList.forEach((plugin) => {
       const isHasConfig = plugin.main.addConfig(pl, configPage, false);
       if (isHasConfig) {
         const pluginIcon = plugin.setting.config?.PluginIcon || "textures/ui/icon_book_writable";
-        pluginListPage.addButton(plugin.name + `
-[${plugin.setting.enabled ? `${LanguageContext2.getTranslation("allstacker.label.plugin.enabled", pl)}` : `${LanguageContext2.getTranslation("allstacker.label.plugin.disabled", pl)}`}]`, pluginIcon, () => {
-          plugin.main.addConfig(pl, configPage, true);
-          configPage.showPage(pl, plugin.name);
-        });
+        pluginListPage.addButton(
+          plugin.name + `
+[${plugin.setting.enabled ? `${LanguageContext2.getTranslation(
+            "allstacker.label.plugin.enabled",
+            pl
+          )}` : `${LanguageContext2.getTranslation(
+            "allstacker.label.plugin.disabled",
+            pl
+          )}`}]`,
+          pluginIcon,
+          () => {
+            plugin.main.addConfig(pl, configPage, true);
+            configPage.showPage(pl, plugin.name);
+          }
+        );
       }
     });
+    pluginListPage.addDivider();
+    pluginListPage.addLabel(`Developer`);
+    pluginListPage.addButton(
+      "\xA78Debug Data",
+      "textures/ui/Add-Ons_Side-Nav_Icon_24x24",
+      () => {
+        this.showDebugData(pl);
+      }
+    );
     configPage.addPage("plugin-settings", pluginListPage);
     configPage.showPage(pl, "plugin-settings");
     return true;
@@ -2491,7 +2876,9 @@ var ConfigMenu = class extends PluginBase {
         this.config.PluginEnabled.set(pluginName, isEnabled);
         plugin.setting.enabled = isEnabled;
       }
-      pluginText.push(`${pluginName}: ${plugin.setting.enabled ? "\xA7aEnabled" : "\xA7cDisabled"}`);
+      pluginText.push(
+        `${pluginName}: ${plugin.setting.enabled ? "\xA7aEnabled" : "\xA7cDisabled"}`
+      );
     });
     const i = system4.runInterval(() => {
       const players = world7.getPlayers();
@@ -2516,7 +2903,16 @@ var ConfigMenu = class extends PluginBase {
     const showConfig = this.showConfig.bind(this);
     ev.itemComponentRegistry.registerCustomComponent("kisu:show_config", {
       onUse(ev2) {
-        showConfig(ev2.source);
+        if (ev2.source.playerPermissionLevel === PlayerPermissionLevel.Operator) {
+          showConfig(ev2.source);
+        } else {
+          ev2.source.onScreenDisplay.setActionBar(
+            `${LanguageContext2.getTranslation(
+              "allstacker.text.wantOP",
+              ev2.source
+            )}`
+          );
+        }
       }
     });
   }
@@ -2529,6 +2925,157 @@ var ConfigMenu = class extends PluginBase {
       pl.dimension.spawnItem(configMenuItem, pl.location);
     }
   }
+  showDebugData(pl) {
+    const debugPage = new IActionForm_default(
+      "Debug Data Analysis",
+      "View internal data for troubleshooting and analysis"
+    );
+    debugPage.addDivider();
+    debugPage.addButton(
+      "\xA78Item Stacker Data",
+      "",
+      () => {
+        this.showItemStackerDebug(pl);
+      }
+    );
+    debugPage.addButton(
+      "\xA78Mob Stacker Data",
+      "",
+      () => {
+        this.showMobStackerDebug(pl);
+      }
+    );
+    debugPage.addButton(
+      "\xA78Config Usage",
+      "textures/ui/advanced_glyph_color",
+      () => {
+        this.showMemoryUsage(pl);
+      }
+    );
+    debugPage.addDivider();
+    debugPage.addButton(
+      `${LanguageContext2.getTranslation("allstacker.button.back", pl)}`,
+      "",
+      () => {
+        this.showConfig(pl);
+      }
+    );
+    const debugPageBuilder = new PageBuilder("debugData");
+    debugPageBuilder.addPage("debug_main", debugPage);
+    debugPageBuilder.showPage(pl, "debug_main");
+  }
+  showItemStackerDebug(pl) {
+    const itemStacker = PluginLoader.find((p) => p.name === "Item Stackers");
+    if (!itemStacker) {
+      return;
+    }
+    const config = itemStacker.setting.config;
+    const ItemListStack = config.ItemListStack;
+    const ItemStackData = config.ItemStackData;
+    const ItemStackConfig = config.ItemStackConfig;
+    const debugInfo = [
+      "\xA7e> \xA7bItem Stacker Debug\xA7r\n",
+      `\xA78Items in tracking list: \xA7f${ItemListStack?.size ?? 0}`,
+      `\xA78Items in database: \xA7f${ItemStackData?.size ?? 0}`,
+      `\xA78Fast Mode: \xA7f${ItemStackConfig?.get("FastModeStacking") ?? false}`,
+      `\xA78Radius Combine: \xA7f${ItemStackConfig?.get("RadiusCombine") ?? 15}`,
+      `\xA78Radius Seeing: \xA7f${ItemStackConfig?.get("RadiusSeeing") ?? 10}`,
+      `\xA78Unstack Items: \xA7f${ItemStackConfig?.get("UnStackItem")?.length ?? 0}`
+    ];
+    const page = new IActionForm_default(
+      "Item Stacker Debug",
+      "Current internal data"
+    );
+    page.addDivider();
+    page.addLabel(debugInfo.join("\n"));
+    page.addDivider();
+    page.addButton(
+      `${LanguageContext2.getTranslation("allstacker.button.back", pl)}`,
+      "",
+      () => {
+        this.showDebugData(pl);
+      }
+    );
+    const pageBuilder = new PageBuilder("debugItem");
+    pageBuilder.addPage("item_debug", page);
+    pageBuilder.showPage(pl, "item_debug");
+  }
+  showMobStackerDebug(pl) {
+    const mobStacker = PluginLoader.find((p) => p.name === "Mob Stacker");
+    if (!mobStacker) {
+      return;
+    }
+    const config = mobStacker.setting.config;
+    const ResetEntities = config.ResetEntities;
+    const MobStackConfig = config.MobStackConfig;
+    const Xp_Queue = config.Xp_Queue;
+    const debugInfo = [
+      "\xA7e> \xA7bMob Stacker Debug\xA7r\n",
+      `\xA78Reset entities set: \xA7f${ResetEntities?.size ?? 0}`,
+      `\xA78XP Queue size: \xA7f${Xp_Queue?.size ?? 0}`,
+      `\xA78Radius Stacking: \xA7f${MobStackConfig?.get("RadiusStacking") ?? 10}`,
+      `\xA78Mob Death Mode: \xA7f${MobStackConfig?.get("MobDeathMode") ?? "All"}`,
+      `\xA78Stacked Mobs: \xA7f${MobStackConfig?.get("StackMob")?.length ?? 0}`
+    ];
+    const page = new IActionForm_default(
+      "Mob Stacker Debug",
+      "Current internal data"
+    );
+    page.addDivider();
+    page.addLabel(debugInfo.join("\n"));
+    page.addDivider();
+    page.addButton(
+      `${LanguageContext2.getTranslation("allstacker.button.back", pl)}`,
+      "",
+      () => {
+        this.showDebugData(pl);
+      }
+    );
+    const pageBuilder = new PageBuilder("debugMob");
+    pageBuilder.addPage("mob_debug", page);
+    pageBuilder.showPage(pl, "mob_debug");
+  }
+  showMemoryUsage(pl) {
+    const itemStacker = PluginLoader.find((p) => p.name === "Item Stackers");
+    const mobStacker = PluginLoader.find((p) => p.name === "Mob Stacker");
+    let totalItems = 0;
+    let totalMobs = 0;
+    if (itemStacker) {
+      const config = itemStacker.setting.config;
+      const ItemListStack = config.ItemListStack;
+      const ItemStackData = config.ItemStackData;
+      totalItems = (ItemListStack?.size ?? 0) + (ItemStackData?.size ?? 0);
+    }
+    if (mobStacker) {
+      const config = mobStacker.setting.config;
+      const ResetEntities = config.ResetEntities;
+      const Xp_Queue = config.Xp_Queue;
+      totalMobs = (ResetEntities?.size ?? 0) + (Xp_Queue?.size ?? 0);
+    }
+    const debugInfo = [
+      "\xA7e> Config Usage\n",
+      `\xA78Total Tracked Items: \xA7f${totalItems}`,
+      `\xA78Total Tracked Mobs: \xA7f${totalMobs}`,
+      `\xA78Total Entities: \xA7f${totalItems + totalMobs}`
+    ];
+    const page = new IActionForm_default(
+      "Config Usage",
+      "Approximate entity tracking count"
+    );
+    page.addDivider();
+    page.addLabel(debugInfo.join("\n"));
+    page.addDivider();
+    page.addButton(
+      `${LanguageContext2.getTranslation("allstacker.button.back", pl)}`,
+      "",
+      () => {
+        this.showDebugData(pl);
+      }
+    );
+    const pageBuilder = new PageBuilder("debugMemory");
+    pageBuilder.addPage("memory_usage", page);
+    pageBuilder.showPage(pl, "memory_usage");
+  }
 };
 var ConfigMenu_default = ConfigMenu;
 
@@ -2538,98 +3085,239 @@ var itemName = (item) => {
 };
 var ItemStacker = class extends PluginBase {
   config = {};
+  /**
+   * Builds the configuration UI for this plugin.
+   * @param pl - The player to show the UI to
+   * @param page - The page builder instance
+   * @param showUI - Whether to show the UI
+   * @returns True if UI was added
+   */
   addConfig(pl, page, showUI = true) {
     if (!showUI) return true;
     const optionsConfig = {
       "Stacking Settings": () => {
-        const unStackPage = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.unstacked", pl), LanguageContext2.getTranslation("allstacker.body.unstacked", pl));
+        const unStackPage = new IActionForm_default(
+          LanguageContext2.getTranslation("allstacker.title.unstacked", pl),
+          LanguageContext2.getTranslation("allstacker.body.unstacked", pl)
+        );
         unStackPage.addDivider();
-        unStackPage.addLabel(LanguageContext2.getTranslation("allstacker.label.unstacked", pl));
-        unStackPage.addButton(LanguageContext2.getTranslation("allstacker.button.add_unstacked", pl), "textures/ui/icon_book_writable", () => {
-          const inventory = pl.getComponent("inventory").container;
-          const itemList = {};
-          for (let i = 0; i < inventory.size; i++) {
-            const item = inventory.getItem(i);
-            if (item) {
-              itemList[itemName(item.typeId)] = item;
+        unStackPage.addLabel(
+          LanguageContext2.getTranslation("allstacker.label.unstacked", pl)
+        );
+        unStackPage.addButton(
+          LanguageContext2.getTranslation("allstacker.button.add_unstacked", pl),
+          "textures/ui/icon_book_writable",
+          () => {
+            const inventory = pl.getComponent("inventory").container;
+            const itemList = {};
+            for (let i = 0; i < inventory.size; i++) {
+              const item = inventory.getItem(i);
+              if (item) {
+                itemList[itemName(item.typeId)] = item;
+              }
             }
-          }
-          const itemSelectForm = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.select_item", pl), LanguageContext2.getTranslation("allstacker.body.select_item", pl));
-          itemSelectForm.addDivider();
-          Object.entries(itemList).forEach(([name, item]) => {
-            if (!item || !item.typeId) return;
-            if (this.config.ItemStackConfig.get("UnStackItem")?.includes(item.typeId)) return;
-            itemSelectForm.addButton(name, "", () => {
-              const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
-              this.config.ItemStackConfig.set("UnStackItem", [...unStackItems, item.typeId]);
-              pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.unstacked.added", pl).replace("%name", name));
-              page.showPage(pl, this.name + "_unstacked");
-            });
-          });
-          itemSelectForm.addDivider();
-          itemSelectForm.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-            page.showPage(pl, this.name + "_unstacked");
-          });
-          page.addPage(this.name + "_unstacked_select", itemSelectForm);
-          page.showPage(pl, this.name + "_unstacked_select");
-        });
-        unStackPage.addButton(LanguageContext2.getTranslation("allstacker.button.remove_unstacked", pl), "textures/ui/icon_book_writable", () => {
-          const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
-          const removeItemForm = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.remove_unstacked", pl), LanguageContext2.getTranslation("allstacker.body.remove_unstacked", pl));
-          removeItemForm.addDivider();
-          unStackItems.forEach((itemId) => {
-            removeItemForm.addButton(itemName(itemId), "", () => {
-              this.config.ItemStackConfig.set("UnStackItem", unStackItems.filter((id) => id !== itemId));
-              pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.unstacked.removed", pl).replace("%name", itemName(itemId)));
-              page.showPage(pl, this.name + "_unstacked");
-            });
-          });
-          removeItemForm.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-            page.showPage(pl, this.name + "_unstacked");
-          });
-          page.addPage(this.name + "_unstacked_remove", removeItemForm);
-          page.showPage(pl, this.name + "_unstacked_remove");
-        });
-        unStackPage.addButton(LanguageContext2.getTranslation("allstacker.button.view_unstacked", pl), "textures/ui/icon_book_writable", () => {
-          const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
-          const viewItemsForm = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.unstacked_items", pl), LanguageContext2.getTranslation("allstacker.body.unstacked_items", pl));
-          viewItemsForm.addDivider();
-          if (unStackItems.length === 0) {
-            viewItemsForm.addLabel(LanguageContext2.getTranslation("allstacker.label.no_unstacked_items", pl));
-          } else {
-            unStackItems.forEach((itemId) => {
-              viewItemsForm.addButton(itemName(itemId), "", () => {
+            const itemSelectForm = new IActionForm_default(
+              LanguageContext2.getTranslation(
+                "allstacker.title.select_item",
+                pl
+              ),
+              LanguageContext2.getTranslation("allstacker.body.select_item", pl)
+            );
+            itemSelectForm.addDivider();
+            Object.entries(itemList).forEach(([name, item]) => {
+              if (!item || !item.typeId) return;
+              if (this.config.ItemStackConfig.get("UnStackItem")?.includes(
+                item.typeId
+              )) return;
+              itemSelectForm.addButton(name, "", () => {
+                const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
+                this.config.ItemStackConfig.set("UnStackItem", [
+                  ...unStackItems,
+                  item.typeId
+                ]);
+                pl.sendMessage(
+                  LanguageContext2.getTranslation(
+                    "allstacker.message.unstacked.added",
+                    pl
+                  ).replace("%name", name)
+                );
                 page.showPage(pl, this.name + "_unstacked");
               });
             });
+            itemSelectForm.addDivider();
+            itemSelectForm.addButton(
+              LanguageContext2.getTranslation("allstacker.button.back", pl),
+              "",
+              () => {
+                page.showPage(pl, this.name + "_unstacked");
+              }
+            );
+            page.addPage(this.name + "_unstacked_select", itemSelectForm);
+            page.showPage(pl, this.name + "_unstacked_select");
           }
-          viewItemsForm.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-            page.showPage(pl, this.name + "_unstacked");
-          });
-          page.addPage(this.name + "_unstacked_view", viewItemsForm);
-          page.showPage(pl, this.name + "_unstacked_view");
-        });
+        );
+        unStackPage.addButton(
+          LanguageContext2.getTranslation(
+            "allstacker.button.remove_unstacked",
+            pl
+          ),
+          "textures/ui/icon_book_writable",
+          () => {
+            const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
+            const removeItemForm = new IActionForm_default(
+              LanguageContext2.getTranslation(
+                "allstacker.title.remove_unstacked",
+                pl
+              ),
+              LanguageContext2.getTranslation(
+                "allstacker.body.remove_unstacked",
+                pl
+              )
+            );
+            removeItemForm.addDivider();
+            unStackItems.forEach((itemId) => {
+              removeItemForm.addButton(itemName(itemId), "", () => {
+                this.config.ItemStackConfig.set(
+                  "UnStackItem",
+                  unStackItems.filter((id) => id !== itemId)
+                );
+                pl.sendMessage(
+                  LanguageContext2.getTranslation(
+                    "allstacker.message.unstacked.removed",
+                    pl
+                  ).replace("%name", itemName(itemId))
+                );
+                page.showPage(pl, this.name + "_unstacked");
+              });
+            });
+            removeItemForm.addButton(
+              LanguageContext2.getTranslation("allstacker.button.back", pl),
+              "",
+              () => {
+                page.showPage(pl, this.name + "_unstacked");
+              }
+            );
+            page.addPage(this.name + "_unstacked_remove", removeItemForm);
+            page.showPage(pl, this.name + "_unstacked_remove");
+          }
+        );
+        unStackPage.addButton(
+          LanguageContext2.getTranslation(
+            "allstacker.button.view_unstacked",
+            pl
+          ),
+          "textures/ui/icon_book_writable",
+          () => {
+            const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
+            const viewItemsForm = new IActionForm_default(
+              LanguageContext2.getTranslation(
+                "allstacker.title.unstacked_items",
+                pl
+              ),
+              LanguageContext2.getTranslation(
+                "allstacker.body.unstacked_items",
+                pl
+              )
+            );
+            viewItemsForm.addDivider();
+            if (unStackItems.length === 0) {
+              viewItemsForm.addLabel(
+                LanguageContext2.getTranslation(
+                  "allstacker.label.no_unstacked_items",
+                  pl
+                )
+              );
+            } else {
+              unStackItems.forEach((itemId) => {
+                viewItemsForm.addButton(itemName(itemId), "", () => {
+                  page.showPage(pl, this.name + "_unstacked");
+                });
+              });
+            }
+            viewItemsForm.addButton(
+              LanguageContext2.getTranslation("allstacker.button.back", pl),
+              "",
+              () => {
+                page.showPage(pl, this.name + "_unstacked");
+              }
+            );
+            page.addPage(this.name + "_unstacked_view", viewItemsForm);
+            page.showPage(pl, this.name + "_unstacked_view");
+          }
+        );
         unStackPage.addDivider();
-        unStackPage.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-          page.showPage(pl, this.name);
-        });
+        unStackPage.addButton(
+          LanguageContext2.getTranslation("allstacker.button.back", pl),
+          "",
+          () => {
+            page.showPage(pl, this.name);
+          }
+        );
         page.addPage(this.name + "_unstacked", unStackPage);
         page.showPage(pl, this.name + "_unstacked");
       },
       "Advanced Settings": () => {
-        const advandSetting = new IModalForm_default(LanguageContext2.getTranslation("allstacker.title.advanced_settings", pl), LanguageContext2.getTranslation("allstacker.body.advanced_settings", pl));
+        const advandSetting = new IModalForm_default(
+          LanguageContext2.getTranslation(
+            "allstacker.title.advanced_settings",
+            pl
+          ),
+          LanguageContext2.getTranslation(
+            "allstacker.body.advanced_settings",
+            pl
+          )
+        );
         const isEnable = PluginLoader.find((plugin) => plugin.name === this.name)?.setting.enabled || false;
         const RadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
         const RadiusCombine = this.config.ItemStackConfig.get("RadiusCombine") || 15;
         const DisplayText = this.config.ItemStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
         const FastModeStacking2 = this.config.ItemStackConfig.get("FastModeStacking") || false;
-        advandSetting.addLabel(LanguageContext2.getTranslation("allstacker.label.advanced.description_full", pl));
+        advandSetting.addLabel(
+          LanguageContext2.getTranslation(
+            "allstacker.label.advanced.description_full",
+            pl
+          )
+        );
         advandSetting.addDivider();
-        advandSetting.addToggle(LanguageContext2.getTranslation("allstacker.toggle.itemstack", pl), isEnable);
-        advandSetting.addSlider(LanguageContext2.getTranslation("allstacker.slider.radius_seeing", pl), 1, 50, 1, RadiusSeeing);
-        advandSetting.addSlider(LanguageContext2.getTranslation("allstacker.slider.radius_combine", pl), 1, 50, 1, RadiusCombine);
-        advandSetting.addToggle(LanguageContext2.getTranslation("allstacker.toggle.fast_mode_stacking", pl), FastModeStacking2);
-        advandSetting.addTextField(LanguageContext2.getTranslation("allstacker.textfield.display_text", pl), LanguageContext2.getTranslation("allstacker.textfield.display_text.placeholder", pl), DisplayText);
+        advandSetting.addToggle(
+          LanguageContext2.getTranslation("allstacker.toggle.itemstack", pl),
+          isEnable
+        );
+        advandSetting.addSlider(
+          LanguageContext2.getTranslation("allstacker.slider.radius_seeing", pl),
+          1,
+          50,
+          1,
+          RadiusSeeing
+        );
+        advandSetting.addSlider(
+          LanguageContext2.getTranslation(
+            "allstacker.slider.radius_combine",
+            pl
+          ),
+          1,
+          50,
+          1,
+          RadiusCombine
+        );
+        advandSetting.addToggle(
+          LanguageContext2.getTranslation(
+            "allstacker.toggle.fast_mode_stacking",
+            pl
+          ),
+          FastModeStacking2
+        );
+        advandSetting.addTextField(
+          LanguageContext2.getTranslation(
+            "allstacker.textfield.display_text",
+            pl
+          ),
+          LanguageContext2.getTranslation(
+            "allstacker.textfield.display_text.placeholder",
+            pl
+          ),
+          DisplayText
+        );
         advandSetting.addCallback((values, canceled) => {
           if (canceled) return;
           const isEnable2 = values[2];
@@ -2637,7 +3325,9 @@ var ItemStacker = class extends PluginBase {
           const radiusCombine = values[4];
           const displayText = values[6];
           const fastModeStacking = values[5];
-          const oldEnable = PluginLoader.find((plugin) => plugin.name === this.name)?.setting.enabled || false;
+          const oldEnable = PluginLoader.find(
+            (plugin) => plugin.name === this.name
+          )?.setting.enabled || false;
           const oldRadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
           const oldDisplayText = this.config.ItemStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
           const oldRadiusCombine = this.config.ItemStackConfig.get("RadiusCombine") || 15;
@@ -2645,45 +3335,102 @@ var ItemStacker = class extends PluginBase {
           this.config.ItemStackConfig.set("RadiusSeeing", radiusSeeing);
           this.config.ItemStackConfig.set("DisplayText", displayText);
           this.config.ItemStackConfig.set("RadiusCombine", radiusCombine);
-          this.config.ItemStackConfig.set("FastModeStacking", fastModeStacking);
+          this.config.ItemStackConfig.set(
+            "FastModeStacking",
+            fastModeStacking
+          );
           if (oldDisplayText !== displayText && displayText !== void 0) {
-            pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.display_text.changed", pl).replace("%value", displayText));
+            pl.sendMessage(
+              LanguageContext2.getTranslation(
+                "allstacker.message.display_text.changed",
+                pl
+              ).replace("%value", displayText)
+            );
           }
           if (oldRadiusSeeing !== radiusSeeing && radiusSeeing !== void 0) {
-            pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.radius_seeing.changed", pl).replace("%value", radiusSeeing.toString()));
+            pl.sendMessage(
+              LanguageContext2.getTranslation(
+                "allstacker.message.radius_seeing.changed",
+                pl
+              ).replace("%value", radiusSeeing.toString())
+            );
           }
           if (oldRadiusCombine !== radiusCombine && radiusCombine !== void 0) {
-            pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.radius_combine.changed", pl).replace("%value", radiusCombine.toString()));
+            pl.sendMessage(
+              LanguageContext2.getTranslation(
+                "allstacker.message.radius_combine.changed",
+                pl
+              ).replace("%value", radiusCombine.toString())
+            );
           }
           if (oldEnable !== isEnable2 && isEnable2 !== void 0) {
             PluginLoader.find((plugin) => plugin.name === this.name).setting.enabled = isEnable2;
             ConfigMenu_default.setEnabled(this.name, isEnable2);
-            const message = isEnable2 ? LanguageContext2.getTranslation("allstacker.message.plugin.enabled", pl) : LanguageContext2.getTranslation("allstacker.message.plugin.disabled", pl);
+            const message = isEnable2 ? LanguageContext2.getTranslation(
+              "allstacker.message.plugin.enabled",
+              pl
+            ) : LanguageContext2.getTranslation(
+              "allstacker.message.plugin.disabled",
+              pl
+            );
             pl.sendMessage(message);
           }
           if (fastModeStacking !== oldFastModeStacking && fastModeStacking !== void 0) {
-            this.config.ItemStackConfig.set("FastModeStacking", fastModeStacking);
-            pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.fast_mode_stacking.changed", pl).replace("%value", fastModeStacking.toString()));
+            this.config.ItemStackConfig.set(
+              "FastModeStacking",
+              fastModeStacking
+            );
+            pl.sendMessage(
+              LanguageContext2.getTranslation(
+                "allstacker.message.fast_mode_stacking.changed",
+                pl
+              ).replace("%value", fastModeStacking.toString())
+            );
           }
         });
         page.addPage(this.name + "_advanced_settings", advandSetting);
         page.showPage(pl, this.name + "_advanced_settings");
       }
     };
-    const configUi = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.itemstacker", pl), LanguageContext2.getTranslation("allstacker.body.itemstacker", pl));
+    const configUi = new IActionForm_default(
+      LanguageContext2.getTranslation("allstacker.title.itemstacker", pl),
+      LanguageContext2.getTranslation("allstacker.body.itemstacker", pl)
+    );
     configUi.addDivider();
-    configUi.addLabel(LanguageContext2.getTranslation("allstacker.label.itemstacker.description", pl));
-    configUi.addButton(LanguageContext2.getTranslation("allstacker.button.stacking_settings", pl), "textures/blocks/barrier", () => {
-      optionsConfig["Stacking Settings"]();
-    });
-    configUi.addLabel(LanguageContext2.getTranslation("allstacker.label.advanced.description", pl));
-    configUi.addButton(LanguageContext2.getTranslation("allstacker.button.advanced_settings", pl), "textures/ui/settings_glyph_color_2x", () => {
-      optionsConfig["Advanced Settings"]();
-    });
+    configUi.addLabel(
+      LanguageContext2.getTranslation(
+        "allstacker.label.itemstacker.description",
+        pl
+      )
+    );
+    configUi.addButton(
+      LanguageContext2.getTranslation("allstacker.button.stacking_settings", pl),
+      "textures/blocks/barrier",
+      () => {
+        optionsConfig["Stacking Settings"]();
+      }
+    );
+    configUi.addLabel(
+      LanguageContext2.getTranslation(
+        "allstacker.label.advanced.description",
+        pl
+      )
+    );
+    configUi.addButton(
+      LanguageContext2.getTranslation("allstacker.button.advanced_settings", pl),
+      "textures/ui/settings_glyph_color_2x",
+      () => {
+        optionsConfig["Advanced Settings"]();
+      }
+    );
     configUi.addDivider();
-    configUi.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-      page.showPage(pl, "plugin-settings");
-    });
+    configUi.addButton(
+      LanguageContext2.getTranslation("allstacker.button.back", pl),
+      "",
+      () => {
+        page.showPage(pl, "plugin-settings");
+      }
+    );
     page.addPage(this.name, configUi);
     return true;
   }
@@ -2705,7 +3452,9 @@ var ItemStacker = class extends PluginBase {
     system5.run(() => deStackItemStack(this.config, itemRemovedData));
   }
   runJobs() {
-    const fastModeStacking = this.config.ItemStackConfig.get("FastModeStacking");
+    const fastModeStacking = this.config.ItemStackConfig.get(
+      "FastModeStacking"
+    );
     if (fastModeStacking) {
       system5.run(() => FastModeStacking(this.config));
     } else {
@@ -2728,7 +3477,10 @@ var ItemStacker = class extends PluginBase {
     this.config = this.getConfig();
     this.config.ItemStackConfig = new JsonDatabase("ItemStackConfig", world8);
     this.config.ItemStackData = new JsonDatabase("ItemStackData", world8);
-    this.config.DimensionDataBackUp = new JsonDatabase("DimensionDataBackUp", world8);
+    this.config.DimensionDataBackUp = new JsonDatabase(
+      "DimensionDataBackUp",
+      world8
+    );
     const UnStackItem = this.config.ItemStackConfig.get("UnStackItem") || [];
     const DisplayText = this.config.ItemStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
     const RadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
@@ -2742,7 +3494,14 @@ var ItemStacker = class extends PluginBase {
 var ItemStacker_default = ItemStacker;
 
 // packs/scripts/kisux3/plugins/MobStacker/index.ts
-import { EntityDamageCause, EntityEquippableComponent, EntityProjectileComponent, EquipmentSlot, system as system7, world as world9 } from "@minecraft/server";
+import {
+  EntityDamageCause,
+  EntityEquippableComponent,
+  EntityProjectileComponent,
+  EquipmentSlot,
+  system as system7,
+  world as world9
+} from "@minecraft/server";
 
 // packs/scripts/kisux3/plugins/MobStacker/services/utils.ts
 import { EntityIsBabyComponent, EntityLeashableComponent, EntityScaleComponent, system as system6 } from "@minecraft/server";
@@ -2848,6 +3607,10 @@ var IdToName = (mob) => {
 };
 var MobStacker = class extends PluginBase {
   config = {};
+  /**
+   * Called when the plugin is loaded. Initializes config and sets up event handlers.
+   * @param _ev - Optional world load event
+   */
   onLoad(_ev) {
     this.initializeConfig();
     this.runJobs();
@@ -2899,7 +3662,10 @@ var MobStacker = class extends PluginBase {
         if (currAmount - 1 > 1) {
           let text = displayText;
           text = `\xA7e\uE10E ` + text;
-          text = text.replace(/%a/g, `${getMobColorCode(currAmount - 1)}x${currAmount - 1}\xA7r`);
+          text = text.replace(
+            /%a/g,
+            `${getMobColorCode(currAmount - 1)}x${currAmount - 1}\xA7r`
+          );
           text = text.replace(/%n/g, EntityToName(entityNew));
           text = text.replace(/%l/g, "\n");
           entityNew.nameTag = text;
@@ -2922,7 +3688,9 @@ var MobStacker = class extends PluginBase {
   }
   onEntityDie(ev) {
     if (!ev.deadEntity.isValid) return;
-    if (ev.deadEntity.hasComponent(EntityProjectileComponent.componentId)) return;
+    if (ev.deadEntity.hasComponent(EntityProjectileComponent.componentId)) {
+      return;
+    }
     if (ev.damageSource.cause == EntityDamageCause.none || ev.damageSource.cause == EntityDamageCause.selfDestruct) return;
     const currAmount = ev.deadEntity.getDynamicProperty("StackingAmount") || 1;
     if (currAmount <= 1) return;
@@ -2932,46 +3700,67 @@ var MobStacker = class extends PluginBase {
       if (currAmount > 32) {
         for (let i = 0; i < 31; i++) {
           const { x, y, z } = spawnClone.location;
-          const randomTag = Array.from(
-            { length: Math.floor(Math.random() * 13) + 1 },
-            () => String.fromCharCode(
-              Math.random() < 0.5 ? Math.floor(Math.random() * 26) + 65 : Math.floor(Math.random() * 26) + 97
-              // a-z
-            )
-          ).join("");
+          const randomTag = Array.from({
+            length: Math.floor(Math.random() * 13) + 1
+          }, () => String.fromCharCode(
+            Math.random() < 0.5 ? Math.floor(Math.random() * 26) + 65 : Math.floor(Math.random() * 26) + 97
+            // a-z
+          )).join("");
           const isFireDamage = ev.damageSource.cause === EntityDamageCause.fire || ev.damageSource.cause === EntityDamageCause.fireTick || ev.damageSource.cause === EntityDamageCause.lava;
           if (!ev.damageSource.damagingEntity || !ev.damageSource.damagingEntity.isValid) {
             spawnClone.addTag(randomTag);
             if (isFireDamage) {
-              spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              spawnClone.dimension.runCommand(
+                `loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`
+              );
             } else {
-              const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone);
+              const loot = world9.getLootTableManager().generateLootFromEntity(
+                spawnClone
+              );
               if (!loot) return;
               loot.forEach((item) => {
                 spawnClone.dimension.spawnItem(item, spawnClone.location);
               });
             }
           } else {
-            const itemHeld = ev.damageSource.damagingEntity.hasComponent(EntityEquippableComponent.componentId) ? ev.damageSource.damagingEntity.getComponent(EntityEquippableComponent.componentId).getEquipment(EquipmentSlot.Mainhand) : null;
+            const itemHeld = ev.damageSource.damagingEntity.hasComponent(
+              EntityEquippableComponent.componentId
+            ) ? ev.damageSource.damagingEntity.getComponent(
+              EntityEquippableComponent.componentId
+            ).getEquipment(EquipmentSlot.Mainhand) : null;
             spawnClone.addTag(randomTag);
             if (itemHeld && ev.damageSource.damagingEntity.typeId === "minecraft:player") {
-              const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone, itemHeld);
+              const loot = world9.getLootTableManager().generateLootFromEntity(
+                spawnClone,
+                itemHeld
+              );
               if (!loot) return;
               loot.forEach((item) => {
-                ev.damageSource.damagingEntity.dimension.spawnItem(item, spawnClone.location);
+                ev.damageSource.damagingEntity.dimension.spawnItem(
+                  item,
+                  spawnClone.location
+                );
               });
             } else if (ev.damageSource.cause === EntityDamageCause.projectile && ["minecraft:skeleton", "minecraft:stray", "minecraft:bogged"].includes(ev.damageSource.damagingEntity.typeId)) {
               ev.damageSource.damagingEntity.addTag(randomTag + "_projectile");
-              ev.damageSource.damagingEntity.runCommand(`execute as @e[tag=${randomTag}_projectile] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              ev.damageSource.damagingEntity.runCommand(
+                `execute as @e[tag=${randomTag}_projectile] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`
+              );
             } else if (ev.damageSource.damagingEntity) {
               const damagingEntity = ev.damageSource.damagingEntity;
               damagingEntity.addTag(randomTag + "_entity");
-              damagingEntity.dimension.runCommand(`execute as @e[tag=${randomTag}_entity] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`);
+              damagingEntity.dimension.runCommand(
+                `execute as @e[tag=${randomTag}_entity] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`
+              );
             } else {
               if (isFireDamage) {
-                spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+                spawnClone.dimension.runCommand(
+                  `loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`
+                );
               } else {
-                const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone);
+                const loot = world9.getLootTableManager().generateLootFromEntity(
+                  spawnClone
+                );
                 if (!loot) return;
                 loot.forEach((item) => {
                   spawnClone.dimension.spawnItem(item, spawnClone.location);
@@ -2986,7 +3775,10 @@ var MobStacker = class extends PluginBase {
         const displayText = this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
         let text = displayText;
         text = `\xA7e\uE10E ` + text;
-        text = text.replace(/%a/g, `${getMobColorCode(currAmount - 32)}x${currAmount - 32}\xA7r`);
+        text = text.replace(
+          /%a/g,
+          `${getMobColorCode(currAmount - 32)}x${currAmount - 32}\xA7r`
+        );
         text = text.replace(/%n/g, EntityToName(entityNew));
         text = text.replace(/%l/g, "\n");
         entityNew.nameTag = text;
@@ -2995,41 +3787,58 @@ var MobStacker = class extends PluginBase {
         const isFireDamage = ev.damageSource.cause === EntityDamageCause.fire || ev.damageSource.cause === EntityDamageCause.fireTick || ev.damageSource.cause === EntityDamageCause.lava;
         for (let i = 0; i < currAmount - 1; i++) {
           const { x, y, z } = spawnClone.location;
-          const randomTag = Array.from(
-            { length: Math.floor(Math.random() * 13) + 1 },
-            () => String.fromCharCode(
-              Math.random() < 0.5 ? Math.floor(Math.random() * 26) + 65 : Math.floor(Math.random() * 26) + 97
-              // a-z
-            )
-          ).join("");
+          const randomTag = Array.from({
+            length: Math.floor(Math.random() * 13) + 1
+          }, () => String.fromCharCode(
+            Math.random() < 0.5 ? Math.floor(Math.random() * 26) + 65 : Math.floor(Math.random() * 26) + 97
+            // a-z
+          )).join("");
           if (!ev.damageSource.damagingEntity || !ev.damageSource.damagingEntity.isValid) {
             spawnClone.addTag(randomTag);
             if (isFireDamage) {
-              spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              spawnClone.dimension.runCommand(
+                `loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`
+              );
             } else {
-              const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone);
+              const loot = world9.getLootTableManager().generateLootFromEntity(
+                spawnClone
+              );
               if (!loot) return;
               loot.forEach((item) => {
                 spawnClone.dimension.spawnItem(item, spawnClone.location);
               });
             }
           } else {
-            const itemHeld = ev.damageSource.damagingEntity.hasComponent(EntityEquippableComponent.componentId) ? ev.damageSource.damagingEntity.getComponent(EntityEquippableComponent.componentId).getEquipment(EquipmentSlot.Mainhand) : null;
+            const itemHeld = ev.damageSource.damagingEntity.hasComponent(
+              EntityEquippableComponent.componentId
+            ) ? ev.damageSource.damagingEntity.getComponent(
+              EntityEquippableComponent.componentId
+            ).getEquipment(EquipmentSlot.Mainhand) : null;
             spawnClone.addTag(randomTag);
             if (itemHeld && ev.damageSource.damagingEntity.typeId === "minecraft:player") {
-              ev.damageSource.damagingEntity.dimension.runCommand(`execute as ${ev.damageSource.damagingEntity.name} at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`);
+              ev.damageSource.damagingEntity.dimension.runCommand(
+                `execute as ${ev.damageSource.damagingEntity.name} at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`
+              );
             } else if (ev.damageSource.cause === EntityDamageCause.projectile && ["minecraft:skeleton", "minecraft:stray", "minecraft:bogged"].includes(ev.damageSource.damagingEntity.typeId)) {
               ev.damageSource.damagingEntity.addTag(randomTag + "_projectile");
-              ev.damageSource.damagingEntity.runCommand(`execute as @e[tag=${randomTag}_projectile] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              ev.damageSource.damagingEntity.runCommand(
+                `execute as @e[tag=${randomTag}_projectile] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`
+              );
             } else if (ev.damageSource.damagingEntity) {
               const damagingEntity = ev.damageSource.damagingEntity;
               damagingEntity.addTag(randomTag + "_entity");
-              damagingEntity.dimension.runCommand(`execute as @e[tag=${randomTag}_entity] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              damagingEntity.dimension.runCommand(
+                `execute as @e[tag=${randomTag}_entity] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`
+              );
             } else {
               if (isFireDamage) {
-                spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+                spawnClone.dimension.runCommand(
+                  `loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`
+                );
               } else {
-                const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone);
+                const loot = world9.getLootTableManager().generateLootFromEntity(
+                  spawnClone
+                );
                 if (!loot) return;
                 loot.forEach((item) => {
                   spawnClone.dimension.spawnItem(item, spawnClone.location);
@@ -3051,7 +3860,10 @@ var MobStacker = class extends PluginBase {
         const displayText = this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
         let text = displayText;
         text = `\xA7e\uE10E ` + text;
-        text = text.replace(/%a/g, `${getMobColorCode(currAmount - 1)}x${currAmount - 1}\xA7r`);
+        text = text.replace(
+          /%a/g,
+          `${getMobColorCode(currAmount - 1)}x${currAmount - 1}\xA7r`
+        );
         text = text.replace(/%n/g, EntityToName(entityNew));
         text = text.replace(/%l/g, "\n");
         entityNew.nameTag = text;
@@ -3063,142 +3875,342 @@ var MobStacker = class extends PluginBase {
   }
   addConfig(pl, page, showUI = true) {
     if (!showUI) return true;
-    const configUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.mobstacker", pl), LanguageContext2.getTranslation("allstacker.body.mobstacker", pl));
+    const configUI = new IActionForm_default(
+      LanguageContext2.getTranslation("allstacker.title.mobstacker", pl),
+      LanguageContext2.getTranslation("allstacker.body.mobstacker", pl)
+    );
     configUI.addDivider();
-    configUI.addLabel(LanguageContext2.getTranslation("allstacker.label.mobstacker.description", pl));
-    configUI.addButton(LanguageContext2.getTranslation("allstacker.button.mobstacker_settings", pl), "textures/blocks/build_allow", () => {
-      const stackedUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.mob_stacking_settings", pl), LanguageContext2.getTranslation("allstacker.body.mob_stacking_settings", pl));
-      stackedUI.addDivider();
-      stackedUI.addLabel(LanguageContext2.getTranslation("allstacker.label.mobstacker.advanced.description", pl));
-      stackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.add_stacked_mobs", pl), "textures/ui/icon_book_writable", () => {
-        const addStackedUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.add_stacked_mobs", pl), LanguageContext2.getTranslation("allstacker.body.add_stacked_mobs", pl));
-        addStackedUI.addDivider();
-        const radius = 10;
-        const nearEntities = pl.dimension.getEntities({
-          location: pl.location,
-          maxDistance: radius
-        }).filter((en) => en.typeId !== "minecraft:player");
-        const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
-        nearEntities.forEach((en) => {
-          if (en.isValid && !mobStackList.includes(en.typeId)) {
-            addStackedUI.addButton(`${EntityToName(en)}`, "", () => {
-              mobStackList.push(en.typeId);
-              this.config.MobStackConfig.set("StackMob", mobStackList);
-              pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.mob.added", pl).replace("%name", EntityToName(en)));
-              page.showPage(pl, this.name + "_stacked");
-            });
-          }
-        });
-        if (nearEntities.filter((en) => en.isValid && !mobStackList.includes(en.typeId)).length === 0) {
-          addStackedUI.addLabel(LanguageContext2.getTranslation("allstacker.label.no_stackable_mobs", pl));
-        }
-        addStackedUI.addDivider();
-        addStackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-          page.showPage(pl, this.name + "_stacked");
-        });
-        page.addPage(this.name + "_add_stacked", addStackedUI);
-        page.showPage(pl, this.name + "_add_stacked");
-      });
-      stackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.remove_stacked_mobs", pl), "textures/ui/icon_book_writable", () => {
-        const removeStackedUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.remove_stacked_mobs", pl), LanguageContext2.getTranslation("allstacker.body.remove_stacked_mobs", pl));
-        removeStackedUI.addDivider();
-        const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
-        if (mobStackList.length === 0) {
-          removeStackedUI.addLabel(LanguageContext2.getTranslation("allstacker.label.no_stacked_mobs", pl));
-        } else {
-          mobStackList.forEach((mob) => {
-            removeStackedUI.addButton(IdToName(mob), "", () => {
-              const index = mobStackList.indexOf(mob);
-              if (index > -1) {
-                mobStackList.splice(index, 1);
-                this.config.MobStackConfig.set("StackMob", mobStackList);
-                pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.mob.removed", pl).replace("%name", IdToName(mob)));
-                page.showPage(pl, this.name + "_stacked");
+    configUI.addLabel(
+      LanguageContext2.getTranslation(
+        "allstacker.label.mobstacker.description",
+        pl
+      )
+    );
+    configUI.addButton(
+      LanguageContext2.getTranslation(
+        "allstacker.button.mobstacker_settings",
+        pl
+      ),
+      "textures/blocks/build_allow",
+      () => {
+        const stackedUI = new IActionForm_default(
+          LanguageContext2.getTranslation(
+            "allstacker.title.mob_stacking_settings",
+            pl
+          ),
+          LanguageContext2.getTranslation(
+            "allstacker.body.mob_stacking_settings",
+            pl
+          )
+        );
+        stackedUI.addDivider();
+        stackedUI.addLabel(
+          LanguageContext2.getTranslation(
+            "allstacker.label.mobstacker.advanced.description",
+            pl
+          )
+        );
+        stackedUI.addButton(
+          LanguageContext2.getTranslation(
+            "allstacker.button.add_stacked_mobs",
+            pl
+          ),
+          "textures/ui/icon_book_writable",
+          () => {
+            const addStackedUI = new IActionForm_default(
+              LanguageContext2.getTranslation(
+                "allstacker.title.add_stacked_mobs",
+                pl
+              ),
+              LanguageContext2.getTranslation(
+                "allstacker.body.add_stacked_mobs",
+                pl
+              )
+            );
+            addStackedUI.addDivider();
+            const radius = 10;
+            const nearEntities = pl.dimension.getEntities({
+              location: pl.location,
+              maxDistance: radius
+            }).filter((en) => en.typeId !== "minecraft:player");
+            const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
+            nearEntities.forEach((en) => {
+              if (en.isValid && !mobStackList.includes(en.typeId)) {
+                addStackedUI.addButton(`${EntityToName(en)}`, "", () => {
+                  mobStackList.push(en.typeId);
+                  this.config.MobStackConfig.set("StackMob", mobStackList);
+                  pl.sendMessage(
+                    LanguageContext2.getTranslation(
+                      "allstacker.message.mob.added",
+                      pl
+                    ).replace("%name", EntityToName(en))
+                  );
+                  page.showPage(pl, this.name + "_stacked");
+                });
               }
             });
-          });
-        }
-        removeStackedUI.addDivider();
-        removeStackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-          page.showPage(pl, this.name + "_stacked");
+            if (nearEntities.filter(
+              (en) => en.isValid && !mobStackList.includes(en.typeId)
+            ).length === 0) {
+              addStackedUI.addLabel(
+                LanguageContext2.getTranslation(
+                  "allstacker.label.no_stackable_mobs",
+                  pl
+                )
+              );
+            }
+            addStackedUI.addDivider();
+            addStackedUI.addButton(
+              LanguageContext2.getTranslation("allstacker.button.back", pl),
+              "",
+              () => {
+                page.showPage(pl, this.name + "_stacked");
+              }
+            );
+            page.addPage(this.name + "_add_stacked", addStackedUI);
+            page.showPage(pl, this.name + "_add_stacked");
+          }
+        );
+        stackedUI.addButton(
+          LanguageContext2.getTranslation(
+            "allstacker.button.remove_stacked_mobs",
+            pl
+          ),
+          "textures/ui/icon_book_writable",
+          () => {
+            const removeStackedUI = new IActionForm_default(
+              LanguageContext2.getTranslation(
+                "allstacker.title.remove_stacked_mobs",
+                pl
+              ),
+              LanguageContext2.getTranslation(
+                "allstacker.body.remove_stacked_mobs",
+                pl
+              )
+            );
+            removeStackedUI.addDivider();
+            const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
+            if (mobStackList.length === 0) {
+              removeStackedUI.addLabel(
+                LanguageContext2.getTranslation(
+                  "allstacker.label.no_stacked_mobs",
+                  pl
+                )
+              );
+            } else {
+              mobStackList.forEach((mob) => {
+                removeStackedUI.addButton(IdToName(mob), "", () => {
+                  const index = mobStackList.indexOf(mob);
+                  if (index > -1) {
+                    mobStackList.splice(index, 1);
+                    this.config.MobStackConfig.set("StackMob", mobStackList);
+                    pl.sendMessage(
+                      LanguageContext2.getTranslation(
+                        "allstacker.message.mob.removed",
+                        pl
+                      ).replace("%name", IdToName(mob))
+                    );
+                    page.showPage(pl, this.name + "_stacked");
+                  }
+                });
+              });
+            }
+            removeStackedUI.addDivider();
+            removeStackedUI.addButton(
+              LanguageContext2.getTranslation("allstacker.button.back", pl),
+              "",
+              () => {
+                page.showPage(pl, this.name + "_stacked");
+              }
+            );
+            page.addPage(this.name + "_remove_stacked", removeStackedUI);
+            page.showPage(pl, this.name + "_remove_stacked");
+          }
+        );
+        stackedUI.addButton(
+          LanguageContext2.getTranslation(
+            "allstacker.button.view_stacked_mobs",
+            pl
+          ),
+          "textures/ui/icon_book_writable",
+          () => {
+            const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
+            const stackedMobsUI = new IActionForm_default(
+              LanguageContext2.getTranslation(
+                "allstacker.title.view_stacked_mobs",
+                pl
+              ),
+              LanguageContext2.getTranslation(
+                "allstacker.body.view_stacked_mobs",
+                pl
+              )
+            );
+            stackedMobsUI.addDivider();
+            if (mobStackList.length === 0) {
+              stackedMobsUI.addLabel(
+                LanguageContext2.getTranslation(
+                  "allstacker.label.no_stacked_mobs",
+                  pl
+                )
+              );
+            } else {
+              mobStackList.forEach((mob) => {
+                stackedMobsUI.addButton(IdToName(mob), "", () => {
+                  page.showPage(pl, this.name + "_stacked");
+                });
+              });
+            }
+            stackedMobsUI.addDivider();
+            stackedMobsUI.addButton(
+              LanguageContext2.getTranslation("allstacker.button.back", pl),
+              "",
+              () => {
+                page.showPage(pl, this.name + "_stacked");
+              }
+            );
+            page.addPage(this.name + "_view_stacked", stackedMobsUI);
+            page.showPage(pl, this.name + "_view_stacked");
+          }
+        );
+        stackedUI.addDivider();
+        stackedUI.addButton(
+          LanguageContext2.getTranslation("allstacker.button.back", pl),
+          "",
+          () => {
+            page.showPage(pl, this.name);
+          }
+        );
+        page.addPage(this.name + "_stacked", stackedUI);
+        page.showPage(pl, this.name + "_stacked");
+      }
+    );
+    configUI.addLabel(
+      LanguageContext2.getTranslation(
+        "allstacker.label.mobstacker.advanced.description",
+        pl
+      )
+    );
+    configUI.addButton(
+      LanguageContext2.getTranslation("allstacker.button.advanced_settings", pl),
+      "textures/ui/advanced_glyph_color",
+      () => {
+        const advancedSettingsUI = new IModalForm_default(
+          LanguageContext2.getTranslation(
+            "allstacker.title.mob_advanced_settings",
+            pl
+          ),
+          LanguageContext2.getTranslation(
+            "allstacker.body.mob_advanced_settings",
+            pl
+          )
+        );
+        advancedSettingsUI.addLabel(
+          LanguageContext2.getTranslation(
+            "allstacker.label.mob_advanced.description",
+            pl
+          )
+        );
+        advancedSettingsUI.addDivider();
+        advancedSettingsUI.addToggle(
+          LanguageContext2.getTranslation("allstacker.toggle.mobstacker", pl),
+          PluginLoader.find((pl2) => pl2.name === this.name)?.setting.enabled || false
+        );
+        advancedSettingsUI.addDropdown(
+          LanguageContext2.getTranslation(
+            "allstacker.dropdown.mob_death_mode",
+            pl
+          ),
+          ["All", "Only one"],
+          this.config.MobStackConfig.get("MobDeathMode") === "All" ? 0 : 1
+        );
+        advancedSettingsUI.addSlider(
+          LanguageContext2.getTranslation(
+            "allstacker.slider.radius_stacking",
+            pl
+          ),
+          1,
+          100,
+          1,
+          this.config.MobStackConfig.get("RadiusStacking") || 10
+        );
+        advancedSettingsUI.addTextField(
+          LanguageContext2.getTranslation(
+            "allstacker.textfield.mob_display_text",
+            pl
+          ),
+          LanguageContext2.getTranslation(
+            "allstacker.textfield.mob_display_text.placeholder",
+            pl
+          ),
+          `${this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r"}`
+        );
+        advancedSettingsUI.addCallback((formValues, canceled) => {
+          if (canceled) return;
+          const radius = formValues[4];
+          const displayText = formValues[5];
+          const mobDeathMode = formValues[3] === 0 ? "All" : "Only one";
+          const isEnabled = formValues[2];
+          const oldRadius = this.config.MobStackConfig.get("RadiusStacking") || 10;
+          const oldDisplayText = this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+          const oldEnabled = PluginLoader.find(
+            (pl2) => pl2.name === this.name
+          )?.setting.enabled || false;
+          const oldDeathMode = this.config.MobStackConfig.get("MobDeathMode") || "All";
+          if (mobDeathMode !== oldDeathMode && mobDeathMode !== void 0) {
+            this.config.MobStackConfig.set("MobDeathMode", mobDeathMode);
+            pl.sendMessage(
+              LanguageContext2.getTranslation(
+                "allstacker.message.mob_death_mode.changed",
+                pl
+              ).replace("%value", mobDeathMode)
+            );
+          }
+          if (radius !== oldRadius && radius !== void 0) {
+            this.config.MobStackConfig.set("RadiusStacking", radius);
+            pl.sendMessage(
+              LanguageContext2.getTranslation(
+                "allstacker.message.stacking_radius.changed",
+                pl
+              ).replace("%value", radius.toString())
+            );
+          }
+          if (displayText !== oldDisplayText && displayText !== void 0) {
+            this.config.MobStackConfig.set("DisplayText", displayText);
+            pl.sendMessage(
+              LanguageContext2.getTranslation(
+                "allstacker.message.mob_display_text.changed",
+                pl
+              ).replace("%value", displayText)
+            );
+          }
+          if (isEnabled !== oldEnabled && isEnabled !== void 0) {
+            PluginLoader.find((pl2) => pl2.name === this.name).setting.enabled = isEnabled;
+            ConfigMenu_default.setEnabled(this.name, isEnabled);
+            const message = isEnabled ? LanguageContext2.getTranslation(
+              "allstacker.message.mobstacker.enabled",
+              pl
+            ) : LanguageContext2.getTranslation(
+              "allstacker.message.mobstacker.disabled",
+              pl
+            );
+            pl.sendMessage(message);
+          }
         });
-        page.addPage(this.name + "_remove_stacked", removeStackedUI);
-        page.showPage(pl, this.name + "_remove_stacked");
-      });
-      stackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.view_stacked_mobs", pl), "textures/ui/icon_book_writable", () => {
-        const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
-        const stackedMobsUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.view_stacked_mobs", pl), LanguageContext2.getTranslation("allstacker.body.view_stacked_mobs", pl));
-        stackedMobsUI.addDivider();
-        if (mobStackList.length === 0) {
-          stackedMobsUI.addLabel(LanguageContext2.getTranslation("allstacker.label.no_stacked_mobs", pl));
-        } else {
-          mobStackList.forEach((mob) => {
-            stackedMobsUI.addButton(IdToName(mob), "", () => {
-              page.showPage(pl, this.name + "_stacked");
-            });
-          });
-        }
-        stackedMobsUI.addDivider();
-        stackedMobsUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-          page.showPage(pl, this.name + "_stacked");
-        });
-        page.addPage(this.name + "_view_stacked", stackedMobsUI);
-        page.showPage(pl, this.name + "_view_stacked");
-      });
-      stackedUI.addDivider();
-      stackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-        page.showPage(pl, this.name);
-      });
-      page.addPage(this.name + "_stacked", stackedUI);
-      page.showPage(pl, this.name + "_stacked");
-    });
-    configUI.addLabel(LanguageContext2.getTranslation("allstacker.label.mobstacker.advanced.description", pl));
-    configUI.addButton(LanguageContext2.getTranslation("allstacker.button.advanced_settings", pl), "textures/ui/advanced_glyph_color", () => {
-      const advancedSettingsUI = new IModalForm_default(LanguageContext2.getTranslation("allstacker.title.mob_advanced_settings", pl), LanguageContext2.getTranslation("allstacker.body.mob_advanced_settings", pl));
-      advancedSettingsUI.addLabel(LanguageContext2.getTranslation("allstacker.label.mob_advanced.description", pl));
-      advancedSettingsUI.addDivider();
-      advancedSettingsUI.addToggle(LanguageContext2.getTranslation("allstacker.toggle.mobstacker", pl), PluginLoader.find((pl2) => pl2.name === this.name)?.setting.enabled || false);
-      advancedSettingsUI.addDropdown(LanguageContext2.getTranslation("allstacker.dropdown.mob_death_mode", pl), ["All", "Only one"], this.config.MobStackConfig.get("MobDeathMode") === "All" ? 0 : 1);
-      advancedSettingsUI.addSlider(LanguageContext2.getTranslation("allstacker.slider.radius_stacking", pl), 1, 100, 1, this.config.MobStackConfig.get("RadiusStacking") || 10);
-      advancedSettingsUI.addTextField(LanguageContext2.getTranslation("allstacker.textfield.mob_display_text", pl), LanguageContext2.getTranslation("allstacker.textfield.mob_display_text.placeholder", pl), `${this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r"}`);
-      advancedSettingsUI.addCallback((formValues, canceled) => {
-        if (canceled) return;
-        const radius = formValues[4];
-        const displayText = formValues[5];
-        const mobDeathMode = formValues[3] === 0 ? "All" : "Only one";
-        const isEnabled = formValues[2];
-        const oldRadius = this.config.MobStackConfig.get("RadiusStacking") || 10;
-        const oldDisplayText = this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
-        const oldEnabled = PluginLoader.find((pl2) => pl2.name === this.name)?.setting.enabled || false;
-        const oldDeathMode = this.config.MobStackConfig.get("MobDeathMode") || "All";
-        console.info(mobDeathMode, oldDeathMode);
-        if (mobDeathMode !== oldDeathMode && mobDeathMode !== void 0) {
-          this.config.MobStackConfig.set("MobDeathMode", mobDeathMode);
-          pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.mob_death_mode.changed", pl).replace("%value", mobDeathMode));
-        }
-        if (radius !== oldRadius && radius !== void 0) {
-          this.config.MobStackConfig.set("RadiusStacking", radius);
-          pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.stacking_radius.changed", pl).replace("%value", radius.toString()));
-        }
-        if (displayText !== oldDisplayText && displayText !== void 0) {
-          this.config.MobStackConfig.set("DisplayText", displayText);
-          pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.mob_display_text.changed", pl).replace("%value", displayText));
-        }
-        if (isEnabled !== oldEnabled && isEnabled !== void 0) {
-          PluginLoader.find((pl2) => pl2.name === this.name).setting.enabled = isEnabled;
-          ConfigMenu_default.setEnabled(this.name, isEnabled);
-          const message = isEnabled ? LanguageContext2.getTranslation("allstacker.message.mobstacker.enabled", pl) : LanguageContext2.getTranslation("allstacker.message.mobstacker.disabled", pl);
-          pl.sendMessage(message);
-        }
-      });
-      advancedSettingsUI.setSubmitButton(LanguageContext2.getTranslation("allstacker.button.save_changes", pl));
-      page.addPage(this.name + "_advanced_settings", advancedSettingsUI);
-      page.showPage(pl, this.name + "_advanced_settings");
-    });
+        advancedSettingsUI.setSubmitButton(
+          LanguageContext2.getTranslation("allstacker.button.save_changes", pl)
+        );
+        page.addPage(this.name + "_advanced_settings", advancedSettingsUI);
+        page.showPage(pl, this.name + "_advanced_settings");
+      }
+    );
     configUI.addDivider();
-    configUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
-      page.showPage(pl, "plugin-settings");
-    });
+    configUI.addButton(
+      LanguageContext2.getTranslation("allstacker.button.back", pl),
+      "",
+      () => {
+        page.showPage(pl, "plugin-settings");
+      }
+    );
     page.addPage(this.name, configUI);
     return true;
   }
@@ -3232,7 +4244,11 @@ var PluginLoader = [
     name: "ConfigMenu",
     description: "Provides a configuration menu for plugins.",
     version: "1.0.0",
-    main: new ConfigMenu_default("ConfigMenu", "Provides a configuration menu for plugins.", "1.0.0"),
+    main: new ConfigMenu_default(
+      "ConfigMenu",
+      "Provides a configuration menu for plugins.",
+      "1.0.0"
+    ),
     setting: {
       enabled: true,
       config: {
@@ -3246,7 +4262,11 @@ var PluginLoader = [
     name: "Item Stackers",
     description: "Manage item stacking configurations.",
     version: "1.0.0",
-    main: new ItemStacker_default("Item Stackers", "Manage item stacking configurations.", "1.0.0"),
+    main: new ItemStacker_default(
+      "Item Stackers",
+      "Manage item stacking configurations.",
+      "1.0.0"
+    ),
     setting: {
       enabled: true,
       config: {
@@ -3264,7 +4284,11 @@ var PluginLoader = [
     name: "Mob Stacker",
     description: "Manage mob stacking configurations.",
     version: "1.0.0",
-    main: new MobStacker_default("Mob Stacker", "Manage mob stacking configurations.", "1.0.0"),
+    main: new MobStacker_default(
+      "Mob Stacker",
+      "Manage mob stacking configurations.",
+      "1.0.0"
+    ),
     setting: {
       enabled: true,
       config: {
@@ -3279,30 +4303,28 @@ var PluginLoader = [
 ];
 
 // packs/scripts/Index.ts
-import { system as system8 } from "@minecraft/server";
 var pluginManager = PluginManager.getInstance();
 pluginManager.registerPlugins(PluginLoader);
-KXEvents.on(null, "before:startup", (ev) => {
-  pluginManager.startupPlugins(pluginManager.getPlugins(), ev);
-});
-KXEvents.on(null, "after:worldLoad", (ev) => {
-  const loadder = PluginLoader.find((x) => x.setting.config?.Loadder);
-  if (loadder) {
-    loadder.main.onLoad(ev);
-  }
-  const i = system8.runInterval(() => {
-    if (!loadder) return;
-    if (loadder.setting.config.LoadedConfig) {
-      system8.clearRun(i);
-      pluginManager.getPlugins().filter((plugin) => plugin.name !== loadder.name).forEach((plugin) => {
-        if (plugin.main.onLoad) {
-          plugin.main.onLoad(ev);
-        }
-      });
+(() => {
+  KXEvents.on(null, "before:startup", (ev) => {
+    pluginManager.startupPlugins(pluginManager.getPlugins(), ev);
+  });
+  KXEvents.on(null, "after:worldLoad", (ev) => {
+    const loader = PluginLoader.find((x) => x.setting.config?.Loadder);
+    if (loader) {
+      loader.main.onLoad(ev);
+      loader.setting.config.LoadedConfig = true;
     }
-  }, 1);
-});
-KXEvents.on(null, "before:shutdown", (ev) => {
-  pluginManager.shutdownPlugins(pluginManager.getPlugins(), ev);
-});
+    PluginLoader.filter(
+      (plugin) => plugin.name !== loader?.name && plugin.setting.enabled
+    ).forEach((plugin) => {
+      if (plugin.main.onLoad) {
+        plugin.main.onLoad(ev);
+      }
+    });
+  });
+  KXEvents.on(null, "before:shutdown", (ev) => {
+    pluginManager.shutdownPlugins(pluginManager.getPlugins(), ev);
+  });
+})();
 //# sourceMappingURL=Index.js.map

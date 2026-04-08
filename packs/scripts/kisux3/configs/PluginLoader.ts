@@ -1,4 +1,4 @@
-import { Entity } from "npm:@minecraft/server@2.3.0";
+import { Entity } from "@minecraft/server";
 import PluginSetting from "../../core/types/PluginSetting.ts";
 import ItemStacker from "../plugins/ItemStacker/index.ts";
 import ConfigMenu from "../plugins/ConfigMenu/index.ts";

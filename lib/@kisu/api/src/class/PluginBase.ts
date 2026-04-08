@@ -6,7 +6,7 @@ import {
   World,
   world,
   WorldLoadAfterEvent,
-} from "npm:@minecraft/server@2.3.0";
+} from "@minecraft/server";
 import {
   Config,
   EventHandlers,

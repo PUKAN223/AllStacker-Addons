@@ -9,7 +9,7 @@ import {
   world,
   WorldAfterEvents,
   WorldBeforeEvents,
-} from "npm:@minecraft/server@2.3.0";
+} from "@minecraft/server";
 import {
   ConfigManagers,
   EventHandlers,
@@ -139,17 +139,17 @@ class SystemBase {
     system.run(() => {
       const endTime = Date.now();
       const loadDuration = endTime - this.startTime;
-
-      this.playerManagers.eachPlayer((pl) => {
-        pl.sendToast(
-          "",
-          `${"Plugin Loaded".mcColors().grey} (${pluginLoadCount.toString().mcColors().green}/${plugins.length.toString().mcColors().red}) ${
-            `in ${loadDuration}ms`.mcColors().grey
-          }`,
-          "textures/items/compass_item",
-          "textures/ui/greyBorder",
-        );
-      });
+      console.warn(`Plugins loaded in ${loadDuration}ms`);
+      // this.playerManagers.eachPlayer((pl) => {
+      //   pl.sendToast(
+      //     "",
+      //     `${"Plugin Loaded".mcColors().grey} (${pluginLoadCount.toString().mcColors().green}/${plugins.length.toString().mcColors().red}) ${
+      //       `in ${loadDuration}ms`.mcColors().grey
+      //     }`,
+      //     "textures/items/compass_item",
+      //     "textures/ui/greyBorder",
+      //   );
+      // });
     });
   }
 

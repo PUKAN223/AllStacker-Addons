@@ -1,4 +1,4 @@
-import { Dimension, Entity, EntityIsBabyComponent, EntityLeashableComponent, EntityScaleComponent, system } from "npm:@minecraft/server@2.3.0";
+import { Dimension, Entity, EntityIsBabyComponent, EntityLeashableComponent, EntityScaleComponent, system } from "@minecraft/server";
 import { getAllEntities } from "../../../../core/utils/EntityManagers.ts";
 import { IConfigMobStacker } from "../index.ts";
 

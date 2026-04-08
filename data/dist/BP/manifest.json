@@ -1,9 +1,9 @@
 {
   "format_version": 2,
   "header": {
-    "name": "All-Stackers-Addon@2.5.0 BP",
+    "name": "All-Stackers-Addon@2.6.0 BP",
     "description": "Make yours item, mob stackeable more than limit of Minecraft Bedrock Edition.",
-    "uuid": "32f10bd7-e448-4ad8-a798-036a27779a58",
+    "uuid": "0346c0b2-7168-46dd-8837-3b70a41f8d73",
     "version": [
       1,
       0,
@@ -20,7 +20,7 @@
       "description": "Script resources",
       "language": "javascript",
       "type": "script",
-      "uuid": "f9dbbcfa-e78d-41bc-bbf4-29370b50d3c3",
+      "uuid": "3bee136e-01fd-4e92-9085-40f9da64290e",
       "version": [
         1,
         0,
@@ -32,14 +32,14 @@
   "dependencies": [
     {
       "module_name": "@minecraft/server",
-      "version": "2.3.0"
+      "version": "2.6.0"
     },
     {
       "module_name": "@minecraft/server-ui",
       "version": "2.0.0"
     },
     {
-      "uuid": "bd93c41e-bc60-44f7-a0d6-c20a75d132b6",
+      "uuid": "ee2588f3-971b-4eb8-8963-d04d59445bc8",
       "version": [
         1,
         0,

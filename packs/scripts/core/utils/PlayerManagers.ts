@@ -1,4 +1,4 @@
-import { Player, world } from "npm:@minecraft/server-ui@2.0.0";
+import { Player, world } from "@minecraft/server";
 
 export function getAllPlayers(filter?: (player: Player) => boolean) {
   const players = world.getAllPlayers();

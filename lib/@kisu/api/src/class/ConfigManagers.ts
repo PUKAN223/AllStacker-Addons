@@ -1,4 +1,4 @@
-import { world, World } from "npm:@minecraft/server@2.3.0";
+import { world, World } from "@minecraft/server";
 
 class ConfigManagers {
     constructor() {

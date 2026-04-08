@@ -3,7 +3,7 @@
 import {
     WorldBeforeEvents,
     WorldAfterEvents,
-} from 'npm:@minecraft/server@2.3.0';
+} from '@minecraft/server';
 
 type ExtractEventNames<T> = {
     [K in keyof T]: K extends string ? K : never;

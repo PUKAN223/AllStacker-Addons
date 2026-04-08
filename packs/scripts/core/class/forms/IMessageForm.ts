@@ -1,6 +1,6 @@
-import { MessageFormData, MessageFormResponse } from "npm:@minecraft/server-ui@2.0.0";
-import { Player } from "npm:@minecraft/server@2.3.0";
 import { IMessageFormButton } from "../../types/IMessageForm/Elements/Button.ts";
+import { MessageFormData, MessageFormResponse } from "@minecraft/server-ui";
+import { Player } from "@minecraft/server";
 
 type FormElement = IMessageFormButton;
 
@@ -160,7 +160,9 @@ class IMessageForm {
       if (!response.canceled && response.selection !== undefined) {
         if (response.selection === 0 && this.button1 && this.button1.onClick) {
           this.button1.onClick();
-        } else if (response.selection === 1 && this.button2 && this.button2.onClick) {
+        } else if (
+          response.selection === 1 && this.button2 && this.button2.onClick
+        ) {
           this.button2.onClick();
         }
       }
@@ -177,7 +179,7 @@ class IMessageForm {
    */
   public async showWithCallback(
     player: Player,
-    callback: (selection: number | undefined, canceled: boolean) => void
+    callback: (selection: number | undefined, canceled: boolean) => void,
   ): Promise<void> {
     try {
       const response = await this.show(player);
@@ -200,29 +202,46 @@ class IMessageForm {
     title: string,
     body: string,
     onConfirm?: () => void,
-    onCancel?: () => void
+    onCancel?: () => void,
   ): IMessageForm {
-    return new IMessageForm(title, body).setButton1("Cancel", onCancel).setButton2("Confirm", onConfirm);
+    return new IMessageForm(title, body).setButton1("Cancel", onCancel)
+      .setButton2("Confirm", onConfirm);
   }
 
   /**
    * Create a simple yes/no dialog
    */
-  public static createYesNo(title: string, body: string, onYes?: () => void, onNo?: () => void): IMessageForm {
-    return new IMessageForm(title, body).setButton1("No", onNo).setButton2("Yes", onYes);
+  public static createYesNo(
+    title: string,
+    body: string,
+    onYes?: () => void,
+    onNo?: () => void,
+  ): IMessageForm {
+    return new IMessageForm(title, body).setButton1("No", onNo).setButton2(
+      "Yes",
+      onYes,
+    );
   }
 
   /**
    * Create a simple OK dialog
    */
-  public static createOK(title: string, body: string, onOK?: () => void): IMessageForm {
+  public static createOK(
+    title: string,
+    body: string,
+    onOK?: () => void,
+  ): IMessageForm {
     return new IMessageForm(title, body).setButton1("OK", onOK);
   }
 
   /**
    * Create a simple alert dialog
    */
-  public static createAlert(title: string, body: string, onClose?: () => void): IMessageForm {
+  public static createAlert(
+    title: string,
+    body: string,
+    onClose?: () => void,
+  ): IMessageForm {
     return new IMessageForm(title, body).setButton1("Close", onClose);
   }
 }

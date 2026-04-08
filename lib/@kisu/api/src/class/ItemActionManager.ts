@@ -1,5 +1,5 @@
-import { Entity, ItemStack } from "npm:@minecraft/server@2.3.0";
-import { Player } from "npm:@minecraft/server@2.3.0";
+import { Entity, ItemStack } from "@minecraft/server";
+import { Player } from "@minecraft/server";
 import { PluginBase } from "./PluginBase.ts";
 
 const ItemActionRegistry = new Map<string, ItemActions>();

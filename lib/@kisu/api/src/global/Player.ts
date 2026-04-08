@@ -1,4 +1,4 @@
-// import { Player } from "npm:@minecraft/server@2.3.0";
+// import { Player } from "@minecraft/server";
 
 // declare global {
 //   interface Player {

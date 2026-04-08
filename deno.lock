@@ -2,22 +2,18 @@
   "version": "5",
   "specifiers": {
     "jsr:@luca/esbuild-deno-loader@0.11.1": "0.11.1",
-    "jsr:@nothing628/chalk@*": "1.0.1",
     "jsr:@nothing628/chalk@1.0.1": "1.0.1",
     "jsr:@std/bytes@^1.0.2": "1.0.6",
     "jsr:@std/encoding@^1.0.5": "1.0.10",
     "jsr:@std/internal@^1.0.10": "1.0.12",
     "jsr:@std/path@1.1.2": "1.1.2",
     "jsr:@std/path@^1.0.6": "1.1.2",
-    "npm:@minecraft/math@2.2.11": "2.2.11_@minecraft+server@2.3.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.21.124",
-    "npm:@minecraft/server-ui@2.0.0": "2.0.0_@minecraft+common@1.2.0",
-    "npm:@minecraft/server@*": "2.3.0_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.21.124",
-    "npm:@minecraft/server@2.3.0": "2.3.0_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.21.124",
-    "npm:@minecraft/server@2.4.0-beta.1.21.124-stable": "2.4.0-beta.1.21.120-preview.23_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.21.124",
-    "npm:@types/node@*": "24.2.0",
+    "npm:@minecraft/math@2.2.11": "2.2.11_@minecraft+server@2.6.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.26.13",
+    "npm:@minecraft/math@2.4.0": "2.4.0_@minecraft+server@2.6.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.26.13_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.26.13",
+    "npm:@minecraft/server-ui@2.0.0": "2.0.0_@minecraft+vanilla-data@1.26.13",
+    "npm:@minecraft/server@2.6.0": "2.6.0_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.26.13",
     "npm:esbuild@0.25.11": "0.25.11",
-    "npm:jszip@3.10.1": "3.10.1",
-    "npm:path@*": "0.12.7"
+    "npm:jszip@3.10.1": "3.10.1"
   },
   "jsr": {
     "@luca/esbuild-deno-loader@0.11.1": {
@@ -181,41 +177,34 @@
     "@minecraft/common@1.2.0": {
       "integrity": "sha512-JdmEq4P3Z/FtoBzhLijFgMSVFnFRrUoLwY8DHHrgtFo0mfLTOLTB1RErYjLMsA6b7BGVNxkX/pfFRiH7QZ0XwQ=="
     },
-    "@minecraft/math@2.2.11_@minecraft+server@2.3.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.21.124": {
+    "@minecraft/math@2.2.11_@minecraft+server@2.6.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.26.13": {
       "integrity": "sha512-t14zYk7BrXMvvQfZCge0I0MDY7MIxDJN7sJ0fSph4FVenqN+FnaGlZRagrDEa81zIi1202VNmi/jk+PvFpUWKg==",
       "dependencies": [
-        "@minecraft/server@2.3.0_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.21.124"
+        "@minecraft/server"
       ]
     },
-    "@minecraft/server-ui@2.0.0_@minecraft+common@1.2.0": {
+    "@minecraft/math@2.4.0_@minecraft+server@2.6.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.26.13_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.26.13": {
+      "integrity": "sha512-/sMeFLKgmAUw491RUH6+yMmeJpvKy3oeWpkvX17OQjSC7Px9AgkJI6ESLmGSwPTsSm8L3EMJ4Sz6n6crtcYd/A==",
+      "dependencies": [
+        "@minecraft/server"
+      ]
+    },
+    "@minecraft/server-ui@2.0.0_@minecraft+vanilla-data@1.26.13": {
       "integrity": "sha512-K1xFK1OEJSNfIgyRElaoxDTW/nbEqjBp1YnUdyPCs4kGDglwoXNyFz3wzMOkvT04CJXSifZGcTJeWda4C6OkXw==",
       "dependencies": [
         "@minecraft/common",
-        "@minecraft/server@2.3.0_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.21.124"
+        "@minecraft/server"
       ]
     },
-    "@minecraft/server@2.3.0_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.21.124": {
-      "integrity": "sha512-2SXAjZPb67TRjVGVhSXST8ha9p9zrRw0LiCY6+Ul4RN62+j3BbeCMtvOlVLvZV/KjGJyw3fFxIw7SsTzi2szYw==",
+    "@minecraft/server@2.6.0_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.26.13": {
+      "integrity": "sha512-/l1gbUHcTl/3gb3cB7Ilb8pfW1QytoAc+iMXUPSzvv8cxGluf6M635jl29P8Bid3iVmUB9hWyCUZtRUVVlk5ew==",
       "dependencies": [
         "@minecraft/common",
         "@minecraft/vanilla-data"
       ]
     },
-    "@minecraft/server@2.4.0-beta.1.21.120-preview.23_@minecraft+common@1.2.0_@minecraft+vanilla-data@1.21.124": {
-      "integrity": "sha512-kvZl0O6eANcoFJmJtbSKId+kH8Y9xbKx571i6TIWjh33ylpffIefRM7tkKlzFoEaMG94AT0IunQZHn6eOI3O9A==",
-      "dependencies": [
-        "@minecraft/common",
-        "@minecraft/vanilla-data"
-      ]
-    },
-    "@minecraft/vanilla-data@1.21.124": {
-      "integrity": "sha512-n00ry2BCbDiQ4tbiHIBeU4QSvbyClg8O0weWDhKBM1tCsGJMI/+MGaZ3LWZs2H79k/OuDMaPlWwqt4drW6tHDA=="
-    },
-    "@types/node@24.2.0": {
-      "integrity": "sha512-3xyG3pMCq3oYCNg7/ZP+E1ooTaGB4cG8JWRsqqOYQdbWNY4zbaV0Ennrd7stjiJEFZCaybcIgpTjJWHRfBSIDw==",
-      "dependencies": [
-        "undici-types"
-      ]
+    "@minecraft/vanilla-data@1.26.13": {
+      "integrity": "sha512-Mll1g5vX84iJ2PjJM5KKJ9V9gH8haJtIhSqywn/FlZN9IN0fn4MFWyjC43xNLh/COWgZfVgB7XAA7fGsEt60MQ=="
     },
     "core-util-is@1.0.3": {
       "integrity": "sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ=="
@@ -256,9 +245,6 @@
     "immediate@3.0.6": {
       "integrity": "sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ=="
     },
-    "inherits@2.0.3": {
-      "integrity": "sha512-x00IRNXNy63jwGkJmzPigoySHbaqpNuzKbBOmzK+g2OdZpQ9w+sxCN+VSB3ja7IAge2OP2qpfxTjeNcyjmW1uw=="
-    },
     "inherits@2.0.4": {
       "integrity": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="
     },
@@ -283,24 +269,14 @@
     "pako@1.0.11": {
       "integrity": "sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw=="
     },
-    "path@0.12.7": {
-      "integrity": "sha512-aXXC6s+1w7otVF9UletFkFcDsJeO7lSZBPUQhtb5O0xJe8LtYhj/GxldoL09bBj9+ZmE2hNoHqQSFMN5fikh4Q==",
-      "dependencies": [
-        "process",
-        "util"
-      ]
-    },
     "process-nextick-args@2.0.1": {
       "integrity": "sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag=="
-    },
-    "process@0.11.10": {
-      "integrity": "sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A=="
     },
     "readable-stream@2.3.8": {
       "integrity": "sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==",
       "dependencies": [
         "core-util-is",
-        "inherits@2.0.4",
+        "inherits",
         "isarray",
         "process-nextick-args",
         "safe-buffer",
@@ -320,17 +296,15 @@
         "safe-buffer"
       ]
     },
-    "undici-types@7.10.0": {
-      "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
-    },
     "util-deprecate@1.0.2": {
       "integrity": "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw=="
-    },
-    "util@0.10.4": {
-      "integrity": "sha512-0Pm9hTQ3se5ll1XihRic3FDIku70C+iHUdT/W926rSgHV5QgXsYbKZN8MSC3tJtSkhuROzvsQjAaFENRXr+19A==",
-      "dependencies": [
-        "inherits@2.0.3"
-      ]
     }
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:@minecraft/math@2.4.0",
+      "npm:@minecraft/server-ui@2.0.0",
+      "npm:@minecraft/server@2.6.0"
+    ]
   }
 }

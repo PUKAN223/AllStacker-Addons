@@ -1,5 +1,5 @@
 import { ModalFormData, ModalFormResponse } from "npm:@minecraft/server-ui@2.0.0";
-import { Player } from "npm:@minecraft/server@2.3.0";
+import { Player } from "@minecraft/server";
 import { IModalFormTextField, IModalFormToggle, IModalFormSlider, IModalFormDropdown, IModalFormHeader, IModalFormLabel, IModalFormDivider } from "@kisu/api";
 
 type FormElement =

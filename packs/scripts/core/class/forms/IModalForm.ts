@@ -1,5 +1,3 @@
-import { ModalFormData, ModalFormResponse } from "npm:@minecraft/server-ui@2.0.0";
-import { Player } from "npm:@minecraft/server@2.3.0";
 import { IModalFormTextField } from "../../types/IModalForm/Elements/TextField.ts";
 import { IModalFormToggle } from "../../types/IModalForm/Elements/Toggle.ts";
 import { IModalFormSlider } from "../../types/IModalForm/Elements/Slider.ts";
@@ -7,6 +5,8 @@ import { IModalFormDropdown } from "../../types/IModalForm/Elements/Dropdown.ts"
 import { IModalFormDivider } from "../../types/IModalForm/Elements/Divider.ts";
 import { IModalFormHeader } from "../../types/IModalForm/Elements/Header.ts";
 import { IModalFormLabel } from "../../types/IModalForm/Elements/Label.ts";
+import { ModalFormData, ModalFormResponse } from "@minecraft/server-ui";
+import { Player } from "@minecraft/server";
 
 type FormElement =
   | IModalFormTextField
@@ -62,7 +62,11 @@ class IModalForm {
   /**
    * Add a text field
    */
-  public addTextField(label: string, placeholderText?: string, defaultValue?: string): this {
+  public addTextField(
+    label: string,
+    placeholderText?: string,
+    defaultValue?: string,
+  ): this {
     this.elements.push({ label, placeholderText, defaultValue });
     return this;
   }
@@ -113,9 +117,15 @@ class IModalForm {
     minimumValue: number,
     maximumValue: number,
     valueStep: number,
-    defaultValue?: number
+    defaultValue?: number,
   ): this {
-    this.elements.push({ label, minimumValue, maximumValue, valueStep, defaultValue });
+    this.elements.push({
+      label,
+      minimumValue,
+      maximumValue,
+      valueStep,
+      defaultValue,
+    });
     return this;
   }
 
@@ -137,7 +147,11 @@ class IModalForm {
   /**
    * Add a dropdown
    */
-  public addDropdown(label: string, options: string[], defaultValueIndex?: number): this {
+  public addDropdown(
+    label: string,
+    options: string[],
+    defaultValueIndex?: number,
+  ): this {
     this.elements.push({ label, options, defaultValueIndex });
     return this;
   }
@@ -246,7 +260,8 @@ class IModalForm {
   public hasInputElements(): boolean {
     return this.elements.some(
       (element) =>
-        this.isTextField(element) || this.isToggle(element) || this.isSlider(element) || this.isDropdown(element)
+        this.isTextField(element) || this.isToggle(element) ||
+        this.isSlider(element) || this.isDropdown(element),
     );
   }
 
@@ -256,8 +271,13 @@ class IModalForm {
   public getElements(): FormElement[] {
     return this.elements;
   }
-  // deno-lint-ignore no-explicit-any
-  public addCallback(callback: (formValues: any[], canceled: boolean) => void): this {
+
+  public addCallback(
+    callback: (
+      formValues: (string | number | boolean)[],
+      canceled: boolean,
+    ) => void,
+  ): this {
     this.callback = callback;
     return this;
   }
@@ -279,16 +299,22 @@ class IModalForm {
       } else if (this.isLabel(element)) {
         form.label(element.text_label);
       } else if (this.isTextField(element)) {
-        form.textField(element.label, element.placeholderText || "", { defaultValue: element.defaultValue || "" });
+        form.textField(element.label, element.placeholderText || "", {
+          defaultValue: element.defaultValue || "",
+        });
       } else if (this.isToggle(element)) {
-        form.toggle(element.label, { defaultValue: element.defaultValue || false });
+        form.toggle(element.label, {
+          defaultValue: element.defaultValue || false,
+        });
       } else if (this.isSlider(element)) {
         form.slider(element.label, element.minimumValue, element.maximumValue, {
           defaultValue: element.defaultValue || 0,
           valueStep: element.valueStep,
         });
       } else if (this.isDropdown(element)) {
-        form.dropdown(element.label, element.options, { defaultValueIndex: element.defaultValueIndex || 0 });
+        form.dropdown(element.label, element.options, {
+          defaultValueIndex: element.defaultValueIndex || 0,
+        });
       }
     });
 
@@ -326,12 +352,13 @@ class IModalForm {
   }
 
   private isToggle(element: FormElement): element is IModalFormToggle {
-    // deno-lint-ignore no-explicit-any
-    return "label" in element && "defaultValue" in element && typeof (element as any).defaultValue === "boolean";
+    return "label" in element && "defaultValue" in element &&
+      typeof element.defaultValue === "boolean";
   }
 
   private isSlider(element: FormElement): element is IModalFormSlider {
-    return "minimumValue" in element && "maximumValue" in element && "valueStep" in element;
+    return "minimumValue" in element && "maximumValue" in element &&
+      "valueStep" in element;
   }
 
   private isDropdown(element: FormElement): element is IModalFormDropdown {

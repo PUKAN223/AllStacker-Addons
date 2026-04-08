@@ -1,6 +1,6 @@
 import { ActionFormData, ActionFormResponse } from "npm:@minecraft/server-ui@2.0.0";
 import { IActionFormButton, IActionFormDivider, IActionFormHeader, IActionFormLabel } from "@kisu/api";
-import { Player } from "npm:@minecraft/server@2.3.0";
+import { Player } from "@minecraft/server";
 
 type FormElement = IActionFormButton | IActionFormDivider | IActionFormHeader | IActionFormLabel;
 

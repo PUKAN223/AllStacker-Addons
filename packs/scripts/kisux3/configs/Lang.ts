@@ -1,4 +1,4 @@
-import { Player, world } from "npm:@minecraft/server@2.3.0";
+import { Player, world } from "@minecraft/server";
 import LanguageContextClass from "../../core/class/LangguageContext.ts";
 import { KXEvents } from "../../core/index.ts";
 
@@ -105,6 +105,8 @@ KXEvents.on(null, "after:worldLoad", () => {
       },
    */
   LanguageContext.setLanguage("en", {
+    "allstacker.text.wantOP": () =>
+      "§7You must be an Operator (OP) to use settings",
     "allstacker.toggle.fast_mode_stacking": () =>
       "§cOFF§7/§aON §rFast Mode Stacking§r",
     "allstacker.message.fast_mode_stacking.changed": () =>
@@ -397,6 +399,7 @@ KXEvents.on(null, "after:worldLoad", () => {
       "§aปลั๊กอิน Mob Stacker เปิดใช้งานแล้ว.",
     "allstacker.message.mobstacker.disabled": () =>
       "§aปลั๊กอิน Mob Stacker ปิดใช้งานแล้ว.",
+    "allstacker.text.wantOP": () => "§7คุณต้องเป็น Operator (OP) เพื่อใช้ตั้งค่า",
   });
 
   world.getPlayers().forEach((pl) => {

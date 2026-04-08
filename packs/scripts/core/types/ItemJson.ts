@@ -1,4 +1,4 @@
-import { Enchantment } from "npm:@minecraft/server@2.3.0";
+import { Enchantment } from "@minecraft/server";
 
 export interface ItemJson {
   typeId: string;

@@ -1,5 +1,5 @@
-import { GameMode, world } from "npm:@minecraft/server@2.3.0";
-import { Player } from "npm:@minecraft/server@2.3.0";
+import { GameMode, world } from "@minecraft/server";
+import { Player } from "@minecraft/server";
 
 class PlayerManagers {
     constructor() {}

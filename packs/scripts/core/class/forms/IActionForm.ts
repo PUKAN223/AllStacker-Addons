@@ -1,11 +1,15 @@
 import { IActionFormButton } from "../../types/IActionForm/Elements/Button.ts";
-import { ActionFormData, ActionFormResponse } from "npm:@minecraft/server-ui@2.0.0";
 import { IActionFormDivider } from "../../types/IActionForm/Elements/Divider.ts";
 import { IActionFormHeader } from "../../types/IActionForm/Elements/Header.ts";
 import { IActionFormLabel } from "../../types/IActionForm/Elements/Label.ts";
-import { Player } from "npm:@minecraft/server@2.3.0";
+import { ActionFormData, ActionFormResponse } from "@minecraft/server-ui";
+import { Player } from "@minecraft/server";
 
-type FormElement = IActionFormButton | IActionFormDivider | IActionFormHeader | IActionFormLabel;
+type FormElement =
+  | IActionFormButton
+  | IActionFormDivider
+  | IActionFormHeader
+  | IActionFormLabel;
 
 class IActionForm {
   private title: string;

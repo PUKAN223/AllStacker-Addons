@@ -1,4 +1,4 @@
-import { SystemAfterEvents, SystemBeforeEvents, WorldAfterEvents, WorldBeforeEvents } from "npm:@minecraft/server@2.3.0";
+import { SystemAfterEvents, SystemBeforeEvents, WorldAfterEvents, WorldBeforeEvents } from "@minecraft/server";
 import { EventPayloadMap } from "./EventPayloadMap.ts";
 
 const _WorldAfterInstance: WorldAfterEvents = {} as WorldAfterEvents;

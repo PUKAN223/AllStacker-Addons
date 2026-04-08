@@ -1,15 +1,20 @@
-import { Player } from "npm:@minecraft/server@2.3.0";
+import { Player } from "@minecraft/server";
 
 class LanguageContext {
   private static instance: LanguageContext;
-  private languageData: { [lang: string]: Record<string, (pl: Player) => string> } = {};
+  private languageData: {
+    [lang: string]: Record<string, (pl: Player) => string>;
+  } = {};
 
   constructor() {
-    this.languageData["en"] = {}
+    this.languageData["en"] = {};
     this.languageData["th"] = {};
   }
 
-  public setLanguage(lang: string, data: Record<string, (pl: Player) => string>): void {
+  public setLanguage(
+    lang: string,
+    data: Record<string, (pl: Player) => string>,
+  ): void {
     this.languageData[lang] = data;
   }
 

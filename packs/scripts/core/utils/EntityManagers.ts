@@ -3,7 +3,7 @@ import {
   DimensionTypes,
   Entity,
   world,
-} from "npm:@minecraft/server@2.3.0";
+} from "@minecraft/server";
 
 export function getEntitiesAtDim(
   dim: string,
