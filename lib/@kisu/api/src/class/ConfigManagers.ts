@@ -1,12 +1,12 @@
-import { world, World } from "@minecraft/server";
+import { world, World } from "npm:@minecraft/server@2.3.0";
 
 class ConfigManagers {
     constructor() {
 
     }
 
-    public getConfig(name: string): Config | null {
-        return new Config(name);
+    public getConfig<T = unknown>(name: string): Config<T> {
+        return new Config<T>(name);
     }
 
     public clearAll() {
@@ -19,7 +19,7 @@ class ConfigManagers {
     }
 }
 
-class Config {
+class Config<T = unknown> {
     private name: string;
     private world: World;
     private prefix: string;
@@ -30,34 +30,27 @@ class Config {
         this.prefix = `config.${this.name}`;
     }
 
-    set<T>(key: string, value: T): void {
-        this.world.setDynamicProperty(`${this.prefix}.${key}`, JSON.stringify(value));
-        return;
+    set(value: T): void {
+        this.world.setDynamicProperty(`${this.prefix}`, JSON.stringify(value));
     }
 
-    get<T>(key: string): T | null {
-        const value = this.world.getDynamicProperty(`${this.prefix}.${key}`) as string;
-        if (!value) return null;
+    get(): T {
+        const value = this.world.getDynamicProperty(`${this.prefix}`) as string;
+        if (!value) return {} as T;
         return JSON.parse(value) as T;
     }
 
-    delete(key: string): void {
-        this.world.setDynamicProperty(`${this.prefix}.${key}`);
-        return;
+    delete(): void {
+        this.world.setDynamicProperty(`${this.prefix}`);
     }
 
-    has(key: string): boolean {
-        const value = this.world.getDynamicProperty(`${this.prefix}.${key}`);
-        return value !== undefined;
+    has(key: keyof T): boolean {
+        const data = this.get();
+        return data[key] !== undefined;
     }
 
     clear(): void {
-        const properties = this.world.getDynamicPropertyIds();
-        for (const key in properties) {
-            if (key.startsWith(this.prefix)) {
-                this.world.setDynamicProperty(key);
-            }
-        }
+        this.world.setDynamicProperty(`${this.prefix}`);
     }
 }
 

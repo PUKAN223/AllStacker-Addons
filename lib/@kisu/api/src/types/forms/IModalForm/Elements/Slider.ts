@@ -4,4 +4,5 @@ export type IModalFormSlider = {
     maximumValue: number;
     valueStep: number;
     defaultValue?: number;
+    tooltip?: string;
 }

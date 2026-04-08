@@ -1,7 +1,4 @@
-import { WorldEvents } from "../types/WorldEvents.ts";
-import { EventHandlers } from "./EventHanlders.ts";
-import { PluginBase } from "./PluginBase.ts";
-import { SystemBase } from "./SystemBase.ts";
+import { WorldEvents, EventHandlers, PluginBase, SystemBase } from "@kisu/api";
 
 class PluginManagers {
     private plugins: Map<string, PluginBase> = new Map();

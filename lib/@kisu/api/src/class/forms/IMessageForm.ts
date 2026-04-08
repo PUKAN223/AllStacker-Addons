@@ -1,6 +1,6 @@
-import { MessageFormData, MessageFormResponse } from "@minecraft/server-ui";
-import { Player } from "@minecraft/server";
-import { IMessageFormButton } from "../../types/forms/IMessageForm/Elements/Button.ts";
+import { MessageFormData, MessageFormResponse } from "npm:@minecraft/server-ui@2.0.0";
+import { Player } from "npm:@minecraft/server@2.3.0";
+import { IMessageFormButton } from "@kisu/api"
 
 type FormElement = IMessageFormButton;
 
@@ -227,4 +227,4 @@ class IMessageForm {
   }
 }
 
-export default IMessageForm;
+export { IMessageForm };

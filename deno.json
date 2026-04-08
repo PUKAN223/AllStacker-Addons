@@ -1,19 +1,13 @@
 {
   "tasks": {
-    "dev": "deno run --allow-all --env-file=.env --watch=./index.ts,./src,./packs,./lib index.ts",
+    "dev": "deno run --allow-all --watch=./index.ts,./src,./packs,./lib index.ts",
     "clean": "deno run --allow-all index.ts --clean",
-    "packs": "deno run --allow-all --env-file=.env index.ts --packs",
-    "build": "deno run --allow-all --env-file=.env index.ts --build"
+    "packs": "deno run --allow-all index.ts --packs",
+    "build": "deno run --allow-all index.ts --build"
   },
   "imports": {
     "@kisu/api": "./lib/@kisu/api/index.ts",
-    "@minecraft/server": "npm:@minecraft/server@2.3.0",
-    "@minecraft/server-ui": "npm:@minecraft/server-ui@2.0.0",
-    "@mxbe/database": "npm:@mxbe/database@^0.1.1",
-    "@std/dotenv": "jsr:@std/dotenv@0.225.5",
-    "@minecraft/core-build-tasks": "npm:@minecraft/core-build-tasks@^5.5.0",
-    "@nothing628/chalk": "jsr:@nothing628/chalk@^1.0.1",
-    "@std/assert": "jsr:@std/assert@1"
+    "@kisu/cli": "./lib/@kisu/cli/index.ts"
   },
   "lint": {
     "rules": {

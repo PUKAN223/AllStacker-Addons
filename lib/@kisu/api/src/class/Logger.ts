@@ -26,7 +26,7 @@ class Logger {
     }
 
     private msg(message: string, type: string) {
-        console.log(`[${this.prefix}][${type}] ${message}`);
+        console.warn(`[${this.prefix}][${type}] ${message}`);
     }
 }
 

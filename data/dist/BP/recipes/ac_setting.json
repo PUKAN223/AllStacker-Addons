@@ -1,0 +1,28 @@
+{
+	"format_version": "1.12",
+	"minecraft:recipe_shaped": {
+		"description": {
+			"identifier": "kisu:ac_setting"
+		},
+		"tags": [
+			"crafting_table"
+		],
+		"pattern": [
+			" / ",
+			"/C/",
+			" / "
+		],
+		"key": {
+			"/": {
+				"item": "minecraft:stick"
+			},
+			"C": {
+				"item": "minecraft:cobblestone"
+			}
+		},
+		"result": {
+			"item": "kisu:ac_setting",
+			"count": 1
+		}
+	}
+}

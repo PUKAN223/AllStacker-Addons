@@ -1,9 +1,6 @@
-import { IActionFormButton } from "../../types/forms/IActionForm/Elements/Button.ts";
-import { ActionFormData, ActionFormResponse } from "@minecraft/server-ui";
-import { IActionFormDivider } from "../../types/forms/IActionForm/Elements/Divider.ts";
-import { IActionFormHeader } from "../../types/forms/IActionForm/Elements/Header.ts";
-import { IActionFormLabel } from "../../types/forms/IActionForm/Elements/Label.ts";
-import { Player } from "@minecraft/server";
+import { ActionFormData, ActionFormResponse } from "npm:@minecraft/server-ui@2.0.0";
+import { IActionFormButton, IActionFormDivider, IActionFormHeader, IActionFormLabel } from "@kisu/api";
+import { Player } from "npm:@minecraft/server@2.3.0";
 
 type FormElement = IActionFormButton | IActionFormDivider | IActionFormHeader | IActionFormLabel;
 
@@ -239,4 +236,4 @@ class IActionForm {
   }
 }
 
-export default IActionForm;
+export { IActionForm };

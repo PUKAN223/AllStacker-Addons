@@ -1,170 +1,301 @@
-// lib/@kisu/api/src/class/ConfigManagers.ts
-import { world } from "@minecraft/server";
-var ConfigManagers = class {
+// packs/scripts/kisux3/plugins/ItemStacker/index.ts
+import { system as system5, world as world8 } from "@minecraft/server";
+
+// packs/scripts/core/events/index.ts
+import { system, world } from "@minecraft/server";
+
+// packs/scripts/core/class/PluginManagers.ts
+var PluginManager = class _PluginManager {
+  plugins = [];
+  static instance;
   constructor() {
   }
-  getConfig(name) {
-    return new Config(name);
-  }
-  clearAll() {
-    const properties = world.getDynamicPropertyIds();
-    for (const key in properties) {
-      if (key.startsWith("config.")) {
-        world.setDynamicProperty(key);
-      }
+  static isEnabled(plugin) {
+    const pluginInstance = _PluginManager.getInstance().getPluginByName(plugin);
+    if (!pluginInstance) {
+      throw new Error(`Plugin with name ${plugin} is not registered.`);
     }
+    return pluginInstance.setting.enabled;
   }
-};
-var Config = class {
-  name;
-  world;
-  prefix;
-  constructor(name) {
-    this.name = name;
-    this.world = world;
-    this.prefix = `config.${this.name}`;
-  }
-  set(key, value) {
-    this.world.setDynamicProperty(`${this.prefix}.${key}`, JSON.stringify(value));
-    return;
-  }
-  get(key) {
-    const value = this.world.getDynamicProperty(`${this.prefix}.${key}`);
-    if (!value) return null;
-    return JSON.parse(value);
-  }
-  delete(key) {
-    this.world.setDynamicProperty(`${this.prefix}.${key}`);
-    return;
-  }
-  has(key) {
-    const value = this.world.getDynamicProperty(`${this.prefix}.${key}`);
-    return value !== void 0;
-  }
-  clear() {
-    const properties = this.world.getDynamicPropertyIds();
-    for (const key in properties) {
-      if (key.startsWith(this.prefix)) {
-        this.world.setDynamicProperty(key);
-      }
+  static getInstance() {
+    if (!_PluginManager.instance) {
+      _PluginManager.instance = new _PluginManager();
     }
+    return _PluginManager.instance;
+  }
+  registerPlugin(plugin) {
+    if (this.plugins.find((p) => p.name === plugin.name)) {
+      throw new Error(`Plugin with name ${plugin.name} is already registered.`);
+    }
+    this.plugins.push(plugin);
+  }
+  registerPlugins(plugins) {
+    plugins.forEach((plugin) => this.registerPlugin(plugin));
+  }
+  unregisterPlugin(pluginName) {
+    const index = this.plugins.findIndex((plugin) => plugin.name === pluginName);
+    if (index === -1) {
+      throw new Error(`Plugin with name ${pluginName} is not registered.`);
+    }
+    this.plugins.splice(index, 1);
+  }
+  getPlugins() {
+    return this.plugins;
+  }
+  getPluginByName(name) {
+    return this.plugins.find((plugin) => plugin.name === name);
+  }
+  loadPlugins(plugins, ev) {
+    plugins.forEach((plugin) => {
+      if (!plugin.setting.enabled) return;
+      plugin.main.onLoad(ev);
+    });
+  }
+  startupPlugins(plugins, ev) {
+    plugins.forEach((plugin) => {
+      if (!plugin.setting.enabled) return;
+      plugin.main.onStartup(ev);
+    });
+  }
+  shutdownPlugins(plugins, ev) {
+    plugins.forEach((plugin) => {
+      if (!plugin.setting.enabled) return;
+      plugin.main.onShutdown(ev);
+    });
   }
 };
 
-// lib/@kisu/api/src/class/EventHanlders.ts
-var EventHandlers = class {
-  autoListeners = /* @__PURE__ */ new Map();
-  customListeners = /* @__PURE__ */ new Map();
-  on(...args) {
-    if (typeof args[0] === "string") {
-      const event2 = args[0];
-      const callback2 = args[1];
-      const listeners2 = event2.startsWith("Custom") ? this.customListeners : this.autoListeners;
-      const list2 = listeners2.get(event2) ?? [];
-      list2.push({ cb: callback2 });
-      listeners2.set(event2, list2);
+// packs/scripts/core/class/EventEmitter.ts
+var KXEvents = class {
+  static events = /* @__PURE__ */ new Map();
+  static on(plugin, eventName, callback) {
+    if (plugin === null) {
+      const key2 = "__global__";
+      if (!this.events.has(key2)) {
+        this.events.set(key2, /* @__PURE__ */ Object.create(null));
+      }
+      const pluginEvents2 = this.events.get(key2);
+      if (!pluginEvents2[eventName]) {
+        pluginEvents2[eventName] = [];
+      }
+      pluginEvents2[eventName].push(callback);
       return;
     }
-    const owner = args[0];
-    const event = args[1];
-    const callback = args[2];
-    const listeners = event.startsWith("Custom") ? this.customListeners : this.autoListeners;
-    const list = listeners.get(event) ?? [];
-    list.push({ owner, cb: callback });
-    listeners.set(event, list);
-  }
-  off(...args) {
-    if (typeof args[0] === "string") {
-      const event2 = args[0];
-      const callback2 = args[1];
-      const listeners2 = event2.startsWith("Custom") ? this.customListeners : this.autoListeners;
-      const list2 = listeners2.get(event2);
-      if (!list2) return;
-      listeners2.set(event2, list2.filter((l) => l.cb !== callback2));
-      return;
+    if (!PluginManager.isEnabled(plugin.getName())) return;
+    const key = plugin.getName();
+    if (!this.events.has(key)) {
+      this.events.set(key, /* @__PURE__ */ Object.create(null));
     }
-    const owner = args[0];
-    const event = args[1];
-    const callback = args[2];
-    const listeners = event.startsWith("Custom") ? this.customListeners : this.autoListeners;
-    const list = listeners.get(event);
-    if (!list) return;
-    if (callback) {
-      listeners.set(event, list.filter((l) => !(l.owner === owner && l.cb === callback)));
-    } else {
-      listeners.set(event, list.filter((l) => l.owner !== owner));
+    const pluginEvents = this.events.get(key);
+    if (!pluginEvents[eventName]) {
+      pluginEvents[eventName] = [];
     }
+    pluginEvents[eventName].push(callback);
   }
-  emit(event, payload) {
-    const listeners = event.startsWith("Custom") ? this.customListeners : this.autoListeners;
-    const list = listeners.get(event);
-    if (!list) return;
-    for (const listener of list) {
-      try {
-        if (listener.owner) {
-          const owner = listener.owner;
-          if (typeof owner.isEnabled() !== "undefined") {
-            if (owner.isEnabled()) {
-              listener.cb(payload);
+  // deno-lint-ignore no-explicit-any
+  static emit(plugin, eventName, data) {
+    if (plugin === null) {
+      const globalEvents = this.events.get("__global__");
+      if (globalEvents) {
+        const callbacks2 = globalEvents[eventName];
+        if (callbacks2) {
+          for (const cb of callbacks2) {
+            try {
+              cb(data);
+            } catch (err) {
+              console.error(`[KXEvents] Error in global event "${eventName}":`, err.stack);
             }
-          } else {
-            listener.cb(payload);
           }
-        } else {
-          listener.cb(payload);
         }
-      } catch (_e) {
+      }
+      for (const [key2, pluginEvents2] of this.events.entries()) {
+        if (key2 === "__global__") continue;
+        if (!PluginManager.isEnabled(key2)) continue;
+        const callbacks2 = pluginEvents2[eventName];
+        if (!callbacks2) continue;
+        for (const cb of callbacks2) {
+          try {
+            cb(data);
+          } catch (err) {
+            console.error(`[KXEvents] Error in event "${eventName}" from ${key2}:`, err.stack);
+          }
+        }
+      }
+      return;
+    }
+    if (!PluginManager.isEnabled(plugin.getName())) return;
+    const key = plugin.getName();
+    const pluginEvents = this.events.get(key);
+    if (!pluginEvents) return;
+    const callbacks = pluginEvents[eventName];
+    if (!callbacks) return;
+    for (const cb of callbacks) {
+      try {
+        cb(data);
+      } catch (err) {
+        console.error(`[KXEvents] Error in event "${eventName}" from ${plugin.getName()}:`, err.stack);
       }
     }
   }
 };
 
-// lib/@kisu/api/src/class/Logger.ts
-var Logger = class {
-  prefix;
-  constructor(prefix) {
-    this.prefix = prefix;
+// packs/scripts/core/events/index.ts
+function initializeEvents() {
+  const afterEvents = [];
+  const beforeEvents = [];
+  const systemBeforeEvents = [];
+  const systemAfterEvents = [];
+  for (const key in world.beforeEvents) {
+    beforeEvents.push(key);
+  }
+  for (const key in world.afterEvents) {
+    afterEvents.push(key);
+  }
+  for (const key in system.beforeEvents) {
+    systemBeforeEvents.push(key);
+  }
+  for (const key in system.afterEvents) {
+    systemAfterEvents.push(key);
+  }
+  afterEvents.forEach((event) => {
+    world.afterEvents[event].subscribe((ev) => {
+      KXEvents.emit(null, `after:${event}`, ev);
+    });
+  });
+  beforeEvents.forEach((event) => {
+    world.beforeEvents[event].subscribe((ev) => {
+      KXEvents.emit(null, `before:${event}`, ev);
+    });
+  });
+  systemAfterEvents.forEach((event) => {
+    system.afterEvents[event].subscribe((ev) => {
+      KXEvents.emit(null, `after:${event}`, ev);
+    });
+  });
+  systemBeforeEvents.forEach((event) => {
+    system.beforeEvents[event].subscribe((ev) => {
+      KXEvents.emit(null, `before:${event}`, ev);
+    });
+  });
+  system.runInterval(() => {
+    KXEvents.emit(null, "after:tick", { currentTick: system.currentTick });
+  });
+}
+
+// packs/scripts/core/class/ItemConverter.ts
+import { ItemLockMode, ItemStack } from "@minecraft/server";
+var ItemConverter = class _ItemConverter {
+  static instance;
+  static isLoaded = false;
+  constructor() {
+    if (_ItemConverter.instance) {
+      return _ItemConverter.instance;
+    }
+    _ItemConverter.instance = this;
+    _ItemConverter.isLoaded = true;
+  }
+  static getInstance() {
+    if (!_ItemConverter.instance) {
+      _ItemConverter.instance = new _ItemConverter();
+    }
+    return _ItemConverter.instance;
+  }
+  ItemToJson(item) {
+    const itemDynamic = [];
+    let itemDurability = 0;
+    let itemEnchantment = [];
+    if (item.getDynamicPropertyIds().length !== 0) {
+      item.getDynamicPropertyIds().forEach((ids) => {
+        itemDynamic.push({ id: ids, data: item.getDynamicProperty(ids) });
+      });
+    }
+    if (item.getComponent("durability") && item.getComponent("durability").damage !== 0) {
+      itemDurability = item.getComponent("durability").damage;
+    }
+    if (item.getComponent("enchantable") && item.getComponent("enchantable").getEnchantments().length !== 0) {
+      itemEnchantment = item.getComponent("enchantable").getEnchantments();
+    }
+    const data = {
+      typeId: item.typeId,
+      amount: item.amount,
+      keepOnDeath: item.keepOnDeath,
+      lockMode: item.lockMode,
+      maxAmount: item.maxAmount,
+      nameTag: item.nameTag,
+      dynamicProperty: itemDynamic ?? void 0,
+      lores: item.getLore(),
+      can_destroy: item.getCanDestroy(),
+      can_placeon: item.getCanPlaceOn(),
+      durability: itemDurability,
+      enchants: itemEnchantment ?? []
+    };
+    return data;
+  }
+  JsonToItem(itemJson) {
+    const items = new ItemStack(itemJson.typeId, itemJson.amount);
+    try {
+      items.setCanDestroy(itemJson.can_destroy);
+      items.setCanPlaceOn(itemJson.can_placeon);
+      if (itemJson.durability) {
+        items.getComponent("durability").damage = itemJson.durability;
+      }
+      itemJson.dynamicProperty.forEach(({ id, data }) => {
+        items.setDynamicProperty(id, data);
+      });
+      if (itemJson.enchants) {
+        itemJson.enchants.forEach((enc) => {
+          items.getComponent("enchantable").addEnchantment({ type: enc.type, level: enc.level });
+        });
+      }
+      items.keepOnDeath = itemJson.keepOnDeath ?? false;
+      items.lockMode = ItemLockMode[itemJson.lockMode];
+      items.setLore(itemJson.lores);
+      items.nameTag = itemJson.nameTag;
+      return items;
+    } catch (_error) {
+      return items;
+    }
+  }
+};
+var ItemConvert = ItemConverter.getInstance();
+
+// packs/scripts/core/class/Logger.ts
+var Logger = class _Logger {
+  static instance;
+  constructor() {
+  }
+  static getInstance() {
+    if (!_Logger.instance) {
+      _Logger.instance = new _Logger();
+    }
+    return _Logger.instance;
   }
   log(message) {
-    this.msg(message, "LOG");
+    console.info(`[ LOG ] ${message}`);
   }
   error(message) {
-    this.msg(message, "ERROR");
+    console.info(`[ ERROR ] ${message}`);
   }
   warn(message) {
-    this.msg(message, "WARN");
-  }
-  info(message) {
-    this.msg(message, "INFO");
+    console.info(`[ WARN ] ${message}`);
   }
   debug(message) {
-    this.msg(message, "DEBUG");
+    console.info(`[ DEBUG ] ${message}`);
   }
-  msg(message, type) {
-    console.log(`[${this.prefix}][${type}] ${message}`);
+  info(message) {
+    console.info(`[ INFO ] ${message}`);
   }
 };
 
-// lib/@kisu/api/src/class/PluginBase.ts
-import { system, world as world2 } from "@minecraft/server";
-
-// lib/@kisu/api/src/class/forms/IActionForm.ts
+// packs/scripts/core/class/forms/IActionForm.ts
 import { ActionFormData } from "@minecraft/server-ui";
 var IActionForm = class {
   title;
   body;
   elements = [];
-  previousForm;
-  constructor(title = "", body = "", previousForm) {
+  constructor(title = "", body = "") {
     this.title = title;
     this.body = body;
-    if (previousForm) {
-      this.previousForm = previousForm;
-    }
-  }
-  back(pl) {
-    if (this.previousForm) this.previousForm(pl);
-    return;
   }
   /**
    * Set the form title
@@ -350,4175 +481,2828 @@ var IActionForm = class {
 };
 var IActionForm_default = IActionForm;
 
-// lib/@kisu/api/src/class/SettingMenuBuilders.ts
-var SettingMenuBuilders = class {
-  menus = /* @__PURE__ */ new Map();
-  constructor() {
+// packs/scripts/core/class/forms/IMessageForm.ts
+import { MessageFormData } from "@minecraft/server-ui";
+var IMessageForm = class _IMessageForm {
+  title;
+  body;
+  button1 = null;
+  button2 = null;
+  constructor(title = "", body = "") {
+    this.title = title;
+    this.body = body;
   }
-  registerMenu(menu, plugin) {
-    this.menus.set(plugin.name, menu);
+  /**
+   * Set the form title
+   */
+  setTitle(title) {
+    this.title = title;
+    return this;
   }
-  settingMenu(pl, pluginManagers) {
-    const settingMain = new IActionForm_default(
-      `Settings Menu`,
-      `\xA7fHello, \xA7e${pl.name}\xA7r
-
-This is the configuration menu.
-You can manage settings here.`
-    );
-    settingMain.addDivider();
-    const plugins = pluginManagers.getPlugins();
-    settingMain.addLabel(`\xA77Plugins (\xA7c${plugins.length}\xA77)\xA7r`);
-    for (const plugin of plugins) {
-      const btn = plugin.getSettings().buttons;
-      const page = plugin.getSettings().mainPage(pl, (pl2) => this.settingMenu(pl2, pluginManagers));
-      settingMain.addButton(
-        btn.name + `
-\xA78[${plugin.isEnabled() ? "\xA72Enabled" : "\xA7cDisabled"}\xA78]`,
-        btn.icon,
-        () => {
-          page.show(pl);
+  /**
+   * Set the form body text
+   */
+  setBody(body) {
+    this.body = body;
+    return this;
+  }
+  /**
+   * Get the current title
+   */
+  getTitle() {
+    return this.title;
+  }
+  /**
+   * Get the current body text
+   */
+  getBody() {
+    return this.body;
+  }
+  /**
+   * Set button 1 (left button)
+   */
+  setButton1(text, onClick) {
+    this.button1 = { text, onClick };
+    return this;
+  }
+  /**
+   * Set button 1 object
+   */
+  setButton1Object(button) {
+    this.button1 = button;
+    return this;
+  }
+  /**
+   * Set button 2 (right button)
+   */
+  setButton2(text, onClick) {
+    this.button2 = { text, onClick };
+    return this;
+  }
+  /**
+   * Set button 2 object
+   */
+  setButton2Object(button) {
+    this.button2 = button;
+    return this;
+  }
+  /**
+   * Get button 1
+   */
+  getButton1() {
+    return this.button1;
+  }
+  /**
+   * Get button 2
+   */
+  getButton2() {
+    return this.button2;
+  }
+  /**
+   * Check if button 1 is set
+   */
+  hasButton1() {
+    return this.button1 !== null;
+  }
+  /**
+   * Check if button 2 is set
+   */
+  hasButton2() {
+    return this.button2 !== null;
+  }
+  /**
+   * Check if any buttons are set
+   */
+  hasButtons() {
+    return this.button1 !== null || this.button2 !== null;
+  }
+  /**
+   * Clear all buttons
+   */
+  clearButtons() {
+    this.button1 = null;
+    this.button2 = null;
+    return this;
+  }
+  /**
+   * Clear button 1
+   */
+  clearButton1() {
+    this.button1 = null;
+    return this;
+  }
+  /**
+   * Clear button 2
+   */
+  clearButton2() {
+    this.button2 = null;
+    return this;
+  }
+  /**
+   * Show the form to a player and return the response
+   */
+  async show(player) {
+    const form = new MessageFormData();
+    form.title(this.title);
+    form.body(this.body);
+    if (this.button1) {
+      form.button1(this.button1.text);
+    }
+    if (this.button2) {
+      form.button2(this.button2.text);
+    }
+    try {
+      const response = await form.show(player);
+      if (!response.canceled && response.selection !== void 0) {
+        if (response.selection === 0 && this.button1 && this.button1.onClick) {
+          this.button1.onClick();
+        } else if (response.selection === 1 && this.button2 && this.button2.onClick) {
+          this.button2.onClick();
         }
-      );
+      }
+      return response;
+    } catch (error) {
+      console.error("Error showing message form:", error);
+      throw error;
     }
-    settingMain.show(pl);
+  }
+  /**
+   * Show the form and process the results with a callback
+   */
+  async showWithCallback(player, callback) {
+    try {
+      const response = await this.show(player);
+      if (response.canceled) {
+        callback(void 0, true);
+      } else {
+        callback(response.selection, false);
+      }
+    } catch (error) {
+      console.error("Error in showWithCallback:", error);
+      callback(void 0, true);
+    }
+  }
+  /**
+   * Create a simple confirmation dialog
+   */
+  static createConfirmation(title, body, onConfirm, onCancel) {
+    return new _IMessageForm(title, body).setButton1("Cancel", onCancel).setButton2("Confirm", onConfirm);
+  }
+  /**
+   * Create a simple yes/no dialog
+   */
+  static createYesNo(title, body, onYes, onNo) {
+    return new _IMessageForm(title, body).setButton1("No", onNo).setButton2("Yes", onYes);
+  }
+  /**
+   * Create a simple OK dialog
+   */
+  static createOK(title, body, onOK) {
+    return new _IMessageForm(title, body).setButton1("OK", onOK);
+  }
+  /**
+   * Create a simple alert dialog
+   */
+  static createAlert(title, body, onClose) {
+    return new _IMessageForm(title, body).setButton1("Close", onClose);
   }
 };
-var SettingMenu = class {
-  plugin;
-  constructor(plugin) {
-    this.plugin = plugin;
+var IMessageForm_default = IMessageForm;
+
+// packs/scripts/core/class/forms/IModalForm.ts
+import { ModalFormData } from "@minecraft/server-ui";
+var IModalForm = class {
+  title;
+  elements = [];
+  submitButtonText;
+  // deno-lint-ignore no-explicit-any
+  callback;
+  constructor(title = "", submitButtonText = "Submit") {
+    this.title = title;
+    this.submitButtonText = submitButtonText;
   }
-  get buttons() {
-    return {
-      name: this.plugin.name,
-      description: `Settings for ${this.plugin.name} plugin`,
-      icon: "textures/items/diamond"
-    };
+  /**
+   * Set the form title
+   */
+  setTitle(title) {
+    this.title = title;
+    return this;
   }
-  pages(pl, previousForm) {
-    const forms = new IActionForm_default(
-      `${this.plugin.name} Settings`,
-      this.buttons.description,
-      previousForm
+  /**
+   * Get the current title
+   */
+  getTitle() {
+    return this.title;
+  }
+  /**
+   * Set the submit button text
+   */
+  setSubmitButton(text) {
+    this.submitButtonText = text;
+    return this;
+  }
+  /**
+   * Get the submit button text
+   */
+  getSubmitButtonText() {
+    return this.submitButtonText;
+  }
+  /**
+   * Add a text field
+   */
+  addTextField(label, placeholderText, defaultValue) {
+    this.elements.push({ label, placeholderText, defaultValue });
+    return this;
+  }
+  /**
+   * Add a text field object
+   */
+  addTextFieldObject(textField) {
+    this.elements.push(textField);
+    return this;
+  }
+  /**
+   * Get all text fields from the form
+   */
+  getTextFields() {
+    return this.elements.filter(this.isTextField);
+  }
+  /**
+   * Add a toggle switch
+   */
+  addToggle(label, defaultValue) {
+    this.elements.push({ label, defaultValue });
+    return this;
+  }
+  /**
+   * Add a toggle object
+   */
+  addToggleObject(toggle) {
+    this.elements.push(toggle);
+    return this;
+  }
+  /**
+   * Get all toggles from the form
+   */
+  getToggles() {
+    return this.elements.filter(this.isToggle);
+  }
+  /**
+   * Add a slider
+   */
+  addSlider(label, minimumValue, maximumValue, valueStep, defaultValue) {
+    this.elements.push({ label, minimumValue, maximumValue, valueStep, defaultValue });
+    return this;
+  }
+  /**
+   * Add a slider object
+   */
+  addSliderObject(slider) {
+    this.elements.push(slider);
+    return this;
+  }
+  /**
+   * Get all sliders from the form
+   */
+  getSliders() {
+    return this.elements.filter(this.isSlider);
+  }
+  /**
+   * Add a dropdown
+   */
+  addDropdown(label, options, defaultValueIndex) {
+    this.elements.push({ label, options, defaultValueIndex });
+    return this;
+  }
+  /**
+   * Add a dropdown object
+   */
+  addDropdownObject(dropdown) {
+    this.elements.push(dropdown);
+    return this;
+  }
+  /**
+   * Get all dropdowns from the form
+   */
+  getDropdowns() {
+    return this.elements.filter(this.isDropdown);
+  }
+  /**
+   * Add a divider to separate elements
+   */
+  addDivider() {
+    this.elements.push({ divider: true });
+    return this;
+  }
+  /**
+   * Get all dividers from the form
+   */
+  getDividers() {
+    return this.elements.filter(this.isDivider);
+  }
+  /**
+   * Add a header text
+   */
+  addHeader(text) {
+    this.elements.push({ text_header: text });
+    return this;
+  }
+  /**
+   * Add a header object
+   */
+  addHeaderObject(header) {
+    this.elements.push(header);
+    return this;
+  }
+  /**
+   * Get the first header from the form
+   */
+  getHeader() {
+    return this.elements.find(this.isHeader);
+  }
+  /**
+   * Get all headers from the form
+   */
+  getHeaders() {
+    return this.elements.filter(this.isHeader);
+  }
+  /**
+   * Add a label text
+   */
+  addLabel(text) {
+    this.elements.push({ text_label: text });
+    return this;
+  }
+  /**
+   * Add a label object
+   */
+  addLabelObject(label) {
+    this.elements.push(label);
+    return this;
+  }
+  /**
+   * Get all labels from the form
+   */
+  getLabels() {
+    return this.elements.filter(this.isLabel);
+  }
+  /**
+   * Clear all elements from the form
+   */
+  clearElements() {
+    this.elements = [];
+    return this;
+  }
+  /**
+   * Get the total number of elements
+   */
+  getElementCount() {
+    return this.elements.length;
+  }
+  /**
+   * Check if the form has any input elements (textField, toggle, slider, dropdown)
+   */
+  hasInputElements() {
+    return this.elements.some(
+      (element) => this.isTextField(element) || this.isToggle(element) || this.isSlider(element) || this.isDropdown(element)
     );
-    forms.addDivider();
-    forms.addButton("\xA7cBack", "", () => {
-      previousForm(pl);
+  }
+  /**
+   * Get all elements
+   */
+  getElements() {
+    return this.elements;
+  }
+  // deno-lint-ignore no-explicit-any
+  addCallback(callback) {
+    this.callback = callback;
+    return this;
+  }
+  /**
+   * Show the form to a player and return the response
+   */
+  async show(player) {
+    const form = new ModalFormData();
+    form.title(this.title);
+    form.submitButton(this.submitButtonText);
+    this.elements.forEach((element) => {
+      if (this.isDivider(element)) {
+        form.divider();
+      } else if (this.isHeader(element)) {
+        form.label(element.text_header);
+      } else if (this.isLabel(element)) {
+        form.label(element.text_label);
+      } else if (this.isTextField(element)) {
+        form.textField(element.label, element.placeholderText || "", { defaultValue: element.defaultValue || "" });
+      } else if (this.isToggle(element)) {
+        form.toggle(element.label, { defaultValue: element.defaultValue || false });
+      } else if (this.isSlider(element)) {
+        form.slider(element.label, element.minimumValue, element.maximumValue, {
+          defaultValue: element.defaultValue || 0,
+          valueStep: element.valueStep
+        });
+      } else if (this.isDropdown(element)) {
+        form.dropdown(element.label, element.options, { defaultValueIndex: element.defaultValueIndex || 0 });
+      }
     });
-    return forms;
-  }
-  mainPage(pl, previousForm) {
-    const pages = this.pages(pl, previousForm);
-    return pages;
-  }
-};
-
-// lib/@kisu/api/src/class/PluginEventHanlders.ts
-var PluginEventHandlers = class {
-  plugin;
-  eventHandlers;
-  constructor(plugin, eventHandlers) {
-    this.plugin = plugin;
-    this.eventHandlers = eventHandlers;
-  }
-  on(event, listener) {
-    this.eventHandlers.on(this.plugin, event, listener);
-  }
-  emit(event, payload) {
-    this.eventHandlers.emit(event, payload);
-  }
-};
-
-// lib/@kisu/api/src/class/PluginBase.ts
-var PluginBase = class {
-  events;
-  name = "PluginBase";
-  version = "1.0.0";
-  world;
-  system;
-  systemBase;
-  settingMenu;
-  constructor(events, systemBase) {
-    this.events = new PluginEventHandlers(this, events);
-    this.world = world2;
-    this.system = system;
-    this.systemBase = systemBase;
-    this.settingMenu = new SettingMenu(this);
-    this.events.on("AfterWorldLoad", (ev) => this.onLoad(ev));
-  }
-  get config() {
-    return this.systemBase.configManager.getConfig(this.name);
-  }
-  get logger() {
-    return new Logger(this.name.toUpperCase());
-  }
-  getName() {
-    return this.name;
-  }
-  onEnable(ev) {
-    ev;
-  }
-  onLoad(ev) {
-    ev;
-  }
-  onDisable(ev) {
-    ev;
-  }
-  isEnabled() {
-    return true;
-  }
-  registerSettings(menu) {
-    this.settingMenu = new menu(this);
-  }
-  getSettings() {
-    return this.settingMenu;
-  }
-};
-
-// lib/@kisu/api/src/class/PluginManagers.ts
-var PluginManagers = class {
-  plugins = /* @__PURE__ */ new Map();
-  eventHandlers;
-  SystemBase;
-  constructor(event, system6) {
-    this.eventHandlers = event;
-    this.SystemBase = system6;
-  }
-  registerPlugin(...plugin) {
-    for (const p of plugin) {
-      const instance = new p(this.eventHandlers, this.SystemBase);
-      this.plugins.set(instance.name, instance);
+    try {
+      const response = await form.show(player);
+      return response;
+    } catch (error) {
+      console.error("Error showing modal form:", error);
+      throw error;
     }
   }
-  getPlugin(name) {
-    return this.plugins.get(name) || null;
+  /**
+   * Show the form and process the results with a callback
+   */
+  async showWithCallback(player) {
+    try {
+      const response = await this.show(player);
+      if (response.canceled) {
+        this.callback?.([], true);
+      } else {
+        this.callback?.(response.formValues || [], false);
+      }
+    } catch (error) {
+      console.error("Error in showWithCallback:", error);
+      this.callback?.([], true);
+    }
   }
-  getPlugins() {
-    return Array.from(this.plugins.values());
+  // Type guard methods for better type safety
+  isTextField(element) {
+    return "label" in element && "placeholderText" in element;
   }
-  isEnabled(name) {
-    const plugin = this.plugins.get(name);
-    if (!plugin) return false;
-    return true;
+  isToggle(element) {
+    return "label" in element && "defaultValue" in element && typeof element.defaultValue === "boolean";
+  }
+  isSlider(element) {
+    return "minimumValue" in element && "maximumValue" in element && "valueStep" in element;
+  }
+  isDropdown(element) {
+    return "options" in element && Array.isArray(element.options);
+  }
+  isDivider(element) {
+    return "divider" in element && element.divider === true;
+  }
+  isHeader(element) {
+    return "text_header" in element;
+  }
+  isLabel(element) {
+    return "text_label" in element;
   }
 };
+var IModalForm_default = IModalForm;
 
-// lib/@kisu/api/src/class/SystemBase.ts
-import {
-  system as system2,
-  world as world3
-} from "@minecraft/server";
-var SystemBase = class {
-  world;
-  system;
-  configManager;
-  events;
-  pluginManagers;
-  logger;
-  settingMenuBuilders;
-  options = {
-    settingItemType: "minecraft:clock"
-  };
-  constructor(options) {
-    this.world = world3;
-    this.system = system2;
-    this.events = new EventHandlers();
-    this.logger = new Logger("SYSTEM");
-    this.configManager = new ConfigManagers();
-    this.pluginManagers = new PluginManagers(this.events, this);
-    this.settingMenuBuilders = new SettingMenuBuilders();
-    if (options) {
-      this.options = { ...this.options, ...options };
-    }
-    this.initializeEvents();
-  }
-  initializeEvents() {
-    this.mapEvents();
-    this.events.on("AfterItemUse", (ev) => {
-      if (ev.itemStack.typeId !== this.options.settingItemType) return;
-      this.settingMenuBuilders.settingMenu(ev.source, this.pluginManagers);
-    });
-    this.events.on("BeforeStartup", (ev) => this.onStartup(ev));
-    this.events.on("BeforeShutdown", (ev) => this.onShutdown(ev));
-  }
-  onLoad(ev) {
-    ev;
-  }
-  onStartup(ev) {
-    this.onLoad(ev);
-    const plugins = this.pluginManagers.getPlugins();
-    for (const plugin of plugins) {
-      plugin.onEnable(ev);
-    }
-  }
-  onShutdown(ev) {
-    const plugins = this.pluginManagers.getPlugins();
-    for (const plugin of plugins) {
-      plugin.onDisable(ev);
-    }
-  }
-  mapEvents() {
-    const AfterEventKeys = getEventsKeys(world3.afterEvents);
-    const BeforeEventKeys = getEventsKeys(world3.beforeEvents);
-    const BeforeSystemEventKeys = getEventsKeys(system2.beforeEvents);
-    const AfterSystemEventKeys = getEventsKeys(system2.afterEvents);
-    AfterEventKeys.forEach((eventKey) => {
-      const typedKey = eventKey;
-      this.world.afterEvents[typedKey].subscribe((arg) => {
-        const emitName = getEmitName("After", eventKey);
-        this.events.emit(emitName, arg);
-      });
-    });
-    BeforeEventKeys.forEach((eventKey) => {
-      const typedKey = eventKey;
-      this.world.beforeEvents[typedKey].subscribe((arg) => {
-        const emitName = getEmitName("Before", eventKey);
-        this.events.emit(emitName, arg);
-      });
-    });
-    BeforeSystemEventKeys.forEach((eventKey) => {
-      const typedKey = eventKey;
-      this.system.beforeEvents[typedKey].subscribe((arg) => {
-        const emitName = getEmitName("Before", eventKey);
-        this.events.emit(emitName, arg);
-      });
-    });
-    AfterSystemEventKeys.forEach((eventKey) => {
-      const typedKey = eventKey;
-      this.system.afterEvents[typedKey].subscribe((arg) => {
-        const emitName = getEmitName("After", eventKey);
-        this.events.emit(emitName, arg);
-      });
-    });
-  }
-};
-function getEventsKeys(event) {
-  const prototype = Object.getPrototypeOf(event);
-  const propertiesName = Object.getOwnPropertyNames(prototype);
-  return propertiesName.filter((k) => k !== "constructor");
-}
-function getEmitName(prefix, eventKey) {
-  return `${prefix}${eventKey.charAt(0).toUpperCase()}${eventKey.slice(1)}`;
-}
-
-// packs/scripts/plugins/MarketSystem/class/MarketUi.ts
-import { system as system5, world as world7 } from "@minecraft/server";
-import {
-  ActionFormData as ActionFormData3,
-  MessageFormData,
-  ModalFormData
-} from "@minecraft/server-ui";
-
-// packs/scripts/plugins/MarketSystem/class/DatabaseMap.ts
-import { system as system3, world as world4 } from "@minecraft/server";
-var DatabaseMap = class {
+// packs/scripts/core/class/PageBuilders.ts
+var PageBuilderData = {};
+var PageBuilder = class {
   id;
-  map;
+  pages = {};
   constructor(id) {
     this.id = id;
-    this.map = /* @__PURE__ */ new Map();
-    const propertyKey = `$DatabaseMap\u241E${this.id}\u241E`;
-    for (const dynamicPropertyId of world4.getDynamicPropertyIds()) {
-      if (!dynamicPropertyId.startsWith(propertyKey)) continue;
-      const value = world4.getDynamicProperty(dynamicPropertyId);
-      if (typeof value !== "string") continue;
-      const key = dynamicPropertyId.substring(dynamicPropertyId.lastIndexOf("\u241E") + 1);
-      this.map.set(key, JSON.parse(value));
-    }
+    PageBuilderData[this.id] = this;
   }
-  get size() {
-    return this.map.size;
+  static getPageBuilder(pageId) {
+    return PageBuilderData[pageId];
   }
-  keys() {
-    return this.map.keys();
+  addPage(pageId, uiBuilder) {
+    this.pages[pageId] = uiBuilder;
+    PageBuilderData[this.id] = this;
+    return this;
   }
-  values() {
-    return this.map.values();
+  getPage(pageId) {
+    return this.pages[pageId];
   }
-  entries() {
-    return this.map.entries();
+  getId() {
+    return this.id;
   }
-  [Symbol.iterator]() {
-    return this.entries();
+  getPages() {
+    return this.pages;
   }
-  edit(key, callback) {
-    if (!this.has(key)) return;
-    const newValue = callback(this.get(key));
-    if (newValue === void 0) this.delete(key);
-    else this.set(key, newValue);
-  }
-  set(key, value, initialSet = false) {
-    if (this.has(key)) {
-      if (initialSet) return;
-    }
-    this.setLocal(key, JSON.stringify(value));
-    this.map.set(key, value);
-  }
-  get(key) {
-    return this.map.get(key);
-  }
-  delete(key) {
-    if (this.map.has(key)) {
-      this.setLocal(key, void 0);
-      this.map.delete(key);
+  removePage(pageId) {
+    if (this.pages[pageId]) {
+      delete this.pages[pageId];
+      delete PageBuilderData[this.id];
       return true;
     }
     return false;
   }
-  has(key) {
-    return this.map.has(key);
-  }
-  async clearAsync() {
-    if (this.map.size > 0) {
-      const _this = this;
-      return await new Promise((resolve) => {
-        function* clearLocal() {
-          for (const key of _this.map.keys()) {
-            _this.setLocal(key, void 0);
-            yield;
-          }
-          _this.map.clear();
-          resolve();
-        }
-        system3.runJob(clearLocal());
+  async showPage(player, pageId) {
+    const page = this.getPages()[pageId];
+    if (!page) {
+      return await Promise.reject(new Error(`Page with ID ${pageId} does not exist`));
+    }
+    if (page instanceof IActionForm_default) {
+      return page.show(player).then(() => {
       });
+    } else if (page instanceof IMessageForm_default) {
+      return page.show(player).then(() => {
+      });
+    } else if (page instanceof IModalForm_default) {
+      return page.showWithCallback(player).then(() => {
+      });
+    } else {
+      return await Promise.reject(new Error("Unknown form type"));
     }
-  }
-  setLocal(key, value = void 0) {
-    world4.setDynamicProperty(`$DatabaseMap\u241E${this.id}\u241E${key}`, value);
   }
 };
 
-// packs/scripts/plugins/MarketSystem/utils/ItemToAuxIds.ts
-var typeIdToID = /* @__PURE__ */ new Map([
-  ["minecraft:waxed_oxidized_copper_lantern", -1090],
-  ["minecraft:waxed_weathered_copper_lantern", -1089],
-  ["minecraft:waxed_exposed_copper_lantern", -1088],
-  ["minecraft:waxed_copper_lantern", -1087],
-  ["minecraft:oxidized_copper_lantern", -1086],
-  ["minecraft:weathered_copper_lantern", -1085],
-  ["minecraft:exposed_copper_lantern", -1084],
-  ["minecraft:copper_lantern", -1083],
-  ["minecraft:copper_torch", -1082],
-  ["minecraft:waxed_oxidized_copper_chain", -1081],
-  ["minecraft:waxed_weathered_copper_chain", -1080],
-  ["minecraft:waxed_exposed_copper_chain", -1079],
-  ["minecraft:waxed_copper_chain", -1078],
-  ["minecraft:oxidized_copper_chain", -1077],
-  ["minecraft:weathered_copper_chain", -1076],
-  ["minecraft:exposed_copper_chain", -1075],
-  ["minecraft:copper_chain", -1074],
-  ["minecraft:waxed_oxidized_copper_bars", -1073],
-  ["minecraft:waxed_weathered_copper_bars", -1072],
-  ["minecraft:waxed_exposed_copper_bars", -1071],
-  ["minecraft:waxed_copper_bars", -1070],
-  ["minecraft:oxidized_copper_bars", -1069],
-  ["minecraft:weathered_copper_bars", -1068],
-  ["minecraft:exposed_copper_bars", -1067],
-  ["minecraft:copper_bars", -1066],
-  ["minecraft:waxed_oxidized_copper_golem_statue", -1046],
-  ["minecraft:waxed_weathered_copper_golem_statue", -1045],
-  ["minecraft:waxed_exposed_copper_golem_statue", -1044],
-  ["minecraft:waxed_copper_golem_statue", -1043],
-  ["minecraft:oxidized_copper_golem_statue", -1042],
-  ["minecraft:weathered_copper_golem_statue", -1041],
-  ["minecraft:exposed_copper_golem_statue", -1040],
-  ["minecraft:copper_golem_statue", -1039],
-  ["minecraft:waxed_oxidized_copper_chest", -1038],
-  ["minecraft:waxed_weathered_copper_chest", -1037],
-  ["minecraft:waxed_exposed_copper_chest", -1036],
-  ["minecraft:waxed_copper_chest", -1035],
-  ["minecraft:oxidized_copper_chest", -1034],
-  ["minecraft:weathered_copper_chest", -1033],
-  ["minecraft:exposed_copper_chest", -1032],
-  ["minecraft:copper_chest", -1031],
-  ["minecraft:cactus_flower", -1030],
-  ["minecraft:tall_dry_grass", -1029],
-  ["minecraft:short_dry_grass", -1028],
-  ["minecraft:dried_ghast", -1027],
-  ["minecraft:leaf_litter", -1026],
-  ["minecraft:firefly_bush", -1025],
-  ["minecraft:wildflowers", -1024],
-  ["minecraft:bush", -1023],
-  ["minecraft:resin_clump", -1022],
-  ["minecraft:resin_block", -1021],
-  ["minecraft:chiseled_resin_bricks", -1020],
-  ["minecraft:closed_eyeblossom", -1019],
-  ["minecraft:open_eyeblossom", -1018],
-  ["minecraft:resin_brick_wall", -1017],
-  ["minecraft:resin_brick_stairs", -1016],
-  ["minecraft:resin_brick_slab", -1014],
-  ["minecraft:resin_bricks", -1013],
-  ["minecraft:creaking_heart", -1012],
-  ["minecraft:pale_hanging_moss", -1011],
-  ["minecraft:pale_moss_carpet", -1010],
-  ["minecraft:pale_moss_block", -1009],
-  ["minecraft:mushroom_stem", -1008],
-  ["minecraft:pale_oak_leaves", -1007],
-  ["minecraft:pale_oak_sapling", -1006],
-  ["minecraft:pale_oak_wood", -1005],
-  ["minecraft:stripped_pale_oak_wood", -1004],
-  ["minecraft:pale_oak_trapdoor", -1002],
-  ["minecraft:pale_oak_stairs", -1e3],
-  ["minecraft:pale_oak_slab", -998],
-  ["minecraft:pale_oak_pressure_plate", -997],
-  ["minecraft:pale_oak_planks", -996],
-  ["minecraft:pale_oak_log", -995],
-  ["minecraft:stripped_pale_oak_log", -994],
-  ["minecraft:pale_oak_hanging_sign", -993],
-  ["minecraft:pale_oak_fence_gate", -992],
-  ["minecraft:pale_oak_fence", -991],
-  ["minecraft:pale_oak_door", -990],
-  ["minecraft:pale_oak_button", -989],
-  ["minecraft:lab_table", -988],
-  ["minecraft:element_constructor", -987],
-  ["minecraft:material_reducer", -986],
-  ["minecraft:underwater_tnt", -985],
-  ["minecraft:wet_sponge", -984],
-  ["minecraft:red_nether_brick_wall", -983],
-  ["minecraft:red_sandstone_wall", -982],
-  ["minecraft:prismarine_wall", -981],
-  ["minecraft:end_stone_brick_wall", -980],
-  ["minecraft:nether_brick_wall", -979],
-  ["minecraft:mossy_stone_brick_wall", -978],
-  ["minecraft:stone_brick_wall", -977],
-  ["minecraft:brick_wall", -976],
-  ["minecraft:sandstone_wall", -975],
-  ["minecraft:andesite_wall", -974],
-  ["minecraft:diorite_wall", -973],
-  ["minecraft:granite_wall", -972],
-  ["minecraft:mossy_cobblestone_wall", -971],
-  ["minecraft:piglin_head", -970],
-  ["minecraft:dragon_head", -969],
-  ["minecraft:creeper_head", -968],
-  ["minecraft:player_head", -967],
-  ["minecraft:zombie_head", -966],
-  ["minecraft:wither_skeleton_skull", -965],
-  ["minecraft:colored_torch_purple", -964],
-  ["minecraft:colored_torch_green", -963],
-  ["minecraft:coarse_dirt", -962],
-  ["minecraft:deprecated_anvil", -961],
-  ["minecraft:damaged_anvil", -960],
-  ["minecraft:chipped_anvil", -959],
-  ["minecraft:smooth_red_sandstone", -958],
-  ["minecraft:cut_red_sandstone", -957],
-  ["minecraft:chiseled_red_sandstone", -956],
-  ["minecraft:smooth_quartz", -955],
-  ["minecraft:quartz_pillar", -954],
-  ["minecraft:chiseled_quartz_block", -953],
-  ["minecraft:deprecated_purpur_block_2", -952],
-  ["minecraft:purpur_pillar", -951],
-  ["minecraft:deprecated_purpur_block_1", -950],
-  ["minecraft:red_sand", -949],
-  ["minecraft:prismarine_bricks", -948],
-  ["minecraft:dark_prismarine", -947],
-  ["minecraft:smooth_sandstone", -946],
-  ["minecraft:cut_sandstone", -945],
-  ["minecraft:chiseled_sandstone", -944],
-  ["minecraft:light_block_15", -943],
-  ["minecraft:light_block_14", -942],
-  ["minecraft:light_block_13", -941],
-  ["minecraft:light_block_12", -940],
-  ["minecraft:light_block_11", -939],
-  ["minecraft:light_block_10", -938],
-  ["minecraft:light_block_9", -937],
-  ["minecraft:light_block_8", -936],
-  ["minecraft:light_block_7", -935],
-  ["minecraft:light_block_6", -934],
-  ["minecraft:light_block_5", -933],
-  ["minecraft:light_block_4", -932],
-  ["minecraft:light_block_3", -931],
-  ["minecraft:light_block_2", -930],
-  ["minecraft:light_block_1", -929],
-  ["minecraft:cut_red_sandstone_double_slab", -928],
-  ["minecraft:cut_sandstone_double_slab", -927],
-  ["minecraft:normal_stone_double_slab", -926],
-  ["minecraft:smooth_quartz_double_slab", -925],
-  ["minecraft:polished_granite_double_slab", -924],
-  ["minecraft:granite_double_slab", -923],
-  ["minecraft:polished_diorite_double_slab", -922],
-  ["minecraft:diorite_double_slab", -921],
-  ["minecraft:andesite_double_slab", -920],
-  ["minecraft:polished_andesite_double_slab", -919],
-  ["minecraft:smooth_red_sandstone_double_slab", -918],
-  ["minecraft:red_nether_brick_double_slab", -917],
-  ["minecraft:smooth_sandstone_double_slab", -916],
-  ["minecraft:mossy_cobblestone_double_slab", -915],
-  ["minecraft:prismarine_brick_double_slab", -914],
-  ["minecraft:dark_prismarine_double_slab", -913],
-  ["minecraft:prismarine_double_slab", -912],
-  ["minecraft:purpur_double_slab", -911],
-  ["minecraft:dead_horn_coral_wall_fan", -910],
-  ["minecraft:dead_fire_coral_wall_fan", -909],
-  ["minecraft:dead_bubble_coral_wall_fan", -908],
-  ["minecraft:fire_coral_wall_fan", -907],
-  ["minecraft:dead_brain_coral_wall_fan", -906],
-  ["minecraft:dead_tube_coral_wall_fan", -905],
-  ["minecraft:brain_coral_wall_fan", -904],
-  ["minecraft:petrified_oak_double_slab", -903],
-  ["minecraft:petrified_oak_slab", -902],
-  ["minecraft:cut_red_sandstone_slab", -901],
-  ["minecraft:cut_sandstone_slab", -900],
-  ["minecraft:normal_stone_slab", -899],
-  ["minecraft:smooth_quartz_slab", -898],
-  ["minecraft:polished_granite_slab", -897],
-  ["minecraft:granite_slab", -896],
-  ["minecraft:polished_diorite_slab", -895],
-  ["minecraft:diorite_slab", -894],
-  ["minecraft:andesite_slab", -893],
-  ["minecraft:polished_andesite_slab", -892],
-  ["minecraft:smooth_red_sandstone_slab", -891],
-  ["minecraft:red_nether_brick_slab", -890],
-  ["minecraft:smooth_sandstone_slab", -889],
-  ["minecraft:mossy_cobblestone_slab", -888],
-  ["minecraft:prismarine_brick_slab", -887],
-  ["minecraft:dark_prismarine_slab", -886],
-  ["minecraft:prismarine_slab", -885],
-  ["minecraft:purpur_slab", -884],
-  ["minecraft:nether_brick_double_slab", -883],
-  ["minecraft:quartz_double_slab", -882],
-  ["minecraft:stone_brick_double_slab", -881],
-  ["minecraft:brick_double_slab", -880],
-  ["minecraft:cobblestone_double_slab", -879],
-  ["minecraft:sandstone_double_slab", -878],
-  ["minecraft:nether_brick_slab", -877],
-  ["minecraft:quartz_slab", -876],
-  ["minecraft:stone_brick_slab", -875],
-  ["minecraft:brick_slab", -874],
-  ["minecraft:cobblestone_slab", -873],
-  ["minecraft:sandstone_slab", -872],
-  ["minecraft:chiseled_stone_bricks", -870],
-  ["minecraft:cracked_stone_bricks", -869],
-  ["minecraft:mossy_stone_bricks", -868],
-  ["minecraft:peony", -867],
-  ["minecraft:rose_bush", -866],
-  ["minecraft:large_fern", -865],
-  ["minecraft:tall_grass", -864],
-  ["minecraft:lilac", -863],
-  ["minecraft:infested_chiseled_stone_bricks", -862],
-  ["minecraft:infested_cracked_stone_bricks", -861],
-  ["minecraft:infested_mossy_stone_bricks", -860],
-  ["minecraft:infested_stone_bricks", -859],
-  ["minecraft:infested_cobblestone", -858],
-  ["minecraft:dead_horn_coral_block", -857],
-  ["minecraft:dead_fire_coral_block", -856],
-  ["minecraft:dead_bubble_coral_block", -855],
-  ["minecraft:dead_brain_coral_block", -854],
-  ["minecraft:dead_tube_coral_block", -853],
-  ["minecraft:horn_coral_block", -852],
-  ["minecraft:fire_coral_block", -851],
-  ["minecraft:bubble_coral_block", -850],
-  ["minecraft:brain_coral_block", -849],
-  ["minecraft:fern", -848],
-  ["minecraft:dead_horn_coral_fan", -847],
-  ["minecraft:dead_fire_coral_fan", -846],
-  ["minecraft:dead_bubble_coral_fan", -845],
-  ["minecraft:dead_brain_coral_fan", -844],
-  ["minecraft:horn_coral_fan", -843],
-  ["minecraft:fire_coral_fan", -842],
-  ["minecraft:bubble_coral_fan", -841],
-  ["minecraft:brain_coral_fan", -840],
-  ["minecraft:lily_of_the_valley", -839],
-  ["minecraft:cornflower", -838],
-  ["minecraft:oxeye_daisy", -837],
-  ["minecraft:pink_tulip", -836],
-  ["minecraft:white_tulip", -835],
-  ["minecraft:orange_tulip", -834],
-  ["minecraft:red_tulip", -833],
-  ["minecraft:azure_bluet", -832],
-  ["minecraft:allium", -831],
-  ["minecraft:blue_orchid", -830],
-  ["minecraft:dark_oak_sapling", -829],
-  ["minecraft:acacia_sapling", -828],
-  ["minecraft:jungle_sapling", -827],
-  ["minecraft:birch_sapling", -826],
-  ["minecraft:spruce_sapling", -825],
-  ["minecraft:stripped_dark_oak_wood", -824],
-  ["minecraft:stripped_acacia_wood", -823],
-  ["minecraft:stripped_jungle_wood", -822],
-  ["minecraft:stripped_birch_wood", -821],
-  ["minecraft:stripped_spruce_wood", -820],
-  ["minecraft:stripped_oak_wood", -819],
-  ["minecraft:dark_oak_wood", -818],
-  ["minecraft:acacia_wood", -817],
-  ["minecraft:jungle_wood", -816],
-  ["minecraft:birch_wood", -815],
-  ["minecraft:spruce_wood", -814],
-  ["minecraft:dark_oak_double_slab", -813],
-  ["minecraft:acacia_double_slab", -812],
-  ["minecraft:jungle_double_slab", -811],
-  ["minecraft:birch_double_slab", -810],
-  ["minecraft:spruce_double_slab", -809],
-  ["minecraft:dark_oak_slab", -808],
-  ["minecraft:acacia_slab", -807],
-  ["minecraft:jungle_slab", -806],
-  ["minecraft:birch_slab", -805],
-  ["minecraft:spruce_slab", -804],
-  ["minecraft:dark_oak_leaves", -803],
-  ["minecraft:jungle_leaves", -802],
-  ["minecraft:birch_leaves", -801],
-  ["minecraft:spruce_leaves", -800],
-  ["minecraft:waxed_oxidized_copper_trapdoor", -799],
-  ["minecraft:waxed_weathered_copper_trapdoor", -798],
-  ["minecraft:waxed_exposed_copper_trapdoor", -797],
-  ["minecraft:waxed_copper_trapdoor", -796],
-  ["minecraft:oxidized_copper_trapdoor", -795],
-  ["minecraft:weathered_copper_trapdoor", -794],
-  ["minecraft:exposed_copper_trapdoor", -793],
-  ["minecraft:copper_trapdoor", -792],
-  ["minecraft:waxed_oxidized_copper_door", -791],
-  ["minecraft:waxed_weathered_copper_door", -790],
-  ["minecraft:waxed_exposed_copper_door", -789],
-  ["minecraft:waxed_copper_door", -788],
-  ["minecraft:oxidized_copper_door", -787],
-  ["minecraft:weathered_copper_door", -786],
-  ["minecraft:exposed_copper_door", -785],
-  ["minecraft:copper_door", -784],
-  ["minecraft:waxed_oxidized_copper_bulb", -783],
-  ["minecraft:waxed_weathered_copper_bulb", -782],
-  ["minecraft:waxed_exposed_copper_bulb", -781],
-  ["minecraft:waxed_copper_bulb", -780],
-  ["minecraft:oxidized_copper_bulb", -779],
-  ["minecraft:weathered_copper_bulb", -778],
-  ["minecraft:exposed_copper_bulb", -777],
-  ["minecraft:copper_bulb", -776],
-  ["minecraft:waxed_oxidized_copper_grate", -775],
-  ["minecraft:waxed_weathered_copper_grate", -774],
-  ["minecraft:waxed_exposed_copper_grate", -773],
-  ["minecraft:waxed_copper_grate", -772],
-  ["minecraft:oxidized_copper_grate", -771],
-  ["minecraft:weathered_copper_grate", -770],
-  ["minecraft:exposed_copper_grate", -769],
-  ["minecraft:copper_grate", -768],
-  ["minecraft:waxed_weathered_chiseled_copper", -767],
-  ["minecraft:waxed_oxidized_chiseled_copper", -766],
-  ["minecraft:waxed_exposed_chiseled_copper", -765],
-  ["minecraft:waxed_chiseled_copper", -764],
-  ["minecraft:oxidized_chiseled_copper", -763],
-  ["minecraft:weathered_chiseled_copper", -762],
-  ["minecraft:exposed_chiseled_copper", -761],
-  ["minecraft:chiseled_copper", -760],
-  ["minecraft:chiseled_tuff_bricks", -759],
-  ["minecraft:tuff_brick_wall", -758],
-  ["minecraft:tuff_brick_stairs", -757],
-  ["minecraft:tuff_brick_double_slab", -756],
-  ["minecraft:tuff_brick_slab", -755],
-  ["minecraft:tuff_bricks", -754],
-  ["minecraft:chiseled_tuff", -753],
-  ["minecraft:polished_tuff_wall", -752],
-  ["minecraft:polished_tuff_stairs", -751],
-  ["minecraft:polished_tuff_double_slab", -750],
-  ["minecraft:polished_tuff_slab", -749],
-  ["minecraft:polished_tuff", -748],
-  ["minecraft:tuff_wall", -747],
-  ["minecraft:tuff_stairs", -746],
-  ["minecraft:tuff_double_slab", -745],
-  ["minecraft:tuff_slab", -744],
-  ["minecraft:dark_oak_planks", -743],
-  ["minecraft:acacia_planks", -742],
-  ["minecraft:jungle_planks", -741],
-  ["minecraft:birch_planks", -740],
-  ["minecraft:spruce_planks", -739],
-  ["minecraft:black_terracotta", -738],
-  ["minecraft:red_terracotta", -737],
-  ["minecraft:green_terracotta", -736],
-  ["minecraft:brown_terracotta", -735],
-  ["minecraft:blue_terracotta", -734],
-  ["minecraft:purple_terracotta", -733],
-  ["minecraft:cyan_terracotta", -732],
-  ["minecraft:light_gray_terracotta", -731],
-  ["minecraft:gray_terracotta", -730],
-  ["minecraft:pink_terracotta", -729],
-  ["minecraft:lime_terracotta", -728],
-  ["minecraft:yellow_terracotta", -727],
-  ["minecraft:light_blue_terracotta", -726],
-  ["minecraft:magenta_terracotta", -725],
-  ["minecraft:orange_terracotta", -724],
-  ["minecraft:black_concrete_powder", -723],
-  ["minecraft:red_concrete_powder", -722],
-  ["minecraft:green_concrete_powder", -721],
-  ["minecraft:brown_concrete_powder", -720],
-  ["minecraft:blue_concrete_powder", -719],
-  ["minecraft:purple_concrete_powder", -718],
-  ["minecraft:cyan_concrete_powder", -717],
-  ["minecraft:light_gray_concrete_powder", -716],
-  ["minecraft:gray_concrete_powder", -715],
-  ["minecraft:pink_concrete_powder", -714],
-  ["minecraft:lime_concrete_powder", -713],
-  ["minecraft:yellow_concrete_powder", -712],
-  ["minecraft:light_blue_concrete_powder", -711],
-  ["minecraft:magenta_concrete_powder", -710],
-  ["minecraft:orange_concrete_powder", -709],
-  ["minecraft:hard_black_stained_glass", -702],
-  ["minecraft:hard_red_stained_glass", -701],
-  ["minecraft:hard_green_stained_glass", -700],
-  ["minecraft:hard_brown_stained_glass", -699],
-  ["minecraft:hard_blue_stained_glass", -698],
-  ["minecraft:hard_purple_stained_glass", -697],
-  ["minecraft:hard_cyan_stained_glass", -696],
-  ["minecraft:hard_light_gray_stained_glass", -695],
-  ["minecraft:hard_gray_stained_glass", -694],
-  ["minecraft:hard_pink_stained_glass", -693],
-  ["minecraft:hard_lime_stained_glass", -692],
-  ["minecraft:hard_yellow_stained_glass", -691],
-  ["minecraft:hard_light_blue_stained_glass", -690],
-  ["minecraft:hard_magenta_stained_glass", -689],
-  ["minecraft:hard_orange_stained_glass", -688],
-  ["minecraft:black_stained_glass", -687],
-  ["minecraft:red_stained_glass", -686],
-  ["minecraft:green_stained_glass", -685],
-  ["minecraft:brown_stained_glass", -684],
-  ["minecraft:blue_stained_glass", -683],
-  ["minecraft:purple_stained_glass", -682],
-  ["minecraft:cyan_stained_glass", -681],
-  ["minecraft:light_gray_stained_glass", -680],
-  ["minecraft:gray_stained_glass", -679],
-  ["minecraft:pink_stained_glass", -678],
-  ["minecraft:lime_stained_glass", -677],
-  ["minecraft:yellow_stained_glass", -676],
-  ["minecraft:light_blue_stained_glass", -675],
-  ["minecraft:magenta_stained_glass", -674],
-  ["minecraft:orange_stained_glass", -673],
-  ["minecraft:hard_black_stained_glass_pane", -672],
-  ["minecraft:hard_red_stained_glass_pane", -671],
-  ["minecraft:hard_green_stained_glass_pane", -670],
-  ["minecraft:hard_brown_stained_glass_pane", -669],
-  ["minecraft:hard_blue_stained_glass_pane", -668],
-  ["minecraft:hard_purple_stained_glass_pane", -667],
-  ["minecraft:hard_cyan_stained_glass_pane", -666],
-  ["minecraft:hard_light_gray_stained_glass_pane", -665],
-  ["minecraft:hard_gray_stained_glass_pane", -664],
-  ["minecraft:hard_pink_stained_glass_pane", -663],
-  ["minecraft:hard_lime_stained_glass_pane", -662],
-  ["minecraft:hard_yellow_stained_glass_pane", -661],
-  ["minecraft:hard_light_blue_stained_glass_pane", -660],
-  ["minecraft:hard_magenta_stained_glass_pane", -659],
-  ["minecraft:hard_orange_stained_glass_pane", -658],
-  ["minecraft:black_stained_glass_pane", -657],
-  ["minecraft:red_stained_glass_pane", -656],
-  ["minecraft:green_stained_glass_pane", -655],
-  ["minecraft:brown_stained_glass_pane", -654],
-  ["minecraft:blue_stained_glass_pane", -653],
-  ["minecraft:purple_stained_glass_pane", -652],
-  ["minecraft:cyan_stained_glass_pane", -651],
-  ["minecraft:light_gray_stained_glass_pane", -650],
-  ["minecraft:gray_stained_glass_pane", -649],
-  ["minecraft:pink_stained_glass_pane", -648],
-  ["minecraft:lime_stained_glass_pane", -647],
-  ["minecraft:yellow_stained_glass_pane", -646],
-  ["minecraft:light_blue_stained_glass_pane", -645],
-  ["minecraft:magenta_stained_glass_pane", -644],
-  ["minecraft:orange_stained_glass_pane", -643],
-  ["minecraft:black_concrete", -642],
-  ["minecraft:red_concrete", -641],
-  ["minecraft:green_concrete", -640],
-  ["minecraft:brown_concrete", -639],
-  ["minecraft:blue_concrete", -638],
-  ["minecraft:purple_concrete", -637],
-  ["minecraft:cyan_concrete", -636],
-  ["minecraft:light_gray_concrete", -635],
-  ["minecraft:gray_concrete", -634],
-  ["minecraft:pink_concrete", -633],
-  ["minecraft:lime_concrete", -632],
-  ["minecraft:yellow_concrete", -631],
-  ["minecraft:light_blue_concrete", -630],
-  ["minecraft:magenta_concrete", -629],
-  ["minecraft:orange_concrete", -628],
-  ["minecraft:black_shulker_box", -627],
-  ["minecraft:red_shulker_box", -626],
-  ["minecraft:green_shulker_box", -625],
-  ["minecraft:brown_shulker_box", -624],
-  ["minecraft:blue_shulker_box", -623],
-  ["minecraft:purple_shulker_box", -622],
-  ["minecraft:cyan_shulker_box", -621],
-  ["minecraft:light_gray_shulker_box", -620],
-  ["minecraft:gray_shulker_box", -619],
-  ["minecraft:pink_shulker_box", -618],
-  ["minecraft:lime_shulker_box", -617],
-  ["minecraft:yellow_shulker_box", -616],
-  ["minecraft:light_blue_shulker_box", -615],
-  ["minecraft:magenta_shulker_box", -614],
-  ["minecraft:orange_shulker_box", -613],
-  ["minecraft:pitcher_plant", -612],
-  ["minecraft:black_carpet", -611],
-  ["minecraft:red_carpet", -610],
-  ["minecraft:green_carpet", -609],
-  ["minecraft:brown_carpet", -608],
-  ["minecraft:blue_carpet", -607],
-  ["minecraft:purple_carpet", -606],
-  ["minecraft:cyan_carpet", -605],
-  ["minecraft:light_gray_carpet", -604],
-  ["minecraft:gray_carpet", -603],
-  ["minecraft:pink_carpet", -602],
-  ["minecraft:lime_carpet", -601],
-  ["minecraft:yellow_carpet", -600],
-  ["minecraft:light_blue_carpet", -599],
-  ["minecraft:magenta_carpet", -598],
-  ["minecraft:orange_carpet", -597],
-  ["minecraft:sniffer_egg", -596],
-  ["minecraft:polished_andesite", -595],
-  ["minecraft:andesite", -594],
-  ["minecraft:polished_diorite", -593],
-  ["minecraft:diorite", -592],
-  ["minecraft:polished_granite", -591],
-  ["minecraft:granite", -590],
-  ["minecraft:dead_horn_coral", -589],
-  ["minecraft:dead_fire_coral", -588],
-  ["minecraft:dead_bubble_coral", -587],
-  ["minecraft:dead_brain_coral", -586],
-  ["minecraft:dead_tube_coral", -585],
-  ["minecraft:horn_coral", -584],
-  ["minecraft:fire_coral", -583],
-  ["minecraft:bubble_coral", -582],
-  ["minecraft:brain_coral", -581],
-  ["minecraft:calibrated_sculk_sensor", -580],
-  ["minecraft:spruce_fence", -579],
-  ["minecraft:jungle_fence", -578],
-  ["minecraft:dark_oak_fence", -577],
-  ["minecraft:birch_fence", -576],
-  ["minecraft:acacia_fence", -575],
-  ["minecraft:pitcher_crop", -574],
-  ["minecraft:suspicious_gravel", -573],
-  ["minecraft:dark_oak_log", -572],
-  ["minecraft:jungle_log", -571],
-  ["minecraft:birch_log", -570],
-  ["minecraft:spruce_log", -569],
-  ["minecraft:torchflower", -568],
-  ["minecraft:torchflower_crop", -567],
-  ["minecraft:pink_wool", -566],
-  ["minecraft:magenta_wool", -565],
-  ["minecraft:purple_wool", -564],
-  ["minecraft:blue_wool", -563],
-  ["minecraft:light_blue_wool", -562],
-  ["minecraft:cyan_wool", -561],
-  ["minecraft:green_wool", -560],
-  ["minecraft:lime_wool", -559],
-  ["minecraft:yellow_wool", -558],
-  ["minecraft:orange_wool", -557],
-  ["minecraft:red_wool", -556],
-  ["minecraft:brown_wool", -555],
-  ["minecraft:black_wool", -554],
-  ["minecraft:gray_wool", -553],
-  ["minecraft:light_gray_wool", -552],
-  ["minecraft:decorated_pot", -551],
-  ["minecraft:pink_petals", -549],
-  ["minecraft:cherry_leaves", -548],
-  ["minecraft:cherry_sapling", -547],
-  ["minecraft:cherry_wood", -546],
-  ["minecraft:stripped_cherry_wood", -545],
-  ["minecraft:cherry_wall_sign", -544],
-  ["minecraft:cherry_trapdoor", -543],
-  ["minecraft:cherry_standing_sign", -542],
-  ["minecraft:cherry_stairs", -541],
-  ["minecraft:cherry_double_slab", -540],
-  ["minecraft:cherry_slab", -539],
-  ["minecraft:cherry_pressure_plate", -538],
-  ["minecraft:cherry_planks", -537],
-  ["minecraft:cherry_log", -536],
-  ["minecraft:stripped_cherry_log", -535],
-  ["minecraft:cherry_hanging_sign", -534],
-  ["minecraft:cherry_fence_gate", -533],
-  ["minecraft:cherry_fence", -532],
-  ["minecraft:cherry_door", -531],
-  ["minecraft:cherry_button", -530],
-  ["minecraft:suspicious_sand", -529],
-  ["minecraft:stripped_bamboo_block", -528],
-  ["minecraft:bamboo_block", -527],
-  ["minecraft:chiseled_bookshelf", -526],
-  ["minecraft:bamboo_mosaic_double_slab", -525],
-  ["minecraft:bamboo_mosaic_slab", -524],
-  ["minecraft:bamboo_mosaic_stairs", -523],
-  ["minecraft:bamboo_hanging_sign", -522],
-  ["minecraft:bamboo_double_slab", -521],
-  ["minecraft:bamboo_trapdoor", -520],
-  ["minecraft:bamboo_wall_sign", -519],
-  ["minecraft:bamboo_standing_sign", -518],
-  ["minecraft:bamboo_door", -517],
-  ["minecraft:bamboo_fence_gate", -516],
-  ["minecraft:bamboo_fence", -515],
-  ["minecraft:bamboo_pressure_plate", -514],
-  ["minecraft:bamboo_slab", -513],
-  ["minecraft:bamboo_stairs", -512],
-  ["minecraft:bamboo_button", -511],
-  ["minecraft:bamboo_planks", -510],
-  ["minecraft:bamboo_mosaic", -509],
-  ["minecraft:mangrove_hanging_sign", -508],
-  ["minecraft:warped_hanging_sign", -507],
-  ["minecraft:crimson_hanging_sign", -506],
-  ["minecraft:dark_oak_hanging_sign", -505],
-  ["minecraft:acacia_hanging_sign", -504],
-  ["minecraft:jungle_hanging_sign", -503],
-  ["minecraft:birch_hanging_sign", -502],
-  ["minecraft:spruce_hanging_sign", -501],
-  ["minecraft:oak_hanging_sign", -500],
-  ["minecraft:mangrove_double_slab", -499],
-  ["minecraft:stripped_mangrove_wood", -498],
-  ["minecraft:mangrove_wood", -497],
-  ["minecraft:mangrove_trapdoor", -496],
-  ["minecraft:mangrove_wall_sign", -495],
-  ["minecraft:mangrove_standing_sign", -494],
-  ["minecraft:mangrove_door", -493],
-  ["minecraft:mangrove_fence_gate", -492],
-  ["minecraft:mangrove_fence", -491],
-  ["minecraft:mangrove_pressure_plate", -490],
-  ["minecraft:mangrove_slab", -489],
-  ["minecraft:mangrove_stairs", -488],
-  ["minecraft:mangrove_button", -487],
-  ["minecraft:mangrove_planks", -486],
-  ["minecraft:stripped_mangrove_log", -485],
-  ["minecraft:mangrove_log", -484],
-  ["minecraft:muddy_mangrove_roots", -483],
-  ["minecraft:mangrove_roots", -482],
-  ["minecraft:mud_brick_wall", -481],
-  ["minecraft:mud_brick_stairs", -480],
-  ["minecraft:mud_brick_double_slab", -479],
-  ["minecraft:mud_brick_slab", -478],
-  ["minecraft:packed_mud", -477],
-  ["minecraft:mud_bricks", -475],
-  ["minecraft:mangrove_propagule", -474],
-  ["minecraft:mud", -473],
-  ["minecraft:mangrove_leaves", -472],
-  ["minecraft:ochre_froglight", -471],
-  ["minecraft:verdant_froglight", -470],
-  ["minecraft:pearlescent_froglight", -469],
-  ["minecraft:frog_spawn", -468],
-  ["minecraft:reinforced_deepslate", -466],
-  ["minecraft:client_request_placeholder_block", -465],
-  ["minecraft:sculk_shrieker", -461],
-  ["minecraft:sculk_catalyst", -460],
-  ["minecraft:sculk_vein", -459],
-  ["minecraft:sculk", -458],
-  ["minecraft:infested_deepslate", -454],
-  ["minecraft:raw_gold_block", -453],
-  ["minecraft:raw_copper_block", -452],
-  ["minecraft:raw_iron_block", -451],
-  ["minecraft:waxed_oxidized_double_cut_copper_slab", -450],
-  ["minecraft:waxed_oxidized_cut_copper_slab", -449],
-  ["minecraft:waxed_oxidized_cut_copper_stairs", -448],
-  ["minecraft:waxed_oxidized_cut_copper", -447],
-  ["minecraft:waxed_oxidized_copper", -446],
-  ["minecraft:black_candle_cake", -445],
-  ["minecraft:red_candle_cake", -444],
-  ["minecraft:green_candle_cake", -443],
-  ["minecraft:brown_candle_cake", -442],
-  ["minecraft:blue_candle_cake", -441],
-  ["minecraft:purple_candle_cake", -440],
-  ["minecraft:cyan_candle_cake", -439],
-  ["minecraft:light_gray_candle_cake", -438],
-  ["minecraft:gray_candle_cake", -437],
-  ["minecraft:pink_candle_cake", -436],
-  ["minecraft:lime_candle_cake", -435],
-  ["minecraft:yellow_candle_cake", -434],
-  ["minecraft:light_blue_candle_cake", -433],
-  ["minecraft:magenta_candle_cake", -432],
-  ["minecraft:orange_candle_cake", -431],
-  ["minecraft:white_candle_cake", -430],
-  ["minecraft:candle_cake", -429],
-  ["minecraft:black_candle", -428],
-  ["minecraft:red_candle", -427],
-  ["minecraft:green_candle", -426],
-  ["minecraft:brown_candle", -425],
-  ["minecraft:blue_candle", -424],
-  ["minecraft:purple_candle", -423],
-  ["minecraft:cyan_candle", -422],
-  ["minecraft:light_gray_candle", -421],
-  ["minecraft:gray_candle", -420],
-  ["minecraft:pink_candle", -419],
-  ["minecraft:lime_candle", -418],
-  ["minecraft:yellow_candle", -417],
-  ["minecraft:light_blue_candle", -416],
-  ["minecraft:magenta_candle", -415],
-  ["minecraft:orange_candle", -414],
-  ["minecraft:white_candle", -413],
-  ["minecraft:candle", -412],
-  ["minecraft:glow_lichen", -411],
-  ["minecraft:cracked_deepslate_bricks", -410],
-  ["minecraft:cracked_deepslate_tiles", -409],
-  ["minecraft:deepslate_copper_ore", -408],
-  ["minecraft:deepslate_emerald_ore", -407],
-  ["minecraft:deepslate_coal_ore", -406],
-  ["minecraft:deepslate_diamond_ore", -405],
-  ["minecraft:lit_deepslate_redstone_ore", -404],
-  ["minecraft:deepslate_redstone_ore", -403],
-  ["minecraft:deepslate_gold_ore", -402],
-  ["minecraft:deepslate_iron_ore", -401],
-  ["minecraft:deepslate_lapis_ore", -400],
-  ["minecraft:deepslate_brick_double_slab", -399],
-  ["minecraft:deepslate_tile_double_slab", -398],
-  ["minecraft:polished_deepslate_double_slab", -397],
-  ["minecraft:cobbled_deepslate_double_slab", -396],
-  ["minecraft:chiseled_deepslate", -395],
-  ["minecraft:deepslate_brick_wall", -394],
-  ["minecraft:deepslate_brick_stairs", -393],
-  ["minecraft:deepslate_brick_slab", -392],
-  ["minecraft:deepslate_bricks", -391],
-  ["minecraft:deepslate_tile_wall", -390],
-  ["minecraft:deepslate_tile_stairs", -389],
-  ["minecraft:deepslate_tile_slab", -388],
-  ["minecraft:deepslate_tiles", -387],
-  ["minecraft:polished_deepslate_wall", -386],
-  ["minecraft:polished_deepslate_stairs", -385],
-  ["minecraft:polished_deepslate_slab", -384],
-  ["minecraft:polished_deepslate", -383],
-  ["minecraft:cobbled_deepslate_wall", -382],
-  ["minecraft:cobbled_deepslate_stairs", -381],
-  ["minecraft:cobbled_deepslate_slab", -380],
-  ["minecraft:cobbled_deepslate", -379],
-  ["minecraft:deepslate", -378],
-  ["minecraft:smooth_basalt", -377],
-  ["minecraft:cave_vines_head_with_berries", -376],
-  ["minecraft:cave_vines_body_with_berries", -375],
-  ["minecraft:waxed_weathered_double_cut_copper_slab", -374],
-  ["minecraft:waxed_exposed_double_cut_copper_slab", -373],
-  ["minecraft:waxed_double_cut_copper_slab", -372],
-  ["minecraft:oxidized_double_cut_copper_slab", -371],
-  ["minecraft:weathered_double_cut_copper_slab", -370],
-  ["minecraft:exposed_double_cut_copper_slab", -369],
-  ["minecraft:double_cut_copper_slab", -368],
-  ["minecraft:waxed_weathered_cut_copper_slab", -367],
-  ["minecraft:waxed_exposed_cut_copper_slab", -366],
-  ["minecraft:waxed_cut_copper_slab", -365],
-  ["minecraft:oxidized_cut_copper_slab", -364],
-  ["minecraft:weathered_cut_copper_slab", -363],
-  ["minecraft:exposed_cut_copper_slab", -362],
-  ["minecraft:cut_copper_slab", -361],
-  ["minecraft:waxed_weathered_cut_copper_stairs", -360],
-  ["minecraft:waxed_exposed_cut_copper_stairs", -359],
-  ["minecraft:waxed_cut_copper_stairs", -358],
-  ["minecraft:oxidized_cut_copper_stairs", -357],
-  ["minecraft:weathered_cut_copper_stairs", -356],
-  ["minecraft:exposed_cut_copper_stairs", -355],
-  ["minecraft:cut_copper_stairs", -354],
-  ["minecraft:waxed_weathered_cut_copper", -353],
-  ["minecraft:waxed_exposed_cut_copper", -352],
-  ["minecraft:waxed_cut_copper", -351],
-  ["minecraft:oxidized_cut_copper", -350],
-  ["minecraft:weathered_cut_copper", -349],
-  ["minecraft:exposed_cut_copper", -348],
-  ["minecraft:cut_copper", -347],
-  ["minecraft:waxed_weathered_copper", -346],
-  ["minecraft:waxed_exposed_copper", -345],
-  ["minecraft:waxed_copper", -344],
-  ["minecraft:oxidized_copper", -343],
-  ["minecraft:weathered_copper", -342],
-  ["minecraft:exposed_copper", -341],
-  ["minecraft:copper_block", -340],
-  ["minecraft:glow_frame_block", -339],
-  ["minecraft:flowering_azalea", -338],
-  ["minecraft:azalea", -337],
-  ["minecraft:small_dripleaf_block", -336],
-  ["minecraft:moss_carpet", -335],
-  ["minecraft:tinted_glass", -334],
-  ["minecraft:tuff", -333],
-  ["minecraft:small_amethyst_bud", -332],
-  ["minecraft:medium_amethyst_bud", -331],
-  ["minecraft:large_amethyst_bud", -330],
-  ["minecraft:amethyst_cluster", -329],
-  ["minecraft:budding_amethyst", -328],
-  ["minecraft:amethyst_block", -327],
-  ["minecraft:calcite", -326],
-  ["minecraft:azalea_leaves_flowered", -325],
-  ["minecraft:azalea_leaves", -324],
-  ["minecraft:big_dripleaf", -323],
-  ["minecraft:cave_vines", -322],
-  ["minecraft:spore_blossom", -321],
-  ["minecraft:moss_block", -320],
-  ["minecraft:hanging_roots", -319],
-  ["minecraft:dirt_with_roots", -318],
-  ["minecraft:dripstone_block", -317],
-  ["minecraft:heavy_core", -316],
-  ["minecraft:trial_spawner", -315],
-  ["minecraft:vault", -314],
-  ["minecraft:crafter", -313],
-  ["minecraft:lightning_rod", -312],
-  ["minecraft:copper_ore", -311],
-  ["minecraft:pointed_dripstone", -308],
-  ["minecraft:sculk_sensor", -307],
-  ["minecraft:powder_snow", -306],
-  ["minecraft:unknown", -305],
-  ["minecraft:quartz_bricks", -304],
-  ["minecraft:cracked_nether_bricks", -303],
-  ["minecraft:chiseled_nether_bricks", -302],
-  ["minecraft:stripped_warped_hyphae", -301],
-  ["minecraft:stripped_crimson_hyphae", -300],
-  ["minecraft:crimson_hyphae", -299],
-  ["minecraft:warped_hyphae", -298],
-  ["minecraft:polished_blackstone_wall", -297],
-  ["minecraft:polished_blackstone_button", -296],
-  ["minecraft:polished_blackstone_pressure_plate", -295],
-  ["minecraft:polished_blackstone_double_slab", -294],
-  ["minecraft:polished_blackstone_slab", -293],
-  ["minecraft:polished_blackstone_stairs", -292],
-  ["minecraft:polished_blackstone", -291],
-  ["minecraft:crying_obsidian", -289],
-  ["minecraft:nether_gold_ore", -288],
-  ["minecraft:twisting_vines", -287],
-  ["minecraft:polished_blackstone_brick_double_slab", -285],
-  ["minecraft:polished_blackstone_brick_slab", -284],
-  ["minecraft:blackstone_double_slab", -283],
-  ["minecraft:blackstone_slab", -282],
-  ["minecraft:gilded_blackstone", -281],
-  ["minecraft:cracked_polished_blackstone_bricks", -280],
-  ["minecraft:chiseled_polished_blackstone", -279],
-  ["minecraft:polished_blackstone_brick_wall", -278],
-  ["minecraft:blackstone_wall", -277],
-  ["minecraft:blackstone_stairs", -276],
-  ["minecraft:polished_blackstone_brick_stairs", -275],
-  ["minecraft:polished_blackstone_bricks", -274],
-  ["minecraft:blackstone", -273],
-  ["minecraft:respawn_anchor", -272],
-  ["minecraft:ancient_debris", -271],
-  ["minecraft:netherite_block", -270],
-  ["minecraft:soul_lantern", -269],
-  ["minecraft:soul_torch", -268],
-  ["minecraft:warped_double_slab", -267],
-  ["minecraft:crimson_double_slab", -266],
-  ["minecraft:warped_slab", -265],
-  ["minecraft:crimson_slab", -264],
-  ["minecraft:warped_pressure_plate", -263],
-  ["minecraft:crimson_pressure_plate", -262],
-  ["minecraft:warped_button", -261],
-  ["minecraft:crimson_button", -260],
-  ["minecraft:warped_fence_gate", -259],
-  ["minecraft:crimson_fence_gate", -258],
-  ["minecraft:warped_fence", -257],
-  ["minecraft:crimson_fence", -256],
-  ["minecraft:warped_stairs", -255],
-  ["minecraft:crimson_stairs", -254],
-  ["minecraft:warped_wall_sign", -253],
-  ["minecraft:crimson_wall_sign", -252],
-  ["minecraft:warped_standing_sign", -251],
-  ["minecraft:crimson_standing_sign", -250],
-  ["minecraft:warped_trapdoor", -247],
-  ["minecraft:crimson_trapdoor", -246],
-  ["minecraft:warped_planks", -243],
-  ["minecraft:crimson_planks", -242],
-  ["minecraft:stripped_warped_stem", -241],
-  ["minecraft:stripped_crimson_stem", -240],
-  ["minecraft:target", -239],
-  ["minecraft:soul_soil", -236],
-  ["minecraft:polished_basalt", -235],
-  ["minecraft:basalt", -234],
-  ["minecraft:warped_nylium", -233],
-  ["minecraft:crimson_nylium", -232],
-  ["minecraft:weeping_vines", -231],
-  ["minecraft:shroomlight", -230],
-  ["minecraft:warped_fungus", -229],
-  ["minecraft:crimson_fungus", -228],
-  ["minecraft:warped_wart_block", -227],
-  ["minecraft:warped_stem", -226],
-  ["minecraft:crimson_stem", -225],
-  ["minecraft:warped_roots", -224],
-  ["minecraft:crimson_roots", -223],
-  ["minecraft:lodestone", -222],
-  ["minecraft:honeycomb_block", -221],
-  ["minecraft:honey_block", -220],
-  ["minecraft:beehive", -219],
-  ["minecraft:bee_nest", -218],
-  ["minecraft:sticky_piston_arm_collision", -217],
-  ["minecraft:wither_rose", -216],
-  ["minecraft:light_block_0", -215],
-  ["minecraft:lit_blast_furnace", -214],
-  ["minecraft:composter", -213],
-  ["minecraft:oak_wood", -212],
-  ["minecraft:jigsaw", -211],
-  ["minecraft:lantern", -208],
-  ["minecraft:sweet_berry_bush", -207],
-  ["minecraft:bell", -206],
-  ["minecraft:loom", -204],
-  ["minecraft:barrel", -203],
-  ["minecraft:smithing_table", -202],
-  ["minecraft:fletching_table", -201],
-  ["minecraft:cartography_table", -200],
-  ["minecraft:lit_smoker", -199],
-  ["minecraft:smoker", -198],
-  ["minecraft:stonecutter_block", -197],
-  ["minecraft:blast_furnace", -196],
-  ["minecraft:grindstone", -195],
-  ["minecraft:lectern", -194],
-  ["minecraft:darkoak_wall_sign", -193],
-  ["minecraft:darkoak_standing_sign", -192],
-  ["minecraft:acacia_wall_sign", -191],
-  ["minecraft:acacia_standing_sign", -190],
-  ["minecraft:jungle_wall_sign", -189],
-  ["minecraft:jungle_standing_sign", -188],
-  ["minecraft:birch_wall_sign", -187],
-  ["minecraft:birch_standing_sign", -186],
-  ["minecraft:smooth_quartz_stairs", -185],
-  ["minecraft:red_nether_brick_stairs", -184],
-  ["minecraft:smooth_stone", -183],
-  ["minecraft:spruce_wall_sign", -182],
-  ["minecraft:spruce_standing_sign", -181],
-  ["minecraft:normal_stone_stairs", -180],
-  ["minecraft:mossy_cobblestone_stairs", -179],
-  ["minecraft:end_brick_stairs", -178],
-  ["minecraft:smooth_sandstone_stairs", -177],
-  ["minecraft:smooth_red_sandstone_stairs", -176],
-  ["minecraft:mossy_stone_brick_stairs", -175],
-  ["minecraft:polished_andesite_stairs", -174],
-  ["minecraft:polished_diorite_stairs", -173],
-  ["minecraft:polished_granite_stairs", -172],
-  ["minecraft:andesite_stairs", -171],
-  ["minecraft:diorite_stairs", -170],
-  ["minecraft:granite_stairs", -169],
-  ["minecraft:mossy_stone_brick_double_slab", -168],
-  ["minecraft:end_stone_brick_double_slab", -167],
-  ["minecraft:mossy_stone_brick_slab", -166],
-  ["minecraft:scaffolding", -165],
-  ["minecraft:bamboo_sapling", -164],
-  ["minecraft:bamboo", -163],
-  ["minecraft:end_stone_brick_slab", -162],
-  ["minecraft:barrier", -161],
-  ["minecraft:bubble_column", -160],
-  ["minecraft:turtle_egg", -159],
-  ["minecraft:conduit", -157],
-  ["minecraft:sea_pickle", -156],
-  ["minecraft:carved_pumpkin", -155],
-  ["minecraft:spruce_pressure_plate", -154],
-  ["minecraft:jungle_pressure_plate", -153],
-  ["minecraft:dark_oak_pressure_plate", -152],
-  ["minecraft:birch_pressure_plate", -151],
-  ["minecraft:acacia_pressure_plate", -150],
-  ["minecraft:spruce_trapdoor", -149],
-  ["minecraft:jungle_trapdoor", -148],
-  ["minecraft:dark_oak_trapdoor", -147],
-  ["minecraft:birch_trapdoor", -146],
-  ["minecraft:acacia_trapdoor", -145],
-  ["minecraft:spruce_button", -144],
-  ["minecraft:jungle_button", -143],
-  ["minecraft:dark_oak_button", -142],
-  ["minecraft:birch_button", -141],
-  ["minecraft:acacia_button", -140],
-  ["minecraft:dried_kelp_block", -139],
-  ["minecraft:kelp_plant", -138],
-  ["minecraft:horn_coral_wall_fan", -137],
-  ["minecraft:bubble_coral_wall_fan", -136],
-  ["minecraft:tube_coral_wall_fan", -135],
-  ["minecraft:dead_tube_coral_fan", -134],
-  ["minecraft:tube_coral_fan", -133],
-  ["minecraft:tube_coral_block", -132],
-  ["minecraft:tube_coral", -131],
-  ["minecraft:seagrass", -130],
-  ["minecraft:element_118", -129],
-  ["minecraft:element_117", -128],
-  ["minecraft:element_116", -127],
-  ["minecraft:element_115", -126],
-  ["minecraft:element_114", -125],
-  ["minecraft:element_113", -124],
-  ["minecraft:element_112", -123],
-  ["minecraft:element_111", -122],
-  ["minecraft:element_110", -121],
-  ["minecraft:element_109", -120],
-  ["minecraft:element_108", -119],
-  ["minecraft:element_107", -118],
-  ["minecraft:element_106", -117],
-  ["minecraft:element_105", -116],
-  ["minecraft:element_104", -115],
-  ["minecraft:element_103", -114],
-  ["minecraft:element_102", -113],
-  ["minecraft:element_101", -112],
-  ["minecraft:element_100", -111],
-  ["minecraft:element_99", -110],
-  ["minecraft:element_98", -109],
-  ["minecraft:element_97", -108],
-  ["minecraft:element_96", -107],
-  ["minecraft:element_95", -106],
-  ["minecraft:element_94", -105],
-  ["minecraft:element_93", -104],
-  ["minecraft:element_92", -103],
-  ["minecraft:element_91", -102],
-  ["minecraft:element_90", -101],
-  ["minecraft:element_89", -100],
-  ["minecraft:element_88", -99],
-  ["minecraft:element_87", -98],
-  ["minecraft:element_86", -97],
-  ["minecraft:element_85", -96],
-  ["minecraft:element_84", -95],
-  ["minecraft:element_83", -94],
-  ["minecraft:element_82", -93],
-  ["minecraft:element_81", -92],
-  ["minecraft:element_80", -91],
-  ["minecraft:element_79", -90],
-  ["minecraft:element_78", -89],
-  ["minecraft:element_77", -88],
-  ["minecraft:element_76", -87],
-  ["minecraft:element_75", -86],
-  ["minecraft:element_74", -85],
-  ["minecraft:element_73", -84],
-  ["minecraft:element_72", -83],
-  ["minecraft:element_71", -82],
-  ["minecraft:element_70", -81],
-  ["minecraft:element_69", -80],
-  ["minecraft:element_68", -79],
-  ["minecraft:element_67", -78],
-  ["minecraft:element_66", -77],
-  ["minecraft:element_65", -76],
-  ["minecraft:element_64", -75],
-  ["minecraft:element_63", -74],
-  ["minecraft:element_62", -73],
-  ["minecraft:element_61", -72],
-  ["minecraft:element_60", -71],
-  ["minecraft:element_59", -70],
-  ["minecraft:element_58", -69],
-  ["minecraft:element_57", -68],
-  ["minecraft:element_56", -67],
-  ["minecraft:element_55", -66],
-  ["minecraft:element_54", -65],
-  ["minecraft:element_53", -64],
-  ["minecraft:element_52", -63],
-  ["minecraft:element_51", -62],
-  ["minecraft:element_50", -61],
-  ["minecraft:element_49", -60],
-  ["minecraft:element_48", -59],
-  ["minecraft:element_47", -58],
-  ["minecraft:element_46", -57],
-  ["minecraft:element_45", -56],
-  ["minecraft:element_44", -55],
-  ["minecraft:element_43", -54],
-  ["minecraft:element_42", -53],
-  ["minecraft:element_41", -52],
-  ["minecraft:element_40", -51],
-  ["minecraft:element_39", -50],
-  ["minecraft:element_38", -49],
-  ["minecraft:element_37", -48],
-  ["minecraft:element_36", -47],
-  ["minecraft:element_35", -46],
-  ["minecraft:element_34", -45],
-  ["minecraft:element_33", -44],
-  ["minecraft:element_32", -43],
-  ["minecraft:element_31", -42],
-  ["minecraft:element_30", -41],
-  ["minecraft:element_29", -40],
-  ["minecraft:element_28", -39],
-  ["minecraft:element_27", -38],
-  ["minecraft:element_26", -37],
-  ["minecraft:element_25", -36],
-  ["minecraft:element_24", -35],
-  ["minecraft:element_23", -34],
-  ["minecraft:element_22", -33],
-  ["minecraft:element_21", -32],
-  ["minecraft:element_20", -31],
-  ["minecraft:element_19", -30],
-  ["minecraft:element_18", -29],
-  ["minecraft:element_17", -28],
-  ["minecraft:element_16", -27],
-  ["minecraft:element_15", -26],
-  ["minecraft:element_14", -25],
-  ["minecraft:element_13", -24],
-  ["minecraft:element_12", -23],
-  ["minecraft:element_11", -22],
-  ["minecraft:element_10", -21],
-  ["minecraft:element_9", -20],
-  ["minecraft:element_8", -19],
-  ["minecraft:element_7", -18],
-  ["minecraft:element_6", -17],
-  ["minecraft:element_5", -16],
-  ["minecraft:element_4", -15],
-  ["minecraft:element_3", -14],
-  ["minecraft:element_2", -13],
-  ["minecraft:element_1", -12],
-  ["minecraft:blue_ice", -11],
-  ["minecraft:stripped_oak_log", -10],
-  ["minecraft:stripped_dark_oak_log", -9],
-  ["minecraft:stripped_acacia_log", -8],
-  ["minecraft:stripped_jungle_log", -7],
-  ["minecraft:stripped_birch_log", -6],
-  ["minecraft:stripped_spruce_log", -5],
-  ["minecraft:prismarine_bricks_stairs", -4],
-  ["minecraft:dark_prismarine_stairs", -3],
-  ["minecraft:prismarine_stairs", -2],
-  ["minecraft:air", 0],
-  ["minecraft:stone", 1],
-  ["minecraft:grass_block", 2],
-  ["minecraft:dirt", 3],
-  ["minecraft:cobblestone", 4],
-  ["minecraft:oak_planks", 5],
-  ["minecraft:oak_sapling", 6],
-  ["minecraft:bedrock", 7],
-  ["minecraft:flowing_water", 8],
-  ["minecraft:water", 9],
-  ["minecraft:flowing_lava", 10],
-  ["minecraft:lava", 11],
-  ["minecraft:sand", 12],
-  ["minecraft:gravel", 13],
-  ["minecraft:gold_ore", 14],
-  ["minecraft:iron_ore", 15],
-  ["minecraft:coal_ore", 16],
-  ["minecraft:oak_log", 17],
-  ["minecraft:oak_leaves", 18],
-  ["minecraft:sponge", 19],
-  ["minecraft:glass", 20],
-  ["minecraft:lapis_ore", 21],
-  ["minecraft:lapis_block", 22],
-  ["minecraft:dispenser", 23],
-  ["minecraft:sandstone", 24],
-  ["minecraft:noteblock", 25],
-  ["minecraft:golden_rail", 27],
-  ["minecraft:detector_rail", 28],
-  ["minecraft:sticky_piston", 29],
-  ["minecraft:web", 30],
-  ["minecraft:short_grass", 31],
-  ["minecraft:deadbush", 32],
-  ["minecraft:piston", 33],
-  ["minecraft:piston_arm_collision", 34],
-  ["minecraft:white_wool", 35],
-  ["minecraft:element_0", 36],
-  ["minecraft:dandelion", 37],
-  ["minecraft:poppy", 38],
-  ["minecraft:brown_mushroom", 39],
-  ["minecraft:red_mushroom", 40],
-  ["minecraft:gold_block", 41],
-  ["minecraft:iron_block", 42],
-  ["minecraft:smooth_stone_double_slab", 43],
-  ["minecraft:smooth_stone_slab", 44],
-  ["minecraft:brick_block", 45],
-  ["minecraft:tnt", 46],
-  ["minecraft:bookshelf", 47],
-  ["minecraft:mossy_cobblestone", 48],
-  ["minecraft:obsidian", 49],
-  ["minecraft:torch", 50],
-  ["minecraft:fire", 51],
-  ["minecraft:mob_spawner", 52],
-  ["minecraft:oak_stairs", 53],
-  ["minecraft:chest", 54],
-  ["minecraft:redstone_wire", 55],
-  ["minecraft:diamond_ore", 56],
-  ["minecraft:diamond_block", 57],
-  ["minecraft:crafting_table", 58],
-  ["minecraft:wheat_plant", 59],
-  ["minecraft:farmland", 60],
-  ["minecraft:furnace", 61],
-  ["minecraft:lit_furnace", 62],
-  ["minecraft:standing_sign", 63],
-  ["minecraft:ladder", 65],
-  ["minecraft:rail", 66],
-  ["minecraft:stone_stairs", 67],
-  ["minecraft:wall_sign", 68],
-  ["minecraft:lever", 69],
-  ["minecraft:stone_pressure_plate", 70],
-  ["minecraft:wooden_pressure_plate", 72],
-  ["minecraft:redstone_ore", 73],
-  ["minecraft:lit_redstone_ore", 74],
-  ["minecraft:unlit_redstone_torch", 75],
-  ["minecraft:redstone_torch", 76],
-  ["minecraft:stone_button", 77],
-  ["minecraft:snow_layer", 78],
-  ["minecraft:ice", 79],
-  ["minecraft:snow", 80],
-  ["minecraft:cactus", 81],
-  ["minecraft:clay", 82],
-  ["minecraft:reeds", 83],
-  ["minecraft:jukebox", 84],
-  ["minecraft:oak_fence", 85],
-  ["minecraft:pumpkin", 86],
-  ["minecraft:netherrack", 87],
-  ["minecraft:soul_sand", 88],
-  ["minecraft:glowstone", 89],
-  ["minecraft:portal", 90],
-  ["minecraft:lit_pumpkin", 91],
-  ["minecraft:cake_block", 92],
-  ["minecraft:unpowered_repeater", 93],
-  ["minecraft:powered_repeater", 94],
-  ["minecraft:invisible_bedrock", 95],
-  ["minecraft:trapdoor", 96],
-  ["minecraft:infested_stone", 97],
-  ["minecraft:stone_bricks", 98],
-  ["minecraft:brown_mushroom_block", 99],
-  ["minecraft:red_mushroom_block", 100],
-  ["minecraft:iron_bars", 101],
-  ["minecraft:glass_pane", 102],
-  ["minecraft:melon_block", 103],
-  ["minecraft:pumpkin_stem", 104],
-  ["minecraft:melon_stem", 105],
-  ["minecraft:vine", 106],
-  ["minecraft:fence_gate", 107],
-  ["minecraft:brick_stairs", 108],
-  ["minecraft:stone_brick_stairs", 109],
-  ["minecraft:mycelium", 110],
-  ["minecraft:waterlily", 111],
-  ["minecraft:nether_brick", 112],
-  ["minecraft:nether_brick_fence", 113],
-  ["minecraft:nether_brick_stairs", 114],
-  ["minecraft:nether_wart_plant", 115],
-  ["minecraft:enchanting_table", 116],
-  ["minecraft:end_portal", 119],
-  ["minecraft:end_portal_frame", 120],
-  ["minecraft:end_stone", 121],
-  ["minecraft:dragon_egg", 122],
-  ["minecraft:redstone_lamp", 123],
-  ["minecraft:lit_redstone_lamp", 124],
-  ["minecraft:dropper", 125],
-  ["minecraft:activator_rail", 126],
-  ["minecraft:cocoa", 127],
-  ["minecraft:sandstone_stairs", 128],
-  ["minecraft:emerald_ore", 129],
-  ["minecraft:ender_chest", 130],
-  ["minecraft:tripwire_hook", 131],
-  ["minecraft:tripwire", 132],
-  ["minecraft:emerald_block", 133],
-  ["minecraft:spruce_stairs", 134],
-  ["minecraft:birch_stairs", 135],
-  ["minecraft:jungle_stairs", 136],
-  ["minecraft:command_block", 137],
-  ["minecraft:beacon", 138],
-  ["minecraft:cobblestone_wall", 139],
-  ["minecraft:carrots", 141],
-  ["minecraft:potatoes", 142],
-  ["minecraft:wooden_button", 143],
-  ["minecraft:skeleton_skull", 144],
-  ["minecraft:anvil", 145],
-  ["minecraft:trapped_chest", 146],
-  ["minecraft:light_weighted_pressure_plate", 147],
-  ["minecraft:heavy_weighted_pressure_plate", 148],
-  ["minecraft:unpowered_comparator", 149],
-  ["minecraft:powered_comparator", 150],
-  ["minecraft:daylight_detector", 151],
-  ["minecraft:redstone_block", 152],
-  ["minecraft:quartz_ore", 153],
-  ["minecraft:quartz_block", 155],
-  ["minecraft:quartz_stairs", 156],
-  ["minecraft:double_oak_slab", 157],
-  ["minecraft:oak_slab", 158],
-  ["minecraft:stained_hardened_clay", 159],
-  ["minecraft:stained_glass_pane", 160],
-  ["minecraft:acacia_leaves", 161],
-  ["minecraft:acacia_log", 162],
-  ["minecraft:acacia_stairs", 163],
-  ["minecraft:dark_oak_stairs", 164],
-  ["minecraft:slime", 165],
-  ["minecraft:iron_trapdoor", 167],
-  ["minecraft:prismarine", 168],
-  ["minecraft:sea_lantern", 169],
-  ["minecraft:hay_block", 170],
-  ["minecraft:white_carpet", 171],
-  ["minecraft:hardened_clay", 172],
-  ["minecraft:coal_block", 173],
-  ["minecraft:packed_ice", 174],
-  ["minecraft:sunflower", 175],
-  ["minecraft:standing_banner", 176],
-  ["minecraft:wall_banner", 177],
-  ["minecraft:daylight_detector_inverted", 178],
-  ["minecraft:red_sandstone", 179],
-  ["minecraft:red_sandstone_stairs", 180],
-  ["minecraft:red_sandstone_double_slab", 181],
-  ["minecraft:red_sandstone_slab", 182],
-  ["minecraft:spruce_fence_gate", 183],
-  ["minecraft:birch_fence_gate", 184],
-  ["minecraft:jungle_fence_gate", 185],
-  ["minecraft:dark_oak_fence_gate", 186],
-  ["minecraft:acacia_fence_gate", 187],
-  ["minecraft:repeating_command_block", 188],
-  ["minecraft:chain_command_block", 189],
-  ["minecraft:hard_glass_pane", 190],
-  ["minecraft:hard_white_stained_glass_pane", 191],
-  ["minecraft:chemical_heat", 192],
-  ["minecraft:spruce_door", 193],
-  ["minecraft:birch_door", 194],
-  ["minecraft:jungle_door", 195],
-  ["minecraft:acacia_door", 196],
-  ["minecraft:dark_oak_door", 197],
-  ["minecraft:grass_path", 198],
-  ["minecraft:frame_block", 199],
-  ["minecraft:chorus_flower", 200],
-  ["minecraft:purpur_block", 201],
-  ["minecraft:colored_torch_red", 202],
-  ["minecraft:purpur_stairs", 203],
-  ["minecraft:colored_torch_blue", 204],
-  ["minecraft:undyed_shulker_box", 205],
-  ["minecraft:end_bricks", 206],
-  ["minecraft:frosted_ice", 207],
-  ["minecraft:end_rod", 208],
-  ["minecraft:end_gateway", 209],
-  ["minecraft:allow", 210],
-  ["minecraft:deny", 211],
-  ["minecraft:border_block", 212],
-  ["minecraft:magma", 213],
-  ["minecraft:nether_wart_block", 214],
-  ["minecraft:red_nether_brick", 215],
-  ["minecraft:bone_block", 216],
-  ["minecraft:structure_void", 217],
-  ["minecraft:white_shulker_box", 218],
-  ["minecraft:purple_glazed_terracotta", 219],
-  ["minecraft:white_glazed_terracotta", 220],
-  ["minecraft:orange_glazed_terracotta", 221],
-  ["minecraft:magenta_glazed_terracotta", 222],
-  ["minecraft:light_blue_glazed_terracotta", 223],
-  ["minecraft:yellow_glazed_terracotta", 224],
-  ["minecraft:lime_glazed_terracotta", 225],
-  ["minecraft:pink_glazed_terracotta", 226],
-  ["minecraft:gray_glazed_terracotta", 227],
-  ["minecraft:silver_glazed_terracotta", 228],
-  ["minecraft:cyan_glazed_terracotta", 229],
-  ["minecraft:blue_glazed_terracotta", 231],
-  ["minecraft:brown_glazed_terracotta", 232],
-  ["minecraft:green_glazed_terracotta", 233],
-  ["minecraft:red_glazed_terracotta", 234],
-  ["minecraft:black_glazed_terracotta", 235],
-  ["minecraft:white_concrete", 236],
-  ["minecraft:white_concrete_powder", 237],
-  ["minecraft:compound_creator", 238],
-  ["minecraft:underwater_torch", 239],
-  ["minecraft:chorus_plant", 240],
-  ["minecraft:white_stained_glass", 241],
-  ["minecraft:camera", 242],
-  ["minecraft:podzol", 243],
-  ["minecraft:beetroots", 244],
-  ["minecraft:stonecutter", 245],
-  ["minecraft:glowingobsidian", 246],
-  ["minecraft:netherreactor", 247],
-  ["minecraft:info_update", 248],
-  ["minecraft:info_update2", 249],
-  ["minecraft:moving_block", 250],
-  ["minecraft:observer", 251],
-  ["minecraft:structure_block", 252],
-  ["minecraft:hard_glass", 253],
-  ["minecraft:hard_white_stained_glass", 254],
-  ["minecraft:reserved6", 255],
-  ["minecraft:black_bundle", 257],
-  ["minecraft:blue_bundle", 258],
-  ["minecraft:brown_bundle", 259],
-  ["minecraft:bundle", 260],
-  ["minecraft:cyan_bundle", 261],
-  ["minecraft:gray_bundle", 262],
-  ["minecraft:green_bundle", 263],
-  ["minecraft:light_blue_bundle", 264],
-  ["minecraft:light_gray_bundle", 265],
-  ["minecraft:lime_bundle", 266],
-  ["minecraft:magenta_bundle", 267],
-  ["minecraft:orange_bundle", 268],
-  ["minecraft:pink_bundle", 269],
-  ["minecraft:purple_bundle", 270],
-  ["minecraft:red_bundle", 271],
-  ["minecraft:white_bundle", 272],
-  ["minecraft:yellow_bundle", 273],
-  ["minecraft:breeze_rod", 274],
-  ["minecraft:ominous_trial_key", 275],
-  ["minecraft:trial_key", 276],
-  ["minecraft:wind_charge", 277],
-  ["minecraft:apple", 278],
-  ["minecraft:golden_apple", 280],
-  ["minecraft:enchanted_golden_apple", 281],
-  ["minecraft:mushroom_stew", 282],
-  ["minecraft:bread", 283],
-  ["minecraft:porkchop", 284],
-  ["minecraft:cooked_porkchop", 285],
-  ["minecraft:cod", 286],
-  ["minecraft:salmon", 287],
-  ["minecraft:tropical_fish", 288],
-  ["minecraft:pufferfish", 289],
-  ["minecraft:cooked_cod", 290],
-  ["minecraft:cooked_salmon", 291],
-  ["minecraft:dried_kelp", 292],
-  ["minecraft:cookie", 293],
-  ["minecraft:melon_slice", 294],
-  ["minecraft:beef", 295],
-  ["minecraft:cooked_beef", 296],
-  ["minecraft:chicken", 297],
-  ["minecraft:cooked_chicken", 298],
-  ["minecraft:rotten_flesh", 299],
-  ["minecraft:spider_eye", 300],
-  ["minecraft:carrot", 301],
-  ["minecraft:potato", 302],
-  ["minecraft:baked_potato", 303],
-  ["minecraft:poisonous_potato", 304],
-  ["minecraft:golden_carrot", 305],
-  ["minecraft:pumpkin_pie", 306],
-  ["minecraft:beetroot", 307],
-  ["minecraft:beetroot_soup", 308],
-  ["minecraft:sweet_berries", 309],
-  ["minecraft:rabbit", 310],
-  ["minecraft:cooked_rabbit", 311],
-  ["minecraft:rabbit_stew", 312],
-  ["minecraft:wheat_seeds", 313],
-  ["minecraft:pumpkin_seeds", 314],
-  ["minecraft:melon_seeds", 315],
-  ["minecraft:nether_wart", 316],
-  ["minecraft:beetroot_seeds", 317],
-  ["minecraft:torchflower_seeds", 318],
-  ["minecraft:pitcher_pod", 319],
-  ["minecraft:iron_shovel", 320],
-  ["minecraft:iron_pickaxe", 321],
-  ["minecraft:iron_axe", 322],
-  ["minecraft:flint_and_steel", 323],
-  ["minecraft:bow", 324],
-  ["minecraft:arrow", 325],
-  ["minecraft:coal", 326],
-  ["minecraft:charcoal", 327],
-  ["minecraft:diamond", 328],
-  ["minecraft:iron_ingot", 329],
-  ["minecraft:gold_ingot", 330],
-  ["minecraft:iron_sword", 331],
-  ["minecraft:wooden_sword", 332],
-  ["minecraft:wooden_shovel", 333],
-  ["minecraft:wooden_pickaxe", 334],
-  ["minecraft:wooden_axe", 335],
-  ["minecraft:stone_sword", 336],
-  ["minecraft:stone_shovel", 337],
-  ["minecraft:stone_pickaxe", 338],
-  ["minecraft:stone_axe", 339],
-  ["minecraft:diamond_sword", 340],
-  ["minecraft:diamond_shovel", 341],
-  ["minecraft:diamond_pickaxe", 342],
-  ["minecraft:diamond_axe", 343],
-  ["minecraft:mace", 344],
-  ["minecraft:stick", 345],
-  ["minecraft:bowl", 346],
-  ["minecraft:golden_sword", 347],
-  ["minecraft:golden_shovel", 348],
-  ["minecraft:golden_pickaxe", 349],
-  ["minecraft:golden_axe", 350],
-  ["minecraft:string", 351],
-  ["minecraft:feather", 352],
-  ["minecraft:gunpowder", 353],
-  ["minecraft:wooden_hoe", 354],
-  ["minecraft:stone_hoe", 355],
-  ["minecraft:iron_hoe", 356],
-  ["minecraft:diamond_hoe", 357],
-  ["minecraft:golden_hoe", 358],
-  ["minecraft:wheat", 359],
-  ["minecraft:leather_helmet", 360],
-  ["minecraft:leather_chestplate", 361],
-  ["minecraft:leather_leggings", 362],
-  ["minecraft:leather_boots", 363],
-  ["minecraft:chainmail_helmet", 364],
-  ["minecraft:chainmail_chestplate", 365],
-  ["minecraft:chainmail_leggings", 366],
-  ["minecraft:chainmail_boots", 367],
-  ["minecraft:iron_helmet", 368],
-  ["minecraft:iron_chestplate", 369],
-  ["minecraft:iron_leggings", 370],
-  ["minecraft:iron_boots", 371],
-  ["minecraft:diamond_helmet", 372],
-  ["minecraft:diamond_chestplate", 373],
-  ["minecraft:diamond_leggings", 374],
-  ["minecraft:diamond_boots", 375],
-  ["minecraft:golden_helmet", 376],
-  ["minecraft:golden_chestplate", 377],
-  ["minecraft:golden_leggings", 378],
-  ["minecraft:golden_boots", 379],
-  ["minecraft:shield", 380],
-  ["minecraft:flint", 381],
-  ["minecraft:painting", 382],
-  ["minecraft:oak_sign", 383],
-  ["minecraft:wooden_door", 384],
-  ["minecraft:bucket", 385],
-  ["minecraft:milk_bucket", 386],
-  ["minecraft:water_bucket", 387],
-  ["minecraft:lava_bucket", 388],
-  ["minecraft:cod_bucket", 389],
-  ["minecraft:salmon_bucket", 390],
-  ["minecraft:tropical_fish_bucket", 391],
-  ["minecraft:pufferfish_bucket", 392],
-  ["minecraft:powder_snow_bucket", 393],
-  ["minecraft:axolotl_bucket", 394],
-  ["minecraft:minecart", 395],
-  ["minecraft:saddle", 396],
-  ["minecraft:iron_door", 397],
-  ["minecraft:redstone", 398],
-  ["minecraft:snowball", 399],
-  ["minecraft:oak_boat", 401],
-  ["minecraft:birch_boat", 402],
-  ["minecraft:jungle_boat", 403],
-  ["minecraft:spruce_boat", 404],
-  ["minecraft:acacia_boat", 405],
-  ["minecraft:dark_oak_boat", 406],
-  ["minecraft:leather", 407],
-  ["minecraft:kelp", 408],
-  ["minecraft:brick", 409],
-  ["minecraft:clay_ball", 410],
-  ["minecraft:sugar_cane", 411],
-  ["minecraft:paper", 412],
-  ["minecraft:book", 413],
-  ["minecraft:slime_ball", 414],
-  ["minecraft:chest_minecart", 415],
-  ["minecraft:egg", 416],
-  ["minecraft:compass", 417],
-  ["minecraft:fishing_rod", 418],
-  ["minecraft:clock", 419],
-  ["minecraft:glowstone_dust", 420],
-  ["minecraft:black_dye", 421],
-  ["minecraft:red_dye", 422],
-  ["minecraft:green_dye", 423],
-  ["minecraft:brown_dye", 424],
-  ["minecraft:blue_dye", 425],
-  ["minecraft:purple_dye", 426],
-  ["minecraft:cyan_dye", 427],
-  ["minecraft:light_gray_dye", 428],
-  ["minecraft:gray_dye", 429],
-  ["minecraft:pink_dye", 430],
-  ["minecraft:lime_dye", 431],
-  ["minecraft:yellow_dye", 432],
-  ["minecraft:light_blue_dye", 433],
-  ["minecraft:magenta_dye", 434],
-  ["minecraft:orange_dye", 435],
-  ["minecraft:white_dye", 436],
-  ["minecraft:bone_meal", 437],
-  ["minecraft:cocoa_beans", 438],
-  ["minecraft:ink_sac", 439],
-  ["minecraft:lapis_lazuli", 440],
-  ["minecraft:bone", 441],
-  ["minecraft:sugar", 442],
-  ["minecraft:cake", 443],
-  ["minecraft:bed", 444],
-  ["minecraft:repeater", 445],
-  ["minecraft:filled_map", 446],
-  ["minecraft:shears", 447],
-  ["minecraft:ender_pearl", 448],
-  ["minecraft:blaze_rod", 449],
-  ["minecraft:ghast_tear", 451],
-  ["minecraft:gold_nugget", 452],
-  ["minecraft:potion", 453],
-  ["minecraft:glass_bottle", 454],
-  ["minecraft:fermented_spider_eye", 455],
-  ["minecraft:blaze_powder", 456],
-  ["minecraft:magma_cream", 457],
-  ["minecraft:brewing_stand", 458],
-  ["minecraft:cauldron", 459],
-  ["minecraft:ender_eye", 460],
-  ["minecraft:glistering_melon_slice", 461],
-  ["minecraft:chicken_spawn_egg", 462],
-  ["minecraft:cow_spawn_egg", 463],
-  ["minecraft:pig_spawn_egg", 464],
-  ["minecraft:sheep_spawn_egg", 465],
-  ["minecraft:wolf_spawn_egg", 466],
-  ["minecraft:mooshroom_spawn_egg", 467],
-  ["minecraft:creeper_spawn_egg", 468],
-  ["minecraft:enderman_spawn_egg", 469],
-  ["minecraft:silverfish_spawn_egg", 470],
-  ["minecraft:skeleton_spawn_egg", 471],
-  ["minecraft:slime_spawn_egg", 472],
-  ["minecraft:spider_spawn_egg", 473],
-  ["minecraft:zombie_spawn_egg", 474],
-  ["minecraft:zombie_pigman_spawn_egg", 475],
-  ["minecraft:villager_spawn_egg", 476],
-  ["minecraft:squid_spawn_egg", 477],
-  ["minecraft:ocelot_spawn_egg", 478],
-  ["minecraft:witch_spawn_egg", 479],
-  ["minecraft:bat_spawn_egg", 480],
-  ["minecraft:ghast_spawn_egg", 481],
-  ["minecraft:magma_cube_spawn_egg", 482],
-  ["minecraft:blaze_spawn_egg", 483],
-  ["minecraft:cave_spider_spawn_egg", 484],
-  ["minecraft:horse_spawn_egg", 485],
-  ["minecraft:rabbit_spawn_egg", 486],
-  ["minecraft:endermite_spawn_egg", 487],
-  ["minecraft:guardian_spawn_egg", 488],
-  ["minecraft:stray_spawn_egg", 489],
-  ["minecraft:bogged_spawn_egg", 490],
-  ["minecraft:husk_spawn_egg", 491],
-  ["minecraft:wither_skeleton_spawn_egg", 492],
-  ["minecraft:donkey_spawn_egg", 493],
-  ["minecraft:mule_spawn_egg", 494],
-  ["minecraft:skeleton_horse_spawn_egg", 495],
-  ["minecraft:zombie_horse_spawn_egg", 496],
-  ["minecraft:shulker_spawn_egg", 497],
-  ["minecraft:npc_spawn_egg", 498],
-  ["minecraft:elder_guardian_spawn_egg", 499],
-  ["minecraft:polar_bear_spawn_egg", 500],
-  ["minecraft:llama_spawn_egg", 501],
-  ["minecraft:vindicator_spawn_egg", 502],
-  ["minecraft:evoker_spawn_egg", 503],
-  ["minecraft:vex_spawn_egg", 504],
-  ["minecraft:zombie_villager_spawn_egg", 505],
-  ["minecraft:parrot_spawn_egg", 506],
-  ["minecraft:tropical_fish_spawn_egg", 507],
-  ["minecraft:cod_spawn_egg", 508],
-  ["minecraft:pufferfish_spawn_egg", 509],
-  ["minecraft:salmon_spawn_egg", 510],
-  ["minecraft:drowned_spawn_egg", 511],
-  ["minecraft:dolphin_spawn_egg", 512],
-  ["minecraft:turtle_spawn_egg", 513],
-  ["minecraft:phantom_spawn_egg", 514],
-  ["minecraft:agent_spawn_egg", 515],
-  ["minecraft:cat_spawn_egg", 516],
-  ["minecraft:panda_spawn_egg", 517],
-  ["minecraft:fox_spawn_egg", 518],
-  ["minecraft:pillager_spawn_egg", 519],
-  ["minecraft:wandering_trader_spawn_egg", 520],
-  ["minecraft:ravager_spawn_egg", 521],
-  ["minecraft:bee_spawn_egg", 522],
-  ["minecraft:strider_spawn_egg", 523],
-  ["minecraft:hoglin_spawn_egg", 524],
-  ["minecraft:piglin_spawn_egg", 525],
-  ["minecraft:zoglin_spawn_egg", 526],
-  ["minecraft:piglin_brute_spawn_egg", 527],
-  ["minecraft:sniffer_spawn_egg", 528],
-  ["minecraft:breeze_spawn_egg", 529],
-  ["minecraft:axolotl_spawn_egg", 530],
-  ["minecraft:goat_spawn_egg", 531],
-  ["minecraft:glow_squid_spawn_egg", 532],
-  ["minecraft:iron_golem_spawn_egg", 533],
-  ["minecraft:snow_golem_spawn_egg", 534],
-  ["minecraft:ender_dragon_spawn_egg", 535],
-  ["minecraft:wither_spawn_egg", 536],
-  ["minecraft:glow_ink_sac", 537],
-  ["minecraft:copper_ingot", 538],
-  ["minecraft:raw_iron", 539],
-  ["minecraft:raw_gold", 540],
-  ["minecraft:raw_copper", 541],
-  ["minecraft:experience_bottle", 542],
-  ["minecraft:fire_charge", 543],
-  ["minecraft:writable_book", 544],
-  ["minecraft:written_book", 545],
-  ["minecraft:emerald", 546],
-  ["minecraft:frame", 547],
-  ["minecraft:flower_pot", 548],
-  ["minecraft:empty_map", 549],
-  ["minecraft:carrot_on_a_stick", 550],
-  ["minecraft:nether_star", 551],
-  ["minecraft:firework_rocket", 552],
-  ["minecraft:firework_star", 553],
-  ["minecraft:enchanted_book", 554],
-  ["minecraft:comparator", 555],
-  ["minecraft:netherbrick", 556],
-  ["minecraft:quartz", 557],
-  ["minecraft:tnt_minecart", 558],
-  ["minecraft:hopper_minecart", 559],
-  ["minecraft:hopper", 560],
-  ["minecraft:rabbit_foot", 561],
-  ["minecraft:rabbit_hide", 562],
-  ["minecraft:leather_horse_armor", 563],
-  ["minecraft:iron_horse_armor", 564],
-  ["minecraft:golden_horse_armor", 565],
-  ["minecraft:diamond_horse_armor", 566],
-  ["minecraft:music_disc_13", 567],
-  ["minecraft:music_disc_cat", 568],
-  ["minecraft:music_disc_blocks", 569],
-  ["minecraft:music_disc_chirp", 570],
-  ["minecraft:music_disc_far", 571],
-  ["minecraft:music_disc_mall", 572],
-  ["minecraft:music_disc_mellohi", 573],
-  ["minecraft:music_disc_stal", 574],
-  ["minecraft:music_disc_strad", 575],
-  ["minecraft:music_disc_ward", 576],
-  ["minecraft:music_disc_11", 577],
-  ["minecraft:music_disc_wait", 578],
-  ["minecraft:trident", 579],
-  ["minecraft:lead", 580],
-  ["minecraft:name_tag", 581],
-  ["minecraft:prismarine_crystals", 582],
-  ["minecraft:mutton", 583],
-  ["minecraft:cooked_mutton", 584],
-  ["minecraft:armor_stand", 585],
-  ["minecraft:spruce_door", 586],
-  ["minecraft:birch_door", 587],
-  ["minecraft:jungle_door", 588],
-  ["minecraft:acacia_door", 589],
-  ["minecraft:dark_oak_door", 590],
-  ["minecraft:chorus_fruit", 591],
-  ["minecraft:popped_chorus_fruit", 592],
-  ["minecraft:dragon_breath", 593],
-  ["minecraft:splash_potion", 594],
-  ["minecraft:lingering_potion", 595],
-  ["minecraft:command_block_minecart", 596],
-  ["minecraft:elytra", 597],
-  ["minecraft:prismarine_shard", 598],
-  ["minecraft:shulker_shell", 599],
-  ["minecraft:banner", 600],
-  ["minecraft:totem_of_undying", 601],
-  ["minecraft:iron_nugget", 602],
-  ["minecraft:nautilus_shell", 603],
-  ["minecraft:heart_of_the_sea", 604],
-  ["minecraft:turtle_scute", 605],
-  ["minecraft:turtle_helmet", 606],
-  ["minecraft:phantom_membrane", 607],
-  ["minecraft:crossbow", 608],
-  ["minecraft:spruce_sign", 609],
-  ["minecraft:birch_sign", 610],
-  ["minecraft:jungle_sign", 611],
-  ["minecraft:acacia_sign", 612],
-  ["minecraft:dark_oak_sign", 613],
-  ["minecraft:flower_banner_pattern", 614],
-  ["minecraft:creeper_banner_pattern", 615],
-  ["minecraft:skull_banner_pattern", 616],
-  ["minecraft:mojang_banner_pattern", 617],
-  ["minecraft:field_masoned_banner_pattern", 618],
-  ["minecraft:bordure_indented_banner_pattern", 619],
-  ["minecraft:piglin_banner_pattern", 620],
-  ["minecraft:globe_banner_pattern", 621],
-  ["minecraft:flow_banner_pattern", 622],
-  ["minecraft:guster_banner_pattern", 623],
-  ["minecraft:campfire", 624],
-  ["minecraft:suspicious_stew", 625],
-  ["minecraft:honeycomb", 626],
-  ["minecraft:honey_bottle", 627],
-  ["minecraft:ominous_bottle", 628],
-  ["minecraft:chalkboard", 629],
-  ["minecraft:camera_block", 630],
-  ["minecraft:compound", 631],
-  ["minecraft:ice_bomb", 632],
-  ["minecraft:bleach", 633],
-  ["minecraft:rapid_fertilizer", 634],
-  ["minecraft:balloon", 635],
-  ["minecraft:medicine", 636],
-  ["minecraft:sparkler", 637],
-  ["minecraft:glow_stick", 638],
-  ["minecraft:lodestone_compass", 639],
-  ["minecraft:netherite_sword", 640],
-  ["minecraft:netherite_shovel", 641],
-  ["minecraft:netherite_pickaxe", 642],
-  ["minecraft:netherite_axe", 643],
-  ["minecraft:netherite_hoe", 644],
-  ["minecraft:netherite_ingot", 645],
-  ["minecraft:netherite_helmet", 646],
-  ["minecraft:netherite_chestplate", 647],
-  ["minecraft:netherite_leggings", 648],
-  ["minecraft:netherite_boots", 649],
-  ["minecraft:netherite_scrap", 650],
-  ["minecraft:crimson_sign", 651],
-  ["minecraft:warped_sign", 652],
-  ["minecraft:crimson_door", 653],
-  ["minecraft:warped_door", 654],
-  ["minecraft:warped_fungus_on_a_stick", 655],
-  ["minecraft:chain", 656],
-  ["minecraft:music_disc_pigstep", 657],
-  ["minecraft:nether_sprouts", 658],
-  ["minecraft:soul_campfire", 659],
-  ["minecraft:glow_frame", 660],
-  ["minecraft:amethyst_shard", 661],
-  ["minecraft:spyglass", 662],
-  ["minecraft:music_disc_otherside", 663],
-  ["minecraft:goat_horn", 664],
-  ["minecraft:frog_spawn_egg", 665],
-  ["minecraft:tadpole_spawn_egg", 666],
-  ["minecraft:tadpole_bucket", 667],
-  ["minecraft:allay_spawn_egg", 668],
-  ["minecraft:warden_spawn_egg", 669],
-  ["minecraft:mangrove_door", 670],
-  ["minecraft:mangrove_sign", 671],
-  ["minecraft:mangrove_boat", 672],
-  ["minecraft:music_disc_5", 673],
-  ["minecraft:disc_fragment_5", 674],
-  ["minecraft:oak_chest_boat", 675],
-  ["minecraft:birch_chest_boat", 676],
-  ["minecraft:jungle_chest_boat", 677],
-  ["minecraft:spruce_chest_boat", 678],
-  ["minecraft:acacia_chest_boat", 679],
-  ["minecraft:dark_oak_chest_boat", 680],
-  ["minecraft:mangrove_chest_boat", 681],
-  ["minecraft:recovery_compass", 683],
-  ["minecraft:echo_shard", 684],
-  ["minecraft:trader_llama_spawn_egg", 685],
-  ["minecraft:cherry_boat", 686],
-  ["minecraft:cherry_chest_boat", 687],
-  ["minecraft:cherry_sign", 688],
-  ["minecraft:bamboo_sign", 689],
-  ["minecraft:bamboo_raft", 690],
-  ["minecraft:bamboo_chest_raft", 691],
-  ["minecraft:camel_spawn_egg", 692],
-  ["minecraft:angler_pottery_sherd", 693],
-  ["minecraft:archer_pottery_sherd", 694],
-  ["minecraft:arms_up_pottery_sherd", 695],
-  ["minecraft:blade_pottery_sherd", 696],
-  ["minecraft:brewer_pottery_sherd", 697],
-  ["minecraft:burn_pottery_sherd", 698],
-  ["minecraft:danger_pottery_sherd", 699],
-  ["minecraft:explorer_pottery_sherd", 700],
-  ["minecraft:flow_pottery_sherd", 701],
-  ["minecraft:friend_pottery_sherd", 702],
-  ["minecraft:guster_pottery_sherd", 703],
-  ["minecraft:heart_pottery_sherd", 704],
-  ["minecraft:heartbreak_pottery_sherd", 705],
-  ["minecraft:howl_pottery_sherd", 706],
-  ["minecraft:miner_pottery_sherd", 707],
-  ["minecraft:mourner_pottery_sherd", 708],
-  ["minecraft:plenty_pottery_sherd", 709],
-  ["minecraft:prize_pottery_sherd", 710],
-  ["minecraft:scrape_pottery_sherd", 711],
-  ["minecraft:sheaf_pottery_sherd", 712],
-  ["minecraft:shelter_pottery_sherd", 713],
-  ["minecraft:skull_pottery_sherd", 714],
-  ["minecraft:snort_pottery_sherd", 715],
-  ["minecraft:brush", 716],
-  ["minecraft:netherite_upgrade_smithing_template", 717],
-  ["minecraft:sentry_armor_trim_smithing_template", 718],
-  ["minecraft:dune_armor_trim_smithing_template", 719],
-  ["minecraft:coast_armor_trim_smithing_template", 720],
-  ["minecraft:wild_armor_trim_smithing_template", 721],
-  ["minecraft:ward_armor_trim_smithing_template", 722],
-  ["minecraft:eye_armor_trim_smithing_template", 723],
-  ["minecraft:vex_armor_trim_smithing_template", 724],
-  ["minecraft:tide_armor_trim_smithing_template", 725],
-  ["minecraft:snout_armor_trim_smithing_template", 726],
-  ["minecraft:rib_armor_trim_smithing_template", 727],
-  ["minecraft:spire_armor_trim_smithing_template", 728],
-  ["minecraft:silence_armor_trim_smithing_template", 729],
-  ["minecraft:wayfinder_armor_trim_smithing_template", 730],
-  ["minecraft:raiser_armor_trim_smithing_template", 731],
-  ["minecraft:shaper_armor_trim_smithing_template", 732],
-  ["minecraft:host_armor_trim_smithing_template", 733],
-  ["minecraft:flow_armor_trim_smithing_template", 734],
-  ["minecraft:bolt_armor_trim_smithing_template", 735],
-  ["minecraft:music_disc_relic", 736],
-  ["minecraft:skull", 737],
-  ["minecraft:white_terracotta", 738],
-  ["minecraft:armadillo_spawn_egg", 739],
-  ["minecraft:armadillo_scute", 740],
-  ["minecraft:wolf_armor", 741],
-  ["minecraft:pale_oak_boat", 744],
-  ["minecraft:pale_oak_chest_boat", 745],
-  ["minecraft:pale_oak_sign", 746],
-  ["minecraft:creaking_spawn_egg", 747],
-  ["minecraft:resin_brick", 748],
-  ["minecraft:blue_egg", 749],
-  ["minecraft:brown_egg", 750],
-  ["minecraft:happy_ghast_spawn_egg", 751],
-  ["minecraft:black_harness", 752],
-  ["minecraft:blue_harness", 753],
-  ["minecraft:brown_harness", 754],
-  ["minecraft:cyan_harness", 755],
-  ["minecraft:gray_harness", 756],
-  ["minecraft:green_harness", 757],
-  ["minecraft:light_blue_harness", 758],
-  ["minecraft:light_gray_harness", 759],
-  ["minecraft:lime_harness", 760],
-  ["minecraft:magenta_harness", 761],
-  ["minecraft:orange_harness", 762],
-  ["minecraft:pink_harness", 763],
-  ["minecraft:purple_harness", 764],
-  ["minecraft:red_harness", 765],
-  ["minecraft:white_harness", 766],
-  ["minecraft:yellow_harness", 767],
-  ["minecraft:copper_golem_spawn_egg", 768],
-  ["minecraft:copper_sword", 769],
-  ["minecraft:copper_shovel", 770],
-  ["minecraft:copper_pickaxe", 771],
-  ["minecraft:copper_axe", 772],
-  ["minecraft:copper_hoe", 773],
-  ["minecraft:copper_helmet", 774],
-  ["minecraft:copper_chestplate", 775],
-  ["minecraft:copper_leggings", 776],
-  ["minecraft:copper_boots", 777],
-  ["minecraft:copper_nugget", 778],
-  ["minecraft:wool", 779],
-  ["minecraft:carpet", 780],
-  ["minecraft:log", 781],
-  ["minecraft:fence", 782],
-  ["minecraft:stonebrick", 783],
-  ["minecraft:coral_block", 784],
-  ["minecraft:stone_block_slab", 785],
-  ["minecraft:stone_block_slab2", 786],
-  ["minecraft:stone_block_slab3", 787],
-  ["minecraft:stone_block_slab4", 788],
-  ["minecraft:double_stone_block_slab", 789],
-  ["minecraft:double_stone_block_slab2", 790],
-  ["minecraft:double_stone_block_slab3", 791],
-  ["minecraft:double_stone_block_slab4", 792],
-  ["minecraft:coral_fan", 793],
-  ["minecraft:coral_fan_dead", 794],
-  ["minecraft:sapling", 795],
-  ["minecraft:leaves", 796],
-  ["minecraft:leaves2", 797],
-  ["minecraft:wooden_slab", 798],
-  ["minecraft:red_flower", 799],
-  ["minecraft:double_plant", 800],
-  ["minecraft:double_wooden_slab", 801],
-  ["minecraft:coral", 802],
-  ["minecraft:tallgrass", 803],
-  ["minecraft:log2", 804],
-  ["minecraft:monster_egg", 805],
-  ["minecraft:concrete", 806],
-  ["minecraft:concrete_powder", 807],
-  ["minecraft:stained_glass", 808],
-  ["minecraft:stained_glass_pane", 809],
-  ["minecraft:shulker_box", 810],
-  ["minecraft:wood", 811],
-  ["minecraft:music_disc_creator", 812],
-  ["minecraft:music_disc_creator_music_box", 813],
-  ["minecraft:music_disc_precipice", 814],
-  ["minecraft:music_disc_tears", 815],
-  ["minecraft:music_disc_lava_chicken", 816],
-  ["minecraft:chemistry_table", 817],
-  ["minecraft:hard_stained_glass", 818],
-  ["minecraft:hard_stained_glass_pane", 819],
-  ["minecraft:colored_torch_rg", 820],
-  ["minecraft:colored_torch_bp", 821],
-  ["minecraft:light_block", 822],
-  ["minecraft:boat", 823],
-  ["minecraft:dye", 824],
-  ["minecraft:banner_pattern", 825],
-  ["minecraft:spawn_egg", 826],
-  ["minecraft:end_crystal", 827],
-  ["minecraft:glow_berries", 828]
-]);
-var typeIdToDataId = /* @__PURE__ */ new Map([
-  ["minecraft:respawn_anchor_charge_0", -272],
-  ["minecraft:respawn_anchor_charge_1", -272 + 1 / 65536],
-  ["minecraft:respawn_anchor_charge_2", -272 + 2 / 65536],
-  ["minecraft:respawn_anchor_charge_3", -272 + 3 / 65536],
-  ["minecraft:respawn_anchor_charge_4", -272 + 4 / 65536],
-  ["minecraft:barrel_closed", -203],
-  ["minecraft:barrel_open", -203 + 1 / 65536],
-  ["minecraft:redstone_wire_power_0", 55],
-  ["minecraft:redstone_wire_power_1", 55 + 1 / 65536],
-  ["minecraft:redstone_wire_power_2", 55 + 2 / 65536],
-  ["minecraft:redstone_wire_power_3", 55 + 3 / 65536],
-  ["minecraft:redstone_wire_power_4", 55 + 4 / 65536],
-  ["minecraft:redstone_wire_power_5", 55 + 5 / 65536],
-  ["minecraft:redstone_wire_power_6", 55 + 6 / 65536],
-  ["minecraft:redstone_wire_power_7", 55 + 7 / 65536],
-  ["minecraft:redstone_wire_power_8", 55 + 8 / 65536],
-  ["minecraft:redstone_wire_power_9", 55 + 9 / 65536],
-  ["minecraft:redstone_wire_power_10", 55 + 10 / 65536],
-  ["minecraft:redstone_wire_power_11", 55 + 11 / 65536],
-  ["minecraft:redstone_wire_power_12", 55 + 12 / 65536],
-  ["minecraft:redstone_wire_power_13", 55 + 13 / 65536],
-  ["minecraft:redstone_wire_power_14", 55 + 14 / 65536],
-  ["minecraft:redstone_wire_power_15", 55 + 15 / 65536],
-  ["minecraft:wheat_plant_stage_0", 59],
-  ["minecraft:wheat_plant_stage_1", 59 + 1 / 65536],
-  ["minecraft:wheat_plant_stage_2", 59 + 2 / 65536],
-  ["minecraft:wheat_plant_stage_3", 59 + 3 / 65536],
-  ["minecraft:wheat_plant_stage_4", 59 + 4 / 65536],
-  ["minecraft:wheat_plant_stage_5", 59 + 5 / 65536],
-  ["minecraft:wheat_plant_stage_6", 59 + 6 / 65536],
-  ["minecraft:wheat_plant_stage_7", 59 + 7 / 65536],
-  ["minecraft:wet_farmland", 60 + 1 / 65536],
-  ["minecraft:snow_layer_1", 78],
-  ["minecraft:snow_layer_2", 78 + 1 / 65536],
-  ["minecraft:snow_layer_3", 78 + 2 / 65536],
-  ["minecraft:snow_layer_4", 78 + 3 / 65536],
-  ["minecraft:snow_layer_5", 78 + 4 / 65536],
-  ["minecraft:snow_layer_6", 78 + 5 / 65536],
-  ["minecraft:snow_layer_7", 78 + 6 / 65536],
-  ["minecraft:snow_layer_8", 78 + 7 / 65536],
-  ["minecraft:cake_block_slice_0", 92],
-  ["minecraft:cake_block_slice_1", 92 + 1 / 65536],
-  ["minecraft:cake_block_slice_2", 92 + 2 / 65536],
-  ["minecraft:cake_block_slice_3", 92 + 3 / 65536],
-  ["minecraft:cake_block_slice_4", 92 + 4 / 65536],
-  ["minecraft:cake_block_slice_5", 92 + 5 / 65536],
-  ["minecraft:cake_block_slice_6", 92 + 6 / 65536],
-  ["minecraft:brown_mushroom_block_bit_0", 99],
-  ["minecraft:brown_mushroom_block_bit_1", 99 + 1 / 65536],
-  ["minecraft:brown_mushroom_block_bit_2", 99 + 2 / 65536],
-  ["minecraft:brown_mushroom_block_bit_3", 99 + 3 / 65536],
-  ["minecraft:brown_mushroom_block_bit_4", 99 + 4 / 65536],
-  ["minecraft:brown_mushroom_block_bit_5", 99 + 5 / 65536],
-  ["minecraft:brown_mushroom_block_bit_6", 99 + 6 / 65536],
-  ["minecraft:brown_mushroom_block_bit_7", 99 + 7 / 65536],
-  ["minecraft:brown_mushroom_block_bit_8", 99 + 8 / 65536],
-  ["minecraft:brown_mushroom_block_bit_9", 99 + 9 / 65536],
-  ["minecraft:brown_mushroom_block_bit_10", 99 + 10 / 65536],
-  ["minecraft:brown_mushroom_block_bit_11", 99 + 11 / 65536],
-  ["minecraft:brown_mushroom_block_bit_12", 99 + 12 / 65536],
-  ["minecraft:brown_mushroom_block_bit_13", 99 + 13 / 65536],
-  ["minecraft:brown_mushroom_block_bit_14", 99 + 14 / 65536],
-  ["minecraft:brown_mushroom_block_bit_15", 99 + 15 / 65536],
-  ["minecraft:red_mushroom_block_bit_0", 100],
-  ["minecraft:red_mushroom_block_bit_1", 100 + 1 / 65536],
-  ["minecraft:red_mushroom_block_bit_2", 100 + 2 / 65536],
-  ["minecraft:red_mushroom_block_bit_3", 100 + 3 / 65536],
-  ["minecraft:red_mushroom_block_bit_4", 100 + 4 / 65536],
-  ["minecraft:red_mushroom_block_bit_5", 100 + 5 / 65536],
-  ["minecraft:red_mushroom_block_bit_6", 100 + 6 / 65536],
-  ["minecraft:red_mushroom_block_bit_7", 100 + 7 / 65536],
-  ["minecraft:red_mushroom_block_bit_8", 100 + 8 / 65536],
-  ["minecraft:red_mushroom_block_bit_9", 100 + 9 / 65536],
-  ["minecraft:red_mushroom_block_bit_10", 100 + 10 / 65536],
-  ["minecraft:red_mushroom_block_bit_11", 100 + 11 / 65536],
-  ["minecraft:red_mushroom_block_bit_12", 100 + 12 / 65536],
-  ["minecraft:red_mushroom_block_bit_13", 100 + 13 / 65536],
-  ["minecraft:red_mushroom_block_bit_14", 100 + 14 / 65536],
-  ["minecraft:red_mushroom_block_bit_15", 100 + 15 / 65536],
-  ["minecraft:attached_pumpkin_stem", 104 + 1 / 65536],
-  ["minecraft:attached_melon_stem", 105 + 1 / 65536],
-  ["minecraft:nether_wart_plant_stage_0", 115],
-  ["minecraft:nether_wart_plant_stage_1", 115 + 1 / 65536],
-  ["minecraft:nether_wart_plant_stage_2", 115 + 2 / 65536],
-  ["minecraft:nether_wart_plant_stage_3", 115 + 3 / 65536],
-  ["minecraft:filled_end_portal_frame", 120 + 4 / 65536],
-  ["minecraft:cocoa_stage_0", 127],
-  ["minecraft:cocoa_stage_1", 127 + 1 / 65536],
-  ["minecraft:cocoa_stage_2", 127 + 2 / 65536],
-  ["minecraft:cocoa_stage_3", 127 + 3 / 65536],
-  ["minecraft:conditional_command_block", 137 + 8 / 65536],
-  ["minecraft:carrots_stage_0", 141],
-  ["minecraft:carrots_stage_1", 141 + 1 / 65536],
-  ["minecraft:carrots_stage_2", 141 + 2 / 65536],
-  ["minecraft:carrots_stage_3", 141 + 3 / 65536],
-  ["minecraft:carrots_stage_4", 141 + 4 / 65536],
-  ["minecraft:carrots_stage_5", 141 + 5 / 65536],
-  ["minecraft:carrots_stage_6", 141 + 6 / 65536],
-  ["minecraft:carrots_stage_7", 141 + 7 / 65536],
-  ["minecraft:potatoes_stage_0", 142],
-  ["minecraft:potatoes_stage_1", 142 + 1 / 65536],
-  ["minecraft:potatoes_stage_2", 142 + 2 / 65536],
-  ["minecraft:potatoes_stage_3", 142 + 3 / 65536],
-  ["minecraft:potatoes_stage_4", 142 + 4 / 65536],
-  ["minecraft:potatoes_stage_5", 142 + 5 / 65536],
-  ["minecraft:potatoes_stage_6", 142 + 6 / 65536],
-  ["minecraft:potatoes_stage_7", 142 + 7 / 65536],
-  ["minecraft:black_standing_banner", 176],
-  ["minecraft:red_standing_banner", 176 + 1 / 65536],
-  ["minecraft:green_standing_banner", 176 + 2 / 65536],
-  ["minecraft:brown_standing_banner", 176 + 3 / 65536],
-  ["minecraft:blue_standing_banner", 176 + 4 / 65536],
-  ["minecraft:purple_standing_banner", 176 + 5 / 65536],
-  ["minecraft:cyan_standing_banner", 176 + 6 / 65536],
-  ["minecraft:light_gray_standing_banner", 176 + 7 / 65536],
-  ["minecraft:gray_standing_banner", 176 + 8 / 65536],
-  ["minecraft:pink_standing_banner", 176 + 9 / 65536],
-  ["minecraft:lime_standing_banner", 176 + 10 / 65536],
-  ["minecraft:yellow_standing_banner", 176 + 11 / 65536],
-  ["minecraft:light_blue_standing_banner", 176 + 12 / 65536],
-  ["minecraft:magenta_standing_banner", 176 + 13 / 65536],
-  ["minecraft:orange_standing_banner", 176 + 14 / 65536],
-  ["minecraft:white_standing_banner", 176 + 15 / 65536],
-  ["minecraft:black_wall_banner", 177],
-  ["minecraft:red_wall_banner", 177 + 1 / 65536],
-  ["minecraft:green_wall_banner", 177 + 2 / 65536],
-  ["minecraft:brown_wall_banner", 177 + 3 / 65536],
-  ["minecraft:blue_wall_banner", 177 + 4 / 65536],
-  ["minecraft:purple_wall_banner", 177 + 5 / 65536],
-  ["minecraft:cyan_wall_banner", 177 + 6 / 65536],
-  ["minecraft:light_gray_wall_banner", 177 + 7 / 65536],
-  ["minecraft:gray_wall_banner", 177 + 8 / 65536],
-  ["minecraft:pink_wall_banner", 177 + 9 / 65536],
-  ["minecraft:lime_wall_banner", 177 + 10 / 65536],
-  ["minecraft:yellow_wall_banner", 177 + 11 / 65536],
-  ["minecraft:light_blue_wall_banner", 177 + 12 / 65536],
-  ["minecraft:magenta_wall_banner", 177 + 13 / 65536],
-  ["minecraft:orange_wall_banner", 177 + 14 / 65536],
-  ["minecraft:white_wall_banner", 177 + 15 / 65536],
-  ["minecraft:conditional_repeating_command_block", 188 + 8 / 65536],
-  ["minecraft:conditional_chain_command_block", 189 + 8 / 65536],
-  ["minecraft:beetroots_stage_0", 244],
-  ["minecraft:beetroots_stage_1", 244 + 1 / 65536],
-  ["minecraft:beetroots_stage_2", 244 + 2 / 65536],
-  ["minecraft:beetroots_stage_3", 244 + 3 / 65536],
-  ["minecraft:beetroots_stage_4", 244 + 4 / 65536],
-  ["minecraft:beetroots_stage_5", 244 + 5 / 65536],
-  ["minecraft:beetroots_stage_6", 244 + 6 / 65536],
-  ["minecraft:beetroots_stage_7", 244 + 7 / 65536],
-  ["minecraft:structure_block_data", 252],
-  ["minecraft:structure_block_save", 252 + 1 / 65536],
-  ["minecraft:structure_block_load", 252 + 2 / 65536],
-  ["minecraft:structure_block_corner", 252 + 3 / 65536],
-  ["minecraft:structure_block_invalid", 252 + 4 / 65536],
-  ["minecraft:structure_block_export", 252 + 5 / 65536],
-  ["minecraft:splash_arrow", 325 + 1 / 65536],
-  ["minecraft:mundane_arrow", 325 + 2 / 65536],
-  ["minecraft:thick_arrow", 325 + 4 / 65536],
-  ["minecraft:awkward_arrow", 325 + 5 / 65536],
-  ["minecraft:night_vision_arrow", 325 + 6 / 65536],
-  ["minecraft:leaping_arrow", 325 + 9 / 65536],
-  ["minecraft:fire_resistance_arrow", 325 + 13 / 65536],
-  ["minecraft:swiftness_arrow", 325 + 15 / 65536],
-  ["minecraft:slowness_arrow", 325 + 18 / 65536],
-  ["minecraft:water_breathing_arrow", 325 + 20 / 65536],
-  ["minecraft:healing_arrow", 325 + 22 / 65536],
-  ["minecraft:harming_arrow", 325 + 24 / 65536],
-  ["minecraft:poison_arrow", 325 + 26 / 65536],
-  ["minecraft:regeneration_arrow", 325 + 29 / 65536],
-  ["minecraft:strength_arrow", 325 + 32 / 65536],
-  ["minecraft:weakness_arrow", 325 + 35 / 65536],
-  ["minecraft:decay_arrow", 325 + 37 / 65536],
-  ["minecraft:turtle_master_arrow", 325 + 38 / 65536],
-  ["minecraft:slow_falling_arrow", 325 + 41 / 65536],
-  ["minecraft:white_bed", 444],
-  ["minecraft:red_bed", 444 + 1 / 65536],
-  ["minecraft:green_bed", 444 + 2 / 65536],
-  ["minecraft:brown_bed", 444 + 3 / 65536],
-  ["minecraft:blue_bed", 444 + 4 / 65536],
-  ["minecraft:purple_bed", 444 + 5 / 65536],
-  ["minecraft:cyan_bed", 444 + 6 / 65536],
-  ["minecraft:light_gray_bed", 444 + 7 / 65536],
-  ["minecraft:gray_bed", 444 + 8 / 65536],
-  ["minecraft:pink_bed", 444 + 9 / 65536],
-  ["minecraft:lime_bed", 444 + 10 / 65536],
-  ["minecraft:yellow_bed", 444 + 11 / 65536],
-  ["minecraft:light_blue_bed", 444 + 12 / 65536],
-  ["minecraft:magenta_bed", 444 + 13 / 65536],
-  ["minecraft:orange_bed", 444 + 14 / 65536],
-  ["minecraft:black_bed", 444 + 15 / 65536],
-  ["minecraft:locator_map", 446 + 2 / 65536],
-  ["minecraft:ocean_explorer_map", 446 + 3 / 65536],
-  ["minecraft:woodland_explorer_map", 446 + 4 / 65536],
-  ["minecraft:treasure_map", 446 + 5 / 65536],
-  ["minecraft:locked_map", 446 + 6 / 65536],
-  ["minecraft:snowy_village_map", 446 + 7 / 65536],
-  ["minecraft:taiga_village_map", 446 + 8 / 65536],
-  ["minecraft:plains_village_map", 446 + 9 / 65536],
-  ["minecraft:savanna_village_map", 446 + 10 / 65536],
-  ["minecraft:desert_village_map", 446 + 11 / 65536],
-  ["minecraft:jungle_village_map", 446 + 12 / 65536],
-  ["minecraft:swamp_village_map", 446 + 13 / 65536],
-  ["minecraft:mundane_potion", 453 + 1 / 65536],
-  ["minecraft:thick_potion", 453 + 3 / 65536],
-  ["minecraft:awkward_potion", 453 + 4 / 65536],
-  ["minecraft:night_vision_potion", 453 + 5 / 65536],
-  ["minecraft:leaping_potion", 453 + 8 / 65536],
-  ["minecraft:fire_resistance_potion", 453 + 12 / 65536],
-  ["minecraft:swiftness_potion", 453 + 14 / 65536],
-  ["minecraft:slowness_potion", 453 + 17 / 65536],
-  ["minecraft:water_breathing_potion", 453 + 19 / 65536],
-  ["minecraft:healing_potion", 453 + 21 / 65536],
-  ["minecraft:harming_potion", 453 + 23 / 65536],
-  ["minecraft:poison_potion", 453 + 25 / 65536],
-  ["minecraft:regeneration_potion", 453 + 28 / 65536],
-  ["minecraft:strength_potion", 453 + 31 / 65536],
-  ["minecraft:weakness_potion", 453 + 34 / 65536],
-  ["minecraft:decay_potion", 453 + 36 / 65536],
-  ["minecraft:turtle_master_potion", 453 + 37 / 65536],
-  ["minecraft:slow_falling_potion", 453 + 40 / 65536],
-  ["minecraft:wind_charged_potion", 453 + 43 / 65536],
-  ["minecraft:weaving_potion", 453 + 44 / 65536],
-  ["minecraft:oozing_potion", 453 + 45 / 65536],
-  ["minecraft:infestation_potion", 453 + 46 / 65536],
-  ["minecraft:mundane_splash_potion", 594 + 1 / 65536],
-  ["minecraft:thick_splash_potion", 594 + 3 / 65536],
-  ["minecraft:awkward_splash_potion", 594 + 4 / 65536],
-  ["minecraft:night_vision_splash_potion", 594 + 5 / 65536],
-  ["minecraft:leaping_splash_potion", 594 + 8 / 65536],
-  ["minecraft:fire_resistance_splash_potion", 594 + 12 / 65536],
-  ["minecraft:swiftness_splash_potion", 594 + 14 / 65536],
-  ["minecraft:slowness_splash_potion", 594 + 17 / 65536],
-  ["minecraft:water_breathing_splash_potion", 594 + 19 / 65536],
-  ["minecraft:healing_splash_potion", 594 + 21 / 65536],
-  ["minecraft:harming_splash_potion", 594 + 23 / 65536],
-  ["minecraft:poison_splash_potion", 594 + 25 / 65536],
-  ["minecraft:regeneration_splash_potion", 594 + 28 / 65536],
-  ["minecraft:strength_splash_potion", 594 + 31 / 65536],
-  ["minecraft:weakness_splash_potion", 594 + 34 / 65536],
-  ["minecraft:decay_splash_potion", 594 + 36 / 65536],
-  ["minecraft:turtle_master_splash_potion", 594 + 37 / 65536],
-  ["minecraft:slow_falling_splash_potion", 594 + 40 / 65536],
-  ["minecraft:wind_charged_splash_potion", 453 + 43 / 65536],
-  ["minecraft:weaving_splash_potion", 453 + 44 / 65536],
-  ["minecraft:oozing_splash_potion", 453 + 45 / 65536],
-  ["minecraft:infestation_splash_potion", 453 + 46 / 65536],
-  ["minecraft:mundane_lingering_potion", 595 + 1 / 65536],
-  ["minecraft:thick_lingering_potion", 595 + 3 / 65536],
-  ["minecraft:awkward_lingering_potion", 595 + 4 / 65536],
-  ["minecraft:night_vision_lingering_potion", 595 + 5 / 65536],
-  ["minecraft:leaping_lingering_potion", 595 + 8 / 65536],
-  ["minecraft:fire_resistance_lingering_potion", 595 + 12 / 65536],
-  ["minecraft:swiftness_lingering_potion", 595 + 14 / 65536],
-  ["minecraft:slowness_lingering_potion", 595 + 17 / 65536],
-  ["minecraft:water_breathing_lingering_potion", 595 + 19 / 65536],
-  ["minecraft:healing_lingering_potion", 595 + 21 / 65536],
-  ["minecraft:harming_lingering_potion", 595 + 23 / 65536],
-  ["minecraft:poison_lingering_potion", 595 + 25 / 65536],
-  ["minecraft:regeneration_lingering_potion", 595 + 28 / 65536],
-  ["minecraft:strength_lingering_potion", 595 + 31 / 65536],
-  ["minecraft:weakness_lingering_potion", 595 + 34 / 65536],
-  ["minecraft:decay_lingering_potion", 595 + 36 / 65536],
-  ["minecraft:turtle_master_lingering_potion", 595 + 37 / 65536],
-  ["minecraft:slow_falling_lingering_potion", 595 + 40 / 65536],
-  ["minecraft:wind_charged_lingering_potion", 453 + 43 / 65536],
-  ["minecraft:weaving_lingering_potion", 453 + 44 / 65536],
-  ["minecraft:oozing_lingering_potion", 453 + 45 / 65536],
-  ["minecraft:infestation_lingering_potion", 453 + 46 / 65536],
-  ["minecraft:black_banner", 600],
-  ["minecraft:red_banner", 600 + 1 / 65536],
-  ["minecraft:green_banner", 600 + 2 / 65536],
-  ["minecraft:brown_banner", 600 + 3 / 65536],
-  ["minecraft:blue_banner", 600 + 4 / 65536],
-  ["minecraft:purple_banner", 600 + 5 / 65536],
-  ["minecraft:cyan_banner", 600 + 6 / 65536],
-  ["minecraft:light_gray_banner", 600 + 7 / 65536],
-  ["minecraft:gray_banner", 600 + 8 / 65536],
-  ["minecraft:pink_banner", 600 + 9 / 65536],
-  ["minecraft:lime_banner", 600 + 10 / 65536],
-  ["minecraft:yellow_banner", 600 + 11 / 65536],
-  ["minecraft:light_blue_banner", 600 + 12 / 65536],
-  ["minecraft:magenta_banner", 600 + 13 / 65536],
-  ["minecraft:orange_banner", 600 + 14 / 65536],
-  ["minecraft:white_banner", 600 + 15 / 65536],
-  ["minecraft:compound_salt", 631],
-  ["minecraft:compound_sodium_oxide", 631 + 1 / 65536],
-  ["minecraft:compound_sodium_hydroxide", 631 + 2 / 65536],
-  ["minecraft:compound_magnesium_nitrate", 631 + 3 / 65536],
-  ["minecraft:compound_iron_sulfide", 631 + 4 / 65536],
-  ["minecraft:compound_lithium_hydride", 631 + 5 / 65536],
-  ["minecraft:compound_sodium_hydride", 631 + 6 / 65536],
-  ["minecraft:compound_calcium_bromide", 631 + 7 / 65536],
-  ["minecraft:compound_magnesium_oxide", 631 + 8 / 65536],
-  ["minecraft:compound_sodium_acetate", 631 + 9 / 65536],
-  ["minecraft:compound_luminol", 631 + 10 / 65536],
-  ["minecraft:compound_charcoal", 631 + 11 / 65536],
-  ["minecraft:compound_sugar", 631 + 12 / 65536],
-  ["minecraft:compound_aluminum_oxide", 631 + 13 / 65536],
-  ["minecraft:compound_boron_trioxide", 631 + 14 / 65536],
-  ["minecraft:compound_soap", 631 + 15 / 65536],
-  ["minecraft:compound_polyethylene", 631 + 16 / 65536],
-  ["minecraft:compound_garbage", 631 + 17 / 65536],
-  ["minecraft:compound_blue_jar", 631 + 24 / 65536],
-  ["minecraft:compound_blue_beaker", 631 + 26 / 65536],
-  ["minecraft:compound_glue", 631 + 27 / 65536],
-  ["minecraft:compound_white_beaker", 631 + 28 / 65536],
-  ["minecraft:compound_black_beaker", 631 + 29 / 65536],
-  ["minecraft:compound_yellow_beaker", 631 + 31 / 65536],
-  ["minecraft:compound_clear_beaker", 631 + 35 / 65536],
-  ["minecraft:compound_blue_bottle", 631 + 38 / 65536],
-  ["minecraft:white_balloon", 635],
-  ["minecraft:red_balloon", 635 + 1 / 65536],
-  ["minecraft:green_balloon", 635 + 2 / 65536],
-  ["minecraft:brown_balloon", 635 + 3 / 65536],
-  ["minecraft:blue_balloon", 635 + 4 / 65536],
-  ["minecraft:purple_balloon", 635 + 5 / 65536],
-  ["minecraft:cyan_balloon", 635 + 6 / 65536],
-  ["minecraft:light_gray_balloon", 635 + 7 / 65536],
-  ["minecraft:gray_balloon", 635 + 8 / 65536],
-  ["minecraft:pink_balloon", 635 + 9 / 65536],
-  ["minecraft:lime_balloon", 635 + 10 / 65536],
-  ["minecraft:yellow_balloon", 635 + 11 / 65536],
-  ["minecraft:light_blue_balloon", 635 + 12 / 65536],
-  ["minecraft:magenta_balloon", 635 + 13 / 65536],
-  ["minecraft:orange_balloon", 635 + 14 / 65536],
-  ["minecraft:black_balloon", 635 + 15 / 65536],
-  ["minecraft:eye_drops", 636],
-  ["minecraft:tonic", 636 + 1 / 65536],
-  ["minecraft:antidote", 636 + 2 / 65536],
-  ["minecraft:elixir", 636 + 3 / 65536],
-  ["minecraft:blue_sparkler", 637],
-  ["minecraft:red_sparkler", 637 + 1 / 65536],
-  ["minecraft:green_sparkler", 637 + 2 / 65536],
-  ["minecraft:pink_sparker", 637 + 5 / 65536],
-  ["minecraft:orange_sparkler", 637 + 14 / 65536],
-  ["minecraft:lit_blue_sparkler", 637 + 32 / 65536],
-  ["minecraft:lit_red_sparkler", 637 + 33 / 65536],
-  ["minecraft:lit_green_sparkler", 637 + 34 / 65536],
-  ["minecraft:lit_pink_sparker", 637 + 37 / 65536],
-  ["minecraft:lit_orange_sparkler", 637 + 46 / 65536],
-  ["minecraft:red_glowstick", 638 + 1 / 65536],
-  ["minecraft:green_glowstick", 638 + 2 / 65536],
-  ["minecraft:brown_glowstick", 638 + 3 / 65536],
-  ["minecraft:blue_glowstick", 638 + 4 / 65536],
-  ["minecraft:purple_glowstick", 638 + 5 / 65536],
-  ["minecraft:cyan_glowstick", 638 + 6 / 65536],
-  ["minecraft:red_glowstick", 638 + 7 / 65536],
-  ["minecraft:gray_glowstick", 638 + 8 / 65536],
-  ["minecraft:pink_glowstick", 638 + 9 / 65536],
-  ["minecraft:lime_glowstick", 638 + 10 / 65536],
-  ["minecraft:yellow_glowstick", 638 + 11 / 65536],
-  ["minecraft:light_blue_glowstick", 638 + 12 / 65536],
-  ["minecraft:magenta_glowstick", 638 + 13 / 65536],
-  ["minecraft:orange_glowstick", 638 + 14 / 65536],
-  ["minecraft:white_glowstick", 638 + 15 / 65536],
-  ["minecraft:lit_red_glowstick", 638 + 33 / 65536],
-  ["minecraft:lit_green_glowstick", 638 + 34 / 65536],
-  ["minecraft:lit_brown_glowstick", 638 + 35 / 65536],
-  ["minecraft:lit_blue_glowstick", 638 + 36 / 65536],
-  ["minecraft:lit_purple_glowstick", 638 + 37 / 65536],
-  ["minecraft:lit_cyan_glowstick", 638 + 38 / 65536],
-  ["minecraft:lit_red_glowstick", 638 + 39 / 65536],
-  ["minecraft:lit_gray_glowstick", 638 + 40 / 65536],
-  ["minecraft:lit_pink_glowstick", 638 + 41 / 65536],
-  ["minecraft:lit_lime_glowstick", 638 + 42 / 65536],
-  ["minecraft:lit_yellow_glowstick", 638 + 43 / 65536],
-  ["minecraft:lit_light_blue_glowstick", 638 + 44 / 65536],
-  ["minecraft:lit_magenta_glowstick", 638 + 45 / 65536],
-  ["minecraft:lit_orange_glowstick", 638 + 46 / 65536],
-  ["minecraft:lit_white_glowstick", 638 + 47 / 65536]
-]);
-
-// packs/scripts/plugins/MarketSystem/utils/SimplifyItemTypeId.ts
-function SimplifyItemTypeId(itemStack) {
-  let itemName = itemStack.typeId.split(":")[1];
-  itemName = itemName.replace(/_/g, " ");
-  itemName = itemName.split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-  return itemStack.nameTag ? itemStack.nameTag : itemName;
-}
-
-// packs/scripts/plugins/MarketSystem/class/Product.ts
-import { world as world6 } from "@minecraft/server";
-
-// packs/scripts/plugins/MarketSystem/class/QickItemDatabase.ts
-import { world as world5, system as system4, StructureSaveMode, EntityComponentTypes } from "@minecraft/server";
-function date() {
-  const date2 = new Date(Date.now());
-  const ms = date2.getMilliseconds().toString().padStart(3, "0");
-  return `${date2.toLocaleString().replace(" AM", `.${ms} AM`).replace(" PM", `.${ms} PM`)}`;
-}
-function logAction(message, logType, showStackTrace = false) {
-  let prefixedMessage = "QIDB > " + message;
-  switch (logType) {
-    case 1 /* warn */:
-      prefixedMessage = "\xA76" + prefixedMessage;
-      console.warn(prefixedMessage);
-      break;
-    case 2 /* error */:
-      prefixedMessage = "\xA7c" + prefixedMessage;
-      console.error(prefixedMessage);
-      break;
-    case 0 /* log */:
-    default:
-      prefixedMessage = "\xA7a" + prefixedMessage;
-      console.log(prefixedMessage);
-      break;
+// packs/scripts/core/class/PluginBase.ts
+var PluginBase = class {
+  name;
+  description;
+  version;
+  logger;
+  constructor(name, description, version) {
+    this.name = name;
+    this.description = description;
+    this.version = version;
+    this.logger = Logger.getInstance();
   }
-  if (showStackTrace) console.trace();
-}
-var defaultLogs = {
-  startUp: true,
-  save: false,
-  load: false,
-  set: false,
-  get: false,
-  has: false,
-  delete: false,
-  clear: true,
-  values: false,
-  keys: false
+  getConfig() {
+    const plugin = PluginLoader.find((plugin2) => plugin2.name === this.name);
+    if (!plugin) return {};
+    return plugin.setting.config;
+  }
+  getName() {
+    return this.name;
+  }
+  onLoad(ev) {
+    void ev;
+  }
+  onStartup(ev) {
+    void ev;
+  }
+  onShutdown(ev) {
+    void ev;
+  }
+  addConfig(pl, page, showUI = true) {
+    pl;
+    page;
+    showUI;
+    return false;
+  }
 };
-var QuickItemDatabase = class _QuickItemDatabase {
-  /**
-   * The number of ticks per second in Minecraft is normally 20.
-   */
-  static TICKS_PER_SECOND = 20;
-  /**
-   * The entity used for storing items.
-   */
-  static STORAGE_ENTITY = "qidb:storage";
-  /**
-   * The number of inventory slots the storage entity has.
-   */
-  static STORAGE_ENTITY_CAPACITY = 256;
-  /**
-   * The namespace for QIDB only allows lower and uppercase English characters, numbers 0 to 9, and the underscore _.
-   */
-  static VALID_NAMESPACE = /^[A-Za-z0-9_]+$/;
-  /**
-   * QIDB is reserved internally for the database.
-   */
-  static RESERVED_NAMEPSACE = /qidb/i;
-  /**
-   * The prefix of the dynamic property used when initialising.
-   * @remarks
-   * This is reserved by the database and enforced by the regular expression above.
-   */
-  static DYNAMIC_PROPERTY_PREFIX = "qidb";
-  /**
-   * The Y level where the entities are spawned in.
-   */
-  static SPAWN_LOCATION_Y_COORDINATE = 318;
-  /**
-   * The delay between saving each entry in seconds.
-   */
-  static SAVE_DELAY_SECONDS = 6;
-  /**
-   * The name of the ticking area used for database operations.
-   */
-  static TICKING_AREA_NAME = "storagearea";
-  /**
-   * `ItemStack[]`s that are currently stored in memory instead of in a structure.
-   */
-  quickAccess;
-  /**
-   * Entries that are currently waiting to be saved
-   */
-  queuedEntries;
-  /**
-   * Where the storage entity will be spawned.
-   */
-  spawnLocation;
-  /**
-   * Contains the database settings.
-   */
-  settings;
-  /**
-   * Object that describes the actions that should be logged to console.
-   */
-  logs;
-  /**
-   * The dimension that the storage entities will be spawned in.
-   */
-  dimension;
-  /**
-   * Creates a new QuickItemDatabase instance.
-   * 
-   * @param namespace
-   * The unique namespace for the database identifiers. This will be the prefix used before the colon `:` in the structure's name.
-   * 
-   * Supports lower and uppercase English characters, numbers 0 to 9, and the underscore `_`.
-   * 
-   * `qidb` is reserved internally for the database.
-   * 
-   * @param cacheSize
-   * The max amount of entries to keep quickly accessible. A small size can cause lag on frequent iterated usage, a large number can cause high hardware RAM usage.
-   * 
-   * The default size is 50 elements.
-   * 
-   * @param saveRate
-   * The background saves per tick (high performance impact).
-   * 
-   * The default `saveRate` of 1 is 20 entries per second.
-   * 
-   * @param logSettings The database actions that should be logged to console.
-   * 
-   * @throws Throws if an invalid namespace is provided.
-   * 
-   * @remarks
-   * This should be initialised in the global namespace, not doing so can lead to errors.
-   * 
-   * This database uses dynamic properties with the `qidb` prefix internally which may pollute your environment.
-   */
-  constructor(namespace, cacheSize = 50, saveRate = 1, logSettings = defaultLogs) {
-    this.settings = {
-      namespace,
-      cacheSize,
-      saveRate
-    };
-    this.queuedEntries = [];
-    this.quickAccess = /* @__PURE__ */ new Map();
-    if (!_QuickItemDatabase.VALID_NAMESPACE.test(namespace)) {
-      logAction(`${namespace} isn't a valid namespace. accepted char: A-Z a-z 0-9 _ \xA7r${date()}`, 2 /* error */);
-      throw new Error(`Invalid namespace: ${namespace}`);
-    } else if (_QuickItemDatabase.RESERVED_NAMEPSACE.test(namespace)) {
-      logAction(`${namespace} is using the reserved "QIDB" namespace. ${date()}`, 2 /* error */);
-      throw new Error(`Reserved namespace: ${namespace}`);
+
+// packs/scripts/core/database/Database.js
+import { world as world2, World, Entity, system as system2 } from "@minecraft/server";
+import * as mc from "@minecraft/server";
+var mc_world = world2;
+var { setDynamicProperty: wSDP, getDynamicProperty: wGDP, getDynamicPropertyIds: wGDPI } = World.prototype;
+var { isValid: isValidEntity, setDynamicProperty: eSDP, getDynamicProperty: eGDP, getDynamicPropertyIds: eGDPI } = Entity.prototype;
+var DYNAMIC_DB_PREFIX = "\u1221\u2112";
+var ROOT_CONTENT_TABLE_UUID = "c0211201-0001-4001-8001-4f90af596647";
+var STRING_LIMIT = 32e3;
+var TABLE_STRING_LENGTH = 31e3;
+var GENERATOR_DESERIALIZER_SYMBOL = Symbol("DESERIALIZER");
+var eP = {
+  gDP: eGDP,
+  sDP: eSDP,
+  gDPI: eGDPI
+};
+var wP = {
+  gDP: wGDP,
+  sDP: wSDP,
+  gDPI: wGDPI
+};
+var DynamicSource = class {
+  /**@readonly @type {World | Entity} */
+  source;
+  /**@param {World | Entity} source  */
+  constructor(source) {
+    this.source = source;
+    if (SOURCE_INSTANCES.has(source)) return SOURCE_INSTANCES.get(source);
+    if (source === mc_world) Object.assign(this, wP);
+    else if (isValidEntity.call(source)) Object.assign(this, eP);
+    else throw new ReferenceError("Invald source type: " + source);
+    SOURCE_INSTANCES.set(source, this);
+  }
+  /**@returns {string[]} */
+  getIds() {
+    return this.gDPI.call(this.source);
+  }
+  /**@param {string} key  @returns {number | boolean | string | import("npm:@minecraft/server@2.3.0").Vector3}*/
+  get(key) {
+    return this.gDP.call(this.source, key);
+  }
+  /**@param {string} key */
+  set(key, value) {
+    this.sDP.call(this.source, key, value);
+  }
+  /**@param {string} key @returns {boolean}  */
+  delete(key) {
+    this.sDP.call(this.source, key, void 0);
+    return true;
+  }
+  /**@returns {boolean}  */
+  isValid() {
+    return this.source === world2 || isValidEntity.call(this.source);
+  }
+};
+var SOURCE_INSTANCES = /* @__PURE__ */ new WeakMap();
+var DDB_SUBINSTANCES = /* @__PURE__ */ new WeakMap();
+var DynamicDatabase = class extends Map {
+  /**@readonly @private @type {DynamicSource} */
+  _source;
+  /**@readonly @private @type {string} */
+  _prefix;
+  /**@readonly @private @type {string} */
+  _prefixLength;
+  /**@readonly @private */
+  _STRINGIFY;
+  /**@readonly @private*/
+  _PARSE;
+  /** @private*/
+  _notDisposed;
+  /**@param {World | Entity} source @param {string} id @param {string} kind   */
+  constructor(source, id, kind, parser) {
+    super();
+    this._source = new DynamicSource(source);
+    const PRE = `${kind}${DYNAMIC_DB_PREFIX}${id}${DYNAMIC_DB_PREFIX}`, LENGTH = PRE.length, SOURCE = this._source, PARSE = parser.parse;
+    const MAP_INSTANCES = DDB_SUBINSTANCES.get(SOURCE) ?? /* @__PURE__ */ new Map();
+    if (MAP_INSTANCES.has(PRE)) return MAP_INSTANCES.get(PRE);
+    MAP_INSTANCES.set(PRE, this);
+    DDB_SUBINSTANCES.set(SOURCE, MAP_INSTANCES);
+    if (!SOURCE.isValid()) throw new ReferenceError("Source is no longer valid: " + SOURCE.source);
+    this._prefix = PRE;
+    this._prefixLength = LENGTH;
+    this._STRINGIFY = parser.stringify;
+    this._notDisposed = true;
+    for (const K of SOURCE.getIds()) if (K.startsWith(PRE)) {
+      const key = K.substring(LENGTH);
+      const value = SOURCE.get(K);
+      if (typeof value === "string") super.set(key, PARSE(value));
     }
-    this.logs = logSettings;
-    system4.run(() => {
-      this.dimension = world5.getDimension("minecraft:overworld");
-      this._start();
+  }
+  /**@param {string} key @param {any} value */
+  set(key, value) {
+    if (!this.isValid()) throw new ReferenceError("This database instance is no longer valid");
+    if (key.length + this._prefixLength > STRING_LIMIT) throw new TypeError("Key is too long: " + key.length);
+    if (value === void 0) {
+      this.delete(key);
+      return this;
+    }
+    const data = this._STRINGIFY(value);
+    if (data.length > STRING_LIMIT) throw new TypeError("Size of data in string is too long: " + data.length);
+    this._source.set(this._prefix + key, data);
+    return super.set(key, value);
+  }
+  /**@param {string} key  */
+  delete(key) {
+    if (!this.isValid()) throw new ReferenceError("This database instance is no longer valid");
+    if (!this.has(key)) return false;
+    this._source.delete(this._prefix + key);
+    return super.delete(key);
+  }
+  clear() {
+    if (!this.isValid()) throw new ReferenceError("This database instance is no longer valid");
+    const P = this._prefix;
+    const s = this._source;
+    for (const key of this.keys()) s.delete(P + key);
+    return super.clear();
+  }
+  /**@returns {boolean} */
+  isValid() {
+    return this._source.isValid() && this._notDisposed;
+  }
+  dispose() {
+    this._notDisposed = false;
+    DDB_SUBINSTANCES.get(this._source)?.delete?.(this._prefix);
+    super.clear();
+  }
+  /**@readonly @type {boolean} */
+  get isDisposed() {
+    return !this._notDisposed;
+  }
+};
+var JsonDatabase = class extends DynamicDatabase {
+  constructor(id, source = world2) {
+    super(source, id, "JSON", JSON);
+  }
+};
+var PARSER_SYMBOL = Symbol("SERIALIZEABLE");
+var SERIALIZERS = /* @__PURE__ */ new Map();
+var DESERIALIZER_INFO = /* @__PURE__ */ new WeakMap();
+var ROOT_KEY = "root::" + ROOT_CONTENT_TABLE_UUID;
+var TABLE_SOURCES = /* @__PURE__ */ new WeakMap();
+var TABLE_ID = /* @__PURE__ */ new WeakMap();
+var ID_TABLE = /* @__PURE__ */ new WeakMap();
+var TABLE_VALIDS = /* @__PURE__ */ new WeakSet();
+var isNativeCall = false;
+var RootTable;
+function getRootTable() {
+  if (RootTable) return RootTable;
+  return RootTable = world2.getDynamicProperty(ROOT_KEY) ? DATABASE_MANAGER.deserialize(ROOT_KEY, new DynamicSource(world2)) : (() => {
+    const source = new DynamicSource(world2);
+    isNativeCall = true;
+    const value = new DynamicTable();
+    isNativeCall = false;
+    TABLE_SOURCES.set(value, source);
+    TABLE_ID.set(value, ROOT_KEY);
+    SetTable(source, ROOT_KEY, value);
+    TABLE_VALIDS.add(value);
+    DATABASE_MANAGER.serialize(ROOT_KEY, source, value);
+    return value;
+  })();
+}
+var SerializableKinds = {
+  Boolean: "c0211201-0001-4002-8001-4f90af596647",
+  Number: "c0211201-0001-4002-8002-4f90af596647",
+  String: "c0211201-0001-4002-8003-4f90af596647",
+  Object: "c0211201-0001-4002-8004-4f90af596647",
+  DynamicTable: "c0211201-0001-4002-8101-4f90af596647"
+};
+SerializableKinds[SerializableKinds.Boolean] = "Boolean";
+SerializableKinds[SerializableKinds.Number] = "Number";
+SerializableKinds[SerializableKinds.String] = "String";
+SerializableKinds[SerializableKinds.Object] = "Object";
+SerializableKinds[SerializableKinds.DynamicTable] = "DynamicTable";
+var Serializer = {
+  isSerializable(object) {
+    return object[PARSER_SYMBOL] != void 0;
+  },
+  getSerializerKind(object) {
+    return object[PARSER_SYMBOL];
+  },
+  isRegistredKind(kind) {
+    return SERIALIZERS.has(kind);
+  },
+  setSerializableKind(object, kind) {
+    if (SERIALIZERS.has(kind)) {
+      object[PARSER_SYMBOL] = kind;
+      return true;
+    }
+    return false;
+  },
+  registrySerializer(kind, serializer, deserializer) {
+    if (SERIALIZERS.has(kind)) throw new ReferenceError("Duplicate serialization kind: " + kind);
+    if (typeof kind != "string") throw new TypeError("Kind must be type of string.");
+    if (typeof serializer != "function" || typeof deserializer != "function") throw new TypeError("serializer or deserializer is not a function");
+    SERIALIZERS.set(kind, { serializer, deserializer });
+    return kind;
+  },
+  getSerializer(kind) {
+    return SERIALIZERS.get(kind)?.serializer ?? null;
+  },
+  getDeserializer(kind) {
+    return SERIALIZERS.get(kind)?.deserializer ?? null;
+  },
+  getSerializers(kind) {
+    const data = SERIALIZERS.get(kind);
+    if (!data) return null;
+    return { ...data };
+  },
+  setSerializableClass(construct, kind, serializer, deserializer) {
+    if (typeof serializer !== "function" || typeof deserializer !== "function") throw new TypeError("Serializer or deserializer is not a function");
+    Serializer.registrySerializer(kind, function(obj) {
+      if (obj == null) throw new TypeError("Null or Undefined is not possible to serialize.");
+      return serializer(obj);
+    }, function(obj) {
+      if (obj[GENERATOR_DESERIALIZER_SYMBOL] !== true) throw new TypeError("Null or Undefined is not possible to serialize.");
+      return deserializer(obj);
+    });
+    Serializer.setSerializableKind(construct.prototype, kind);
+  },
+  getKindFromClass(construct) {
+    return construct?.prototype?.[PARSER_SYMBOL] ?? null;
+  },
+  getSerializerKinds() {
+    return SERIALIZERS.keys();
+  },
+  overrideSerializers(kind, serializer, deserializer) {
+    if (typeof kind != "string") throw new TypeError("Kind must be type of string.");
+    if (typeof serializer != "function" || typeof deserializer != "function") throw new TypeError("serializer or deserializer is not a function");
+    SERIALIZERS.set(kind, { serializer, deserializer });
+    return kind;
+  }
+};
+var DATABASE_MANAGER = {
+  getHeader(rootRef, source) {
+    const data = source.get(rootRef);
+    if (typeof data != "string") return null;
+    return JSONReadable(data);
+  },
+  serialize(rootRef, source, object) {
+    if (!Serializer.isRegistredKind(Serializer.getSerializerKind(object))) throw new TypeError("object is not serializeable.");
+    const kind = Serializer.getSerializerKind(object);
+    const serializer = Serializer.getSerializer(kind);
+    if (!serializer) throw new ReferenceError("No serializer for " + kind);
+    return this.serializationResolver(
+      serializer(object, { kind, source, rootRef }),
+      rootRef,
+      source,
+      kind
+    );
+  },
+  /**@param {Generator<object,any,string>} gen  */
+  serializationResolver(gen, rootRef, source, kind) {
+    const oldHeader = this.getHeader(rootRef, source);
+    const prefix = rootRef + "::";
+    let oldLength = 0, newLength = 0;
+    if (oldHeader) {
+      const [data] = oldHeader;
+      oldLength = parseInt(data["length"], 36);
+    }
+    try {
+      let genNext = gen.next();
+      if (!genNext.done) {
+        const headerData = genNext.value + "";
+        if (headerData.length > TABLE_STRING_LENGTH) gen.throw(new RangeError("Yielded stirng is too big: " + headerData.length));
+        genNext = gen.next();
+        while (!genNext.done) {
+          const key = prefix + newLength;
+          try {
+            source.set(key, genNext.value + "");
+            newLength++;
+          } catch (error) {
+            gen.throw(error);
+          }
+          genNext = gen.next();
+        }
+        source.set(rootRef, JSONWritable({ length: newLength.toString(36), kind }, headerData));
+      }
+      return newLength;
+    } catch (er) {
+      Object.setPrototypeOf(er, DataCoruptionError.prototype);
+      er.source = source;
+      er.rootKey = rootRef;
+      throw er;
+    } finally {
+      for (let i = newLength; i < oldLength; i++) source.delete(prefix + i);
+    }
+  },
+  deserialize(rootRef, source, header = void 0) {
+    try {
+      const oldHeader = header ?? this.getHeader(rootRef, source);
+      if (!oldHeader) return null;
+      const prefix = rootRef + "::";
+      const [{ length: le, kind }, data] = oldHeader;
+      let length = parseInt(le, 36);
+      if (!Serializer.isRegistredKind(kind)) throw new ReferenceError("Unknown parser kind: " + kind);
+      const deserializeResolver = Serializer.getDeserializer(kind);
+      if (!deserializeResolver) throw new ReferenceError("No deserializer for: " + kind);
+      const deserializer = this.deserializer(source, rootRef, prefix, length, data);
+      DESERIALIZER_INFO.set(deserializer, {
+        source,
+        rootRef,
+        kind,
+        deserializeResolver,
+        oldHeader,
+        length
+      });
+      return deserializeResolver(deserializer);
+    } catch (error) {
+      error.rootKey = rootRef;
+      error.source = source;
+      throw Object.setPrototypeOf(error, DataCoruptionError);
+    }
+  },
+  *deserializer(source, root, prefix, length, initial) {
+    yield initial;
+    let i = 0;
+    while (i < length) {
+      const data = source.get(prefix + i);
+      if (!data) throw new DataCoruptionError(source, root, "No continual data at index of " + i);
+      yield data;
+      i++;
+    }
+  },
+  removeTree(rootRef, source) {
+    const oldHeader = this.getHeader(rootRef, source);
+    if (!oldHeader) return false;
+    const prefix = rootRef + "::";
+    const [{ length: le }] = oldHeader;
+    let length = parseInt(le, 36);
+    if (!isFinite(length)) return false;
+    for (let i = 0; i < length; i++) source.delete(prefix + i);
+    source.delete(rootRef);
+    return true;
+  }
+};
+Object.defineProperties(DATABASE_MANAGER.deserializer.prototype, Object.getOwnPropertyDescriptors({
+  [GENERATOR_DESERIALIZER_SYMBOL]: true,
+  return() {
+    return { done: true };
+  },
+  continue() {
+    return this.next(...arguments).value;
+  },
+  get source() {
+    if (!DESERIALIZER_INFO.has(this)) throw new ReferenceError("Object bound to prototype does not exist.");
+    return DESERIALIZER_INFO.get(this).source;
+  },
+  get rootKey() {
+    if (!DESERIALIZER_INFO.has(this)) throw new ReferenceError("Object bound to prototype does not exist.");
+    return DESERIALIZER_INFO.get(this).rootRef;
+  },
+  get length() {
+    if (!DESERIALIZER_INFO.has(this)) throw new ReferenceError("Object bound to prototype does not exist.");
+    return DESERIALIZER_INFO.get(this).length;
+  },
+  get kind() {
+    if (!DESERIALIZER_INFO.has(this)) throw new ReferenceError("Object bound to prototype does not exist.");
+    return DESERIALIZER_INFO.get(this).kind;
+  }
+}));
+var DynamicTable = class _DynamicTable extends Map {
+  /**@readonly */
+  static get KIND() {
+    return "c0211201-0001-4002-8101-4f90af596647";
+  }
+  /**@readonly @type {string} */
+  get tableId() {
+    return TABLE_ID.get(this);
+  }
+  constructor() {
+    if (!isNativeCall) throw new ReferenceError("No constructor for " + _DynamicTable.name);
+    super();
+  }
+  get(key) {
+    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::get()].");
+    if (!this.has(key)) return;
+    const source = TABLE_SOURCES.get(this);
+    const dataId = super.get(key);
+    return DATABASE_MANAGER.deserialize(dataId, source);
+  }
+  set(key, value) {
+    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::get()].");
+    if (value == null) throw new ReferenceError("You can not assign property to null or undefined");
+    if (!Serializer.isRegistredKind(Serializer.getSerializerKind(value))) throw new TypeError("value is not serializeable.");
+    if (value instanceof _DynamicTable) throw new TypeError("You can't set value as DynamicTable please use AddTable");
+    const has = this.has(key);
+    const source = TABLE_SOURCES.get(this);
+    let newKey;
+    if (has) {
+      newKey = super.get(key);
+      const header = DATABASE_MANAGER.getHeader(newKey, source);
+      if (header?.[0]?.kind === _DynamicTable.KIND) {
+        const a = DATABASE_MANAGER.deserialize(newKey, source, header);
+        a.clear();
+        TABLE_VALIDS.delete(a);
+      }
+    } else {
+      newKey = "k:" + v4uuid();
+      super.set(key, newKey);
+      SaveState(this);
+    }
+    DATABASE_MANAGER.serialize(newKey, source, value);
+    return this;
+  }
+  clear() {
+    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::clear()].");
+    const source = TABLE_SOURCES.get(this);
+    const KIND = _DynamicTable.KIND;
+    for (const k of super.keys()) {
+      const dataId = super.get(k);
+      const header = DATABASE_MANAGER.getHeader(dataId, source);
+      if (header?.[0]?.kind === KIND) {
+        const a = DATABASE_MANAGER.deserialize(dataId, source, header);
+        a.clear();
+        TABLE_VALIDS.delete(a);
+      }
+      DATABASE_MANAGER.removeTree(dataId, source);
+    }
+    SaveState(this);
+    super.clear();
+  }
+  delete(key) {
+    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::delete()].");
+    const source = TABLE_SOURCES.get(this);
+    if (!this.has(key)) return false;
+    const dataId = super.get(key);
+    const header = DATABASE_MANAGER.getHeader(dataId, source);
+    if (header?.[0]?.kind === _DynamicTable.KIND) {
+      const a = DATABASE_MANAGER.deserialize(dataId, source, header);
+      a.clear();
+      TABLE_VALIDS.delete(a);
+    }
+    DATABASE_MANAGER.removeTree(dataId, source);
+    SaveState(this);
+    return super.delete();
+  }
+  *entries() {
+    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::entries()].");
+    for (const [k, v] of super.entries()) yield [k, this.get(k)];
+  }
+  [Symbol.iterator]() {
+    return this.entries();
+  }
+  *values() {
+    if (!this.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::values()].");
+    for (const k of super.keys()) yield this.get(k);
+  }
+  isValid() {
+    return !!(TABLE_VALIDS.has(this) && TABLE_SOURCES.get(this)?.isValid?.());
+  }
+  /**@returns {DynamicTable} */
+  static OpenCreate(id) {
+    let fromTable = getRootTable();
+    let a = fromTable.get(id);
+    if (a === void 0) {
+      if (!fromTable.isValid()) throw new ReferenceError("Object bound to prototype doesn't not exist at [DynamicTable::get()].");
+      if (Map.prototype.has.call(fromTable, id)) throw new ReferenceError("Value of this key already exists");
+      const source = TABLE_SOURCES.get(fromTable);
+      let newKey = "t" + v4uuid();
+      isNativeCall = true;
+      const value = new _DynamicTable();
+      isNativeCall = false;
+      Map.prototype.set.call(fromTable, id, newKey);
+      SaveState(fromTable);
+      DATABASE_MANAGER.serialize(newKey, source, value);
+      TABLE_SOURCES.set(value, source);
+      TABLE_ID.set(value, newKey);
+      SetTable(source, newKey, value);
+      TABLE_VALIDS.add(value);
+      a = value;
+    } else if (!(a instanceof _DynamicTable)) throw new TypeError(`Value saved in ${id} is not a dynamic table.`);
+    return a;
+  }
+  static ClearAll() {
+    getRootTable().clear();
+  }
+  static getTableIds() {
+    return getRootTable().keys();
+  }
+  static DeleteTable(key) {
+    return getRootTable().delete(key);
+  }
+};
+function SaveState(table) {
+  if (table._task === void 0) {
+    table._task = system2.run(() => {
+      table._task = void 0;
+      if (table.isValid()) {
+        DATABASE_MANAGER.serialize(table.tableId, TABLE_SOURCES.get(table), table);
+      }
     });
   }
+}
+function GetTable(source, rootRef) {
+  return ID_TABLE.get(source)?.get(rootRef);
+}
+function SetTable(source, rootRef, table) {
+  if (!ID_TABLE.has(source)) ID_TABLE.set(source, /* @__PURE__ */ new Map());
+  ID_TABLE.get(source).set(rootRef, table);
+}
+var DataCoruptionError = class extends ReferenceError {
+  constructor(source, rootKey, message) {
+    super(message);
+    this.rootKey = rootKey;
+    this.source = source;
+  }
+  remove() {
+    if (!this.source.isValid()) throw new ReferenceError("Source is no longer valid");
+    DATABASE_MANAGER.removeTree(this.rootKey, this.source);
+  }
+};
+Serializer.setSerializableClass(
+  DynamicTable,
+  DynamicTable.KIND,
+  function* (table) {
+    let obj = {}, i = 0;
+    const get = Map.prototype.get, maxSize = 300;
+    yield Math.ceil(table.size / maxSize);
+    for (const key of table.keys()) {
+      if (++i >= maxSize) {
+        yield JSON.stringify(obj);
+        i = 0, obj = {};
+      }
+      obj[key] = get.call(table, key);
+    }
+    if (i) yield JSON.stringify(obj);
+  },
+  function(n) {
+    if (GetTable(n.source, n.rootKey)) return GetTable(n.source, n.rootKey);
+    isNativeCall = true;
+    const table = new DynamicTable();
+    isNativeCall = false;
+    TABLE_SOURCES.set(table, n.source);
+    TABLE_ID.set(table, n.rootKey);
+    SetTable(n.source, n.rootKey, table);
+    TABLE_VALIDS.add(table);
+    const set = Map.prototype.set;
+    const length = Number(n.continue());
+    for (let i = 0; i < length; i++) {
+      const data = n.continue();
+      if (!data) throw new DataCoruptionError(n.source, n.rootKey, "Data for this dynamic table are corupted.");
+      const obj = JSON.parse(data);
+      for (const k of Object.getOwnPropertyNames(obj)) set.call(table, k, obj[k]);
+    }
+    return table;
+  }
+);
+Serializer.setSerializableClass(Boolean, SerializableKinds.Boolean, function* (n) {
+  yield n;
+}, function(n) {
+  for (const a of n) return a === "true";
+});
+Serializer.setSerializableClass(Number, SerializableKinds.Number, function* (n) {
+  yield n;
+}, function(n) {
+  for (const a of n) return Number(a);
+});
+Serializer.setSerializableClass(
+  String,
+  SerializableKinds.String,
+  function* (n) {
+    let length = n.length;
+    let cursor = 0;
+    let i = 0;
+    yield Math.ceil(length / TABLE_STRING_LENGTH);
+    while (length > 0) {
+      const s = n.substring(cursor, cursor + TABLE_STRING_LENGTH);
+      const l = s.length;
+      if (l <= 0) return;
+      length -= l, cursor += l;
+      yield s;
+      i++;
+    }
+  },
+  function(n) {
+    const count = Number(n.continue());
+    const l = new Array(count);
+    for (let i = 0; i < count; i++) {
+      l[i] = n.continue();
+    }
+    return l.join("");
+  }
+);
+Serializer.setSerializableClass(
+  Object,
+  SerializableKinds.Object,
+  function(n) {
+    return Serializer.getSerializer(SerializableKinds.String)(JSON.stringify(n));
+  },
+  function(n) {
+    return JSON.parse(Serializer.getDeserializer(SerializableKinds.String)(n));
+  }
+);
+function v4uuid(timestamp = Date.now()) {
+  const { random, floor } = Math;
+  const uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    let r = (timestamp + random() * 16) % 16 | 0;
+    timestamp = floor(timestamp / 16);
+    return (c == "x" ? r : r & 3 | 8).toString(16);
+  });
+  return uuid;
+}
+function Readable(text) {
+  const size = text.charCodeAt(0);
+  const info = text.substring(1, 1 + size);
+  const data = text.substring(1 + size);
+  return [info, data, size];
+}
+function JSONReadable(text) {
+  const [info, data, size] = Readable(text);
+  return [JSON.parse(info), data, size];
+}
+function Writable(json, text) {
+  return `${String.fromCharCode(json.length)}${json}${text}`;
+}
+function JSONWritable(json, text) {
+  return Writable(JSON.stringify(json), text);
+}
+
+// packs/scripts/core/index.ts
+initializeEvents();
+
+// packs/scripts/kisux3/plugins/ItemStacker/services/utils.ts
+import { ItemEnchantableComponent as ItemEnchantableComponent2, ItemStack as ItemStack2, system as system3, world as world5 } from "@minecraft/server";
+
+// packs/scripts/core/utils/EntityManagers.ts
+import { DimensionTypes, world as world3 } from "@minecraft/server";
+function getEntitiesAtDim(dim, filter) {
+  const entities = world3.getDimension(dim).getEntities();
+  if (filter) {
+    return entities.filter(filter);
+  }
+  return entities;
+}
+function getAllEntities(filter) {
+  const dims = DimensionTypes.getAll().map((type) => type.typeId);
+  const entities = [];
+  dims.forEach((dim) => {
+    entities.push(...getEntitiesAtDim(dim, filter));
+  });
+  return entities;
+}
+
+// ../../../../AppData/Local/deno/deno_esbuild/registry.npmjs.org/@minecraft/math@2.2.11_@minecraft+server@2.3.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.21.124/node_modules/@minecraft/math/lib/general/clamp.js
+function clampNumber(val, min, max) {
+  return Math.min(Math.max(val, min), max);
+}
+
+// ../../../../AppData/Local/deno/deno_esbuild/registry.npmjs.org/@minecraft/math@2.2.11_@minecraft+server@2.3.0__@minecraft+common@1.2.0__@minecraft+vanilla-data@1.21.124/node_modules/@minecraft/math/lib/vector3/coreHelpers.js
+var Vector3Utils = class _Vector3Utils {
   /**
-   * Adds an entry to the database..
-   * @param identifier The itemstack identifier.
-   * @param value The `ItemStack[]` or `ItemStack` value to set.
-   * @throws Throws if `value` is an `ItemStack` array that has more than 1024 items.
-   * @remarks
-   * This function **can** be called in read-only mode, but the item is saved later in the tick. 
-   * 
-   * The maximum array size is 1024 elements.
+   * equals
+   *
+   * Check the equality of two vectors
    */
-  set(identifier, value) {
-    const time = Date.now();
-    const fullKey = this.settings.namespace + ":" + identifier;
-    let itemStackArray = value;
-    if (!Array.isArray(itemStackArray)) {
-      itemStackArray = [itemStackArray];
-    }
-    if (itemStackArray.length > 1024) {
-      logAction(`Out of range: <${fullKey}> has more than 1024 ItemStacks \xA7r${date()}`, 2 /* error */);
-      throw new Error(`\xA7cQIDB > Out of range: <${fullKey}> has more than 1024 ItemStacks \xA7r${date()}`);
-    }
-    const entitiesRequired = Math.max(Math.floor((itemStackArray.length - 1) / _QuickItemDatabase.STORAGE_ENTITY_CAPACITY) + 1, 1);
-    world5.setDynamicProperty(fullKey, entitiesRequired);
-    this.quickAccess.delete(fullKey);
-    this.quickAccess.set(fullKey, itemStackArray);
-    const duplicateIndex = this.queuedEntries.findIndex((entry) => entry.key === fullKey);
-    if (duplicateIndex !== -1) {
-      this.queuedEntries.splice(duplicateIndex, 1);
-    }
-    this.queueSave(fullKey, itemStackArray);
-    if (this.logs.set) {
-      logAction(`Set key <${fullKey}> succesfully. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
-    }
+  static equals(v1, v2) {
+    return v1.x === v2.x && v1.y === v2.y && v1.z === v2.z;
   }
   /**
-   * Gets an itemstack stored in the database's cache.
-   * @param identifier The itemstack identifier.
-   * @returns The `ItemStack[]` saved in cache, or `undefined` if it is not present.
-   * @throws Throws if the given identifier is not defined.
-   * @remarks
-   * This function can be called in read-only mode as it only checks the cache.
-   * 
-   * `ItemStack` singletons saved using `set` will still return an array.
+   * add
+   *
+   * Add two vectors to produce a new vector
    */
-  quickGet(identifier) {
-    if (identifier === void 0) {
-      throw new Error(`\xA7cQIDB > The identifier is not defined.`);
-    }
-    const time = Date.now();
-    const fullKey = this.settings.namespace + ":" + identifier;
-    const itemStack = this.quickAccess.get(fullKey);
-    if (this.logs.get) {
-      if (itemStack) {
-        logAction(`Got items from cache <${fullKey}> succesfully. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
-      } else {
-        logAction(`Entry <${fullKey}> does not exist in cache. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
-      }
-    }
-    return itemStack;
+  static add(v1, v2) {
+    return { x: v1.x + (v2.x ?? 0), y: v1.y + (v2.y ?? 0), z: v1.z + (v2.z ?? 0) };
   }
   /**
-   * Gets the itemstack from an identifier.
-   * @param identifier The itemstack identifier.
-   * @returns The `ItemStack[]` saved as `identifier`, or `undefined` if it is not present.
-   * @throws Throws if the given identifier is not defined.
-   * @remarks
-   * This function can't be called in read-only mode.
-   * 
-   * Single `ItemStack`s saved using `set` will still return an array.
+   * subtract
+   *
+   * Subtract two vectors to produce a new vector (v1-v2)
    */
-  get(identifier) {
-    if (identifier === void 0) {
-      throw new Error(`\xA7cQIDB > The identifier is not defined.`);
-    }
-    const time = Date.now();
-    const fullKey = this.settings.namespace + ":" + identifier;
-    if (this.quickAccess.has(fullKey)) {
-      if (this.logs.get) {
-        logAction(`Got items from cache <${fullKey}> succesfully. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
-      }
-      return this.quickAccess.get(fullKey);
-    }
-    const structure = world5.structureManager.get(fullKey);
-    if (!structure) {
-      logAction(`The key < ${fullKey} > doesn't exist.`, 2 /* error */);
+  static subtract(v1, v2) {
+    return { x: v1.x - (v2.x ?? 0), y: v1.y - (v2.y ?? 0), z: v1.z - (v2.z ?? 0) };
+  }
+  /** scale
+   *
+   * Multiple all entries in a vector by a single scalar value producing a new vector
+   */
+  static scale(v1, scale) {
+    return { x: v1.x * scale, y: v1.y * scale, z: v1.z * scale };
+  }
+  /**
+   * dot
+   *
+   * Calculate the dot product of two vectors
+   */
+  static dot(a, b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+  }
+  /**
+   * cross
+   *
+   * Calculate the cross product of two vectors. Returns a new vector.
+   */
+  static cross(a, b) {
+    return { x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x };
+  }
+  /**
+   * magnitude
+   *
+   * The magnitude of a vector
+   */
+  static magnitude(v) {
+    return Math.sqrt(v.x ** 2 + v.y ** 2 + v.z ** 2);
+  }
+  /**
+   * distance
+   *
+   * Calculate the distance between two vectors
+   */
+  static distance(a, b) {
+    return _Vector3Utils.magnitude(_Vector3Utils.subtract(a, b));
+  }
+  /**
+   * normalize
+   *
+   * Takes a vector 3 and normalizes it to a unit vector
+   */
+  static normalize(v) {
+    const mag = _Vector3Utils.magnitude(v);
+    return { x: v.x / mag, y: v.y / mag, z: v.z / mag };
+  }
+  /**
+   * floor
+   *
+   * Floor the components of a vector to produce a new vector
+   */
+  static floor(v) {
+    return { x: Math.floor(v.x), y: Math.floor(v.y), z: Math.floor(v.z) };
+  }
+  /**
+   * toString
+   *
+   * Create a string representation of a vector3
+   */
+  static toString(v, options) {
+    const decimals = options?.decimals ?? 2;
+    const str = [v.x.toFixed(decimals), v.y.toFixed(decimals), v.z.toFixed(decimals)];
+    return str.join(options?.delimiter ?? ", ");
+  }
+  /**
+   * fromString
+   *
+   * Gets a Vector3 from the string representation produced by {@link Vector3Utils.toString}. If any numeric value is not a number
+   * or the format is invalid, undefined is returned.
+   * @param str - The string to parse
+   * @param delimiter - The delimiter used to separate the components. Defaults to the same as the default for {@link Vector3Utils.toString}
+   */
+  static fromString(str, delimiter = ",") {
+    const parts = str.split(delimiter);
+    if (parts.length !== 3) {
       return void 0;
     }
-    const { existingStructure, containers } = this.getInventories(fullKey);
-    const items = [];
-    containers.forEach((inv, index) => {
-      for (let i = 256 * index; i < 256 * index + 256; i++) items.push(inv.getItem(i - 256 * index));
-      for (let i = 256 * index + 255; i >= 0; i--) if (!items[i]) items.pop();
-      else break;
-    });
-    this.saveStructure(fullKey, existingStructure);
-    if (this.logs.get) {
-      logAction(`Got items from <${fullKey}> succesfully. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
+    const output = parts.map((part) => parseFloat(part));
+    if (output.some((part) => isNaN(part))) {
+      return void 0;
     }
-    this.quickAccess.set(fullKey, items);
-    return items;
+    return { x: output[0], y: output[1], z: output[2] };
   }
   /**
-   * Checks if an entry exists in the item database's cache.
-   * @param identifier The itemstack identifier.
-   * @returns `true` if the entry exists, `false` if the entry doesn't exist.
-   * @remarks This function can be called in read-only mode as it only checks the cache.
+   * clamp
+   *
+   * Clamps the components of a vector to limits to produce a new vector
    */
-  quickHas(identifier) {
-    const fullKey = this.settings.namespace + ":" + identifier;
-    return this.quickAccess.has(fullKey);
-  }
-  /**
-   * Checks if a key exists in the item database.
-   * @param identifier The itemstack identifier.
-   * @returns `true` if the key exists, `false` if the key doesn't exist.
-   * @remarks This function can't be called in read-only mode.
-   */
-  has(identifier) {
-    const time = Date.now();
-    const fullKey = this.settings.namespace + ":" + identifier;
-    let keyExists = false;
-    if (this.quickAccess.has(fullKey)) {
-      keyExists = true;
-    } else if (world5.structureManager.get(fullKey)) {
-      keyExists = true;
-    }
-    if (this.logs.has) {
-      if (keyExists) {
-        logAction(`Found entry <${fullKey}> succesfully. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
-      } else {
-        logAction(`Entry <${fullKey}> doesn't exist in database. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
-      }
-    }
-    return keyExists;
-  }
-  /**
-   * Deletes an entry from the item database.
-   * @param identifier The itemstack identifier.
-   * @returns `true` if the entry existed, `false` if it didn't.
-   * @remarks This function can't be called in read-only mode.
-   */
-  delete(identifier) {
-    const time = Date.now();
-    const fullKey = this.settings.namespace + ":" + identifier;
-    const inCache = this.quickAccess.delete(fullKey);
-    const inStructure = world5.structureManager.delete(fullKey);
-    let entryExisted = false;
-    if (inCache || inStructure) {
-      world5.setDynamicProperty(fullKey, void 0);
-      entryExisted = true;
-    }
-    if (this.logs.delete) {
-      const timeDifference = Date.now() - time;
-      if (entryExisted) {
-        logAction(`Deleted entry <${fullKey}> succesfully. ${timeDifference}ms \xA7r${date()}`, 0 /* log */);
-      } else {
-        logAction(`The entry <${fullKey}> doesn't exist. ${timeDifference}ms \xA7r${date()}`, 0 /* log */);
-      }
-    }
-    return entryExisted;
-  }
-  /**
-   * Gets all the keys of your namespace from item database.
-   * @returns All the keys as an array of strings.
-   */
-  keys() {
-    const allIds = world5.getDynamicPropertyIds();
-    const ids = [];
-    allIds.filter((id) => id.startsWith(this.settings.namespace + ":")).forEach((id) => ids.push(id.replace(this.settings.namespace + ":", "")));
-    if (this.logs.keys) {
-      logAction(`Got the list of all the ${ids.length} keys. \xA7r${date()}`, 0 /* log */);
-    }
-    return ids;
-  }
-  /**
-   * Gets all `ItemStack[]` arrays stored currently stored in the database.
-   * @returns All values as an `ItemStack[]` array.
-   * @remarks This function can't be called in read-only mode.
-   */
-  values() {
-    const time = Date.now();
-    const allIds = world5.getDynamicPropertyIds();
-    const values = [];
-    const filtered = allIds.filter((id) => id.startsWith(this.settings.namespace + ":")).map((id) => id.replace(this.settings.namespace + ":", ""));
-    for (const key of filtered) {
-      const value = this.get(key);
-      if (value) {
-        values.push(value);
-      }
-    }
-    if (this.logs.values) {
-      logAction(`Got the list of all the ${values.length} values. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
-    }
-    return values;
-  }
-  /**
-   * Clears all, CAN NOT REWIND.
-   * @remarks
-   * This function can't be called in read-only mode.
-   * 
-   * This clears all structures that are using the namespace that also have a key in the database.
-   * This can possibly include your own ones.
-   */
-  clear() {
-    const time = Date.now();
-    const allIds = world5.getDynamicPropertyIds();
-    const filtered = allIds.filter((id) => id.startsWith(this.settings.namespace + ":")).map((id) => id.replace(this.settings.namespace + ":", ""));
-    for (const key of filtered) {
-      this.delete(key);
-    }
-    if (this.logs.clear) {
-      logAction(`Cleared, deleted ${filtered.length} values. ${Date.now() - time}ms \xA7r${date()}`, 0 /* log */);
-    }
-  }
-  /**
-   * Initialisation logic for the database.
-   */
-  _start() {
-    const startLog = () => {
-      logAction(`Initialized successfully.\xA7r namespace: ${this.settings.namespace} \xA7r${date()}`, 0 /* log */);
-      if (this.settings.saveRate > 1) {
-        logAction(`Using a saveRate bigger than 1 can cause slower game ticks and extreme lag while saving 1024 size entries. at <${this.settings.namespace}> \xA7r${date()}`, 1 /* warn */);
-      }
+  static clamp(v, limits) {
+    return {
+      x: clampNumber(v.x, limits?.min?.x ?? Number.MIN_SAFE_INTEGER, limits?.max?.x ?? Number.MAX_SAFE_INTEGER),
+      y: clampNumber(v.y, limits?.min?.y ?? Number.MIN_SAFE_INTEGER, limits?.max?.y ?? Number.MAX_SAFE_INTEGER),
+      z: clampNumber(v.z, limits?.min?.z ?? Number.MIN_SAFE_INTEGER, limits?.max?.z ?? Number.MAX_SAFE_INTEGER)
     };
-    const initialiseLocation = (player) => {
-      const initialisedKey = _QuickItemDatabase.DYNAMIC_PROPERTY_PREFIX + ":initialised";
-      const xLocationKey = _QuickItemDatabase.DYNAMIC_PROPERTY_PREFIX + ":x";
-      const zLocationKey = _QuickItemDatabase.DYNAMIC_PROPERTY_PREFIX + ":z";
-      let xLocation = world5.getDynamicProperty(xLocationKey);
-      let zLocation = world5.getDynamicProperty(zLocationKey);
-      const wasInitialised = world5.getDynamicProperty(initialisedKey);
-      if (xLocation === void 0) {
-        xLocation = player.location.x;
-        world5.setDynamicProperty(xLocationKey, xLocation);
-      }
-      if (zLocation === void 0) {
-        zLocation = player.location.z;
-        world5.setDynamicProperty(zLocationKey, zLocation);
-      }
-      this.spawnLocation = { x: xLocation, y: _QuickItemDatabase.SPAWN_LOCATION_Y_COORDINATE, z: zLocation };
-      if (!wasInitialised) {
-        world5.setDynamicProperty(initialisedKey, true);
-        const oneAboveSpawm = this.spawnLocation.y + 1;
-        const tickingAreaCommand = [
-          "tickingarea add",
-          this.spawnLocation.x,
-          oneAboveSpawm,
-          this.spawnLocation.z,
-          this.spawnLocation.x,
-          this.spawnLocation.y,
-          this.spawnLocation.z,
-          _QuickItemDatabase.TICKING_AREA_NAME
-        ].join(" ");
-        this.dimension.runCommand(tickingAreaCommand);
-      }
-      startLog();
-    };
-    const existingPlayer = world5.getPlayers()[0];
-    if (existingPlayer) {
-      initialiseLocation(existingPlayer);
-    } else {
-      const spawnListener = world5.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
-        if (!initialSpawn) return;
-        initialiseLocation(player);
-        world5.afterEvents.playerSpawn.unsubscribe(spawnListener);
-      });
-    }
-    this._run();
-    this._registerShutdown();
   }
   /**
-   * Functionality for actually saving the database entries.
+   * lerp
+   *
+   * Constructs a new vector using linear interpolation on each component from two vectors.
    */
-  _run() {
-    const log = () => {
-      const entriesSavedSinceLast = lastAmountSaved - this.queuedEntries.length;
-      const saveRate = (entriesSavedSinceLast / _QuickItemDatabase.SAVE_DELAY_SECONDS).toFixed(0) || "//";
-      lastAmountSaved = this.queuedEntries.length;
-      logAction(`Saving, Dont close the world.
-\xA7r[Stats]-\xA7eRemaining: ${this.queuedEntries.length} entries | speed: ${saveRate} entries/s \xA7r${date()}`, 0 /* log */);
-    };
-    let wasSavingLastTick = false;
-    let runId;
-    let lastAmountSaved = 0;
-    system4.runInterval(() => {
-      const cacheSettingDiff = this.quickAccess.size - this.settings.cacheSize;
-      if (cacheSettingDiff > 0) {
-        for (let i = 0; i < cacheSettingDiff; i++) {
-          const nextEntry = this.quickAccess.keys().next()?.value;
-          if (nextEntry) {
-            this.quickAccess.delete(nextEntry);
-          }
-        }
-      }
-      if (this.queuedEntries.length) {
-        if (runId === void 0) {
-          if (this.logs.save) {
-            log();
-          }
-          runId = system4.runInterval(() => {
-            if (this.logs.save) {
-              log();
-            }
-          }, _QuickItemDatabase.SAVE_DELAY_SECONDS * _QuickItemDatabase.TICKS_PER_SECOND);
-        }
-        wasSavingLastTick = true;
-        const k = Math.min(this.settings.saveRate, this.queuedEntries.length);
-        for (let i = 0; i < k; i++) {
-          const entryToSave = this.queuedEntries.shift();
-          if (entryToSave) {
-            this.save(entryToSave.key, entryToSave.value);
-          }
-        }
-      } else if (runId) {
-        system4.clearRun(runId);
-        runId = void 0;
-        if (wasSavingLastTick && this.logs.save) {
-          logAction(`Saved, You can now close the world safely. \xA7r${date()}`, 0 /* log */);
-        }
-        wasSavingLastTick = false;
-      }
-    }, 1);
+  static lerp(a, b, t) {
+    return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, z: a.z + (b.z - a.z) * t };
   }
   /**
-   * Subscribes to the shutdown event to give a notification.
+   * slerp
+   *
+   * Constructs a new vector using spherical linear interpolation on each component from two vectors.
    */
-  _registerShutdown() {
-    system4.beforeEvents.shutdown.subscribe(() => {
-      if (this.queuedEntries.length) {
-        logAction(
-          `Fatal Error >\xA7r\xA7c World closed too early, items not saved correctly.  
-
-Namespace: ${this.settings.namespace}
-Number of lost entries: ${this.queuedEntries.length} \xA7r${date()}
-
-
-
-`,
-          2 /* error */
-        );
-      }
-    });
+  static slerp(a, b, t) {
+    const theta = Math.acos(_Vector3Utils.dot(a, b));
+    const sinTheta = Math.sin(theta);
+    const ta = Math.sin((1 - t) * theta) / sinTheta;
+    const tb = Math.sin(t * theta) / sinTheta;
+    return _Vector3Utils.add(_Vector3Utils.scale(a, ta), _Vector3Utils.scale(b, tb));
   }
   /**
-   * Gets the inventories of the storage entities.
-   * @param fullKey The whole structure id, including the prefix.
-   * @param requiredEntities
-   * The number of entities required to contain all inventories. Each entity can store a maximum of 256 slots.
-   * 
-   * Not required when loading inventories.
-   * 
-   * @returns The {@link Container}s of the storage entities, and whether or not there was an existing structure.
-   * @remarks
-   * This spawns in empty entities if the value for the key doesn't exist.
-   * 
-   * This function can't be called in read-only mode.
+   * multiply
+   *
+   * Element-wise multiplication of two vectors together.
+   * Not to be confused with {@link Vector3Utils.dot} product or {@link Vector3Utils.cross} product
    */
-  getInventories(fullKey, requiredEntities) {
-    if (fullKey.length > 30) {
-      logAction(`Out of range: <${fullKey}> has more than 30 characters \xA7r${date()}`, 2 /* error */);
-      throw new Error(`\xA7cQIDB > Out of range: <${fullKey}> has more than 30 characters \xA7r${date()}`);
-    }
-    let existingStructure = false;
-    const structure = world5.structureManager.get(fullKey);
-    if (structure) {
-      world5.structureManager.place(structure, this.dimension, this.spawnLocation, { includeEntities: true });
-      existingStructure = true;
-    } else {
-      logAction(requiredEntities, 0 /* log */);
-      if (requiredEntities) {
-        for (let i = 0; i < requiredEntities; i++) {
-          this.dimension.spawnEntity(_QuickItemDatabase.STORAGE_ENTITY, this.spawnLocation);
-        }
-      }
-    }
-    const entities = this.dimension.getEntities({ location: this.spawnLocation, type: _QuickItemDatabase.STORAGE_ENTITY });
-    if (requiredEntities) {
-      if (entities.length < requiredEntities) {
-        for (let i = entities.length; i < requiredEntities; i++) {
-          entities.push(this.dimension.spawnEntity(_QuickItemDatabase.STORAGE_ENTITY, this.spawnLocation));
-        }
-      }
-      if (entities.length > requiredEntities) {
-        logAction(`entities.length > length: ${entities.length} > ${requiredEntities} ${entities.length > requiredEntities}`, 0 /* log */);
-        for (let i = entities.length; i > requiredEntities; i--) {
-          logAction(`removed ${i}`, 0 /* log */);
-          entities[i - 1].remove();
-          entities.pop();
-        }
-      }
-    }
-    const containers = [];
-    entities.forEach((entity) => {
-      containers.push(entity.getComponent(EntityComponentTypes.Inventory).container);
-    });
-    if (this.logs.load) {
-      logAction(`Loaded ${entities.length} entities <${fullKey}> \xA7r${date()}`, 0 /* log */);
-    }
-    return { existingStructure, containers };
+  static multiply(a, b) {
+    return { x: a.x * b.x, y: a.y * b.y, z: a.z * b.z };
   }
   /**
-   * Saves a structure to the world
-   * @param key The identifier of the structure.
-   * @param existingStructure Whether or not the structure already exists. This must be determined from elsewhere.
+   * rotateX
+   *
+   * Rotates the vector around the x axis counterclockwise (left hand rule)
+   * @param a - Angle in radians
    */
-  saveStructure(key, existingStructure) {
-    if (existingStructure) world5.structureManager.delete(key);
-    world5.structureManager.createFromWorld(key, this.dimension, this.spawnLocation, this.spawnLocation, { saveMode: StructureSaveMode.World, includeEntities: true });
-    const entities = this.dimension.getEntities({ location: this.spawnLocation, type: _QuickItemDatabase.STORAGE_ENTITY });
-    entities.forEach((e) => e.remove());
+  static rotateX(v, a) {
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
+    return { x: v.x, y: v.y * cos - v.z * sin, z: v.z * cos + v.y * sin };
   }
   /**
-   * Queues a key-itemstack pair for saving.
-   * @param key The identifier for the pair, this will be the name of the structure.
-   * @param value The itemstacks to save.
+   * rotateY
+   *
+   * Rotates the vector around the y axis counterclockwise (left hand rule)
+   * @param a - Angle in radians
    */
-  queueSave(key, value) {
-    const entry = {
-      key,
-      value
-    };
-    this.queuedEntries.push(entry);
+  static rotateY(v, a) {
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
+    return { x: v.x * cos + v.z * sin, y: v.y, z: v.z * cos - v.x * sin };
   }
   /**
-   * Saves itemstacks into a structure.
-   * @param key The structure identifier.
-   * @param value The itemstacks to save.
-   * @remarks Clears the inventory of the storage entity if `value` is undefined.
+   * rotateZ
+   *
+   * Rotates the vector around the z axis counterclockwise (left hand rule)
+   * @param a - Angle in radians
    */
-  async save(key, value) {
-    let requiredEntities = 1;
-    const isArray = Array.isArray(value);
-    if (isArray) {
-      requiredEntities = Math.floor((value?.length - 1) / _QuickItemDatabase.STORAGE_ENTITY_CAPACITY) + 1 || 1;
-    }
-    const { existingStructure, containers } = this.getInventories(key, requiredEntities);
-    containers.forEach((inv, index) => {
-      if (!value) for (let i = 256 * index; i < 256 * index + 256; i++) inv.setItem(i - 256 * index, void 0), world5.setDynamicProperty(key, void 0);
-      if (isArray) {
-        try {
-          for (let i = 256 * index; i < 256 * index + 256; i++) inv.setItem(i - 256 * index, value[i] || void 0);
-        } catch {
-          throw new Error(`\xA7cQIDB > Invalid value type. supported: ItemStack | ItemStack[] | undefined \xA7r${date()}`);
-        }
-        world5.setDynamicProperty(key, requiredEntities);
-      } else {
-        try {
-          inv.setItem(0, value), world5.setDynamicProperty(key, false);
-        } catch {
-          throw new Error(`\xA7cQIDB > Invalid value type. supported: ItemStack | ItemStack[] | undefined \xA7r${date()}`);
-        }
-      }
-    });
-    await this.saveStructure(key, existingStructure);
+  static rotateZ(v, a) {
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
+    return { x: v.x * cos - v.y * sin, y: v.y * cos + v.x * sin, z: v.z };
   }
 };
 
-// packs/scripts/plugins/MarketSystem/utils/RandomCode.ts
-function RandomCode(length, without = []) {
-  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let code;
-  do {
-    code = Array.from({ length }, () => characters[Math.floor(Math.random() * characters.length)]).join("");
-  } while (without.includes(code));
-  return code;
+// packs/scripts/core/utils/PlayerManagers.ts
+import { world as world4 } from "@minecraft/server";
+function getAllPlayers(filter) {
+  const players = world4.getAllPlayers();
+  if (filter) {
+    return players.filter(filter);
+  }
+  return players;
 }
 
-// packs/scripts/plugins/MarketSystem/class/Product.ts
-var Product = class {
-  itemStack;
-  owners;
-  prices;
-  db;
-  itemDB;
-  constructor(itemStack, owners, prices, page, itemDB) {
-    this.itemStack = itemStack;
-    this.owners = owners;
-    this.prices = prices;
-    this.db = new DatabaseMap(`market:${page}`);
-    this.itemDB = itemDB;
-  }
-  addProduct() {
-    const key = `${RandomCode(5, [...this.db.keys()])}`;
-    console.warn(key, "add product", this.itemStack.amount);
-    const dataSave = {
-      itemStack: key,
-      owner: this.owners,
-      prices: this.prices,
-      releaseDate: Date.now(),
-      history: [],
-      isHide: false
+// packs/scripts/kisux3/plugins/ItemStacker/services/utils.ts
+function* StackingItem(config) {
+  try {
+    const UnStackItem = config.ItemStackConfig.has("UnStackItem") ? config.ItemStackConfig.get("UnStackItem") : [];
+    const CombineItemStack = (en) => {
+      if (!en.isValid) return;
+      const item = en.getComponent("item").itemStack;
+      let totalAmount = 0;
+      if (!(item.nameTag || item.typeId.includes("potion") || item.typeId.includes("shulker_box") || item.typeId.includes("bundle") || item.typeId.includes("bed") || item.typeId.includes("bottle") || [...UnStackItem].some((x) => item.typeId.includes(x)))) {
+        const itemNearBy = getItemNearBy(en, config);
+        for (const target of itemNearBy) {
+          totalAmount += config.ItemStackData.get(target.id).amount;
+          if (config.ItemStackData.has(target.id)) config.ItemStackData.delete(target.id);
+          if (config.ItemListStack.has(target)) config.ItemListStack.delete(target);
+          target.addTag("fakeItem");
+          target.remove();
+        }
+      }
+      config.ItemStackData.set(en.id, { amount: totalAmount + item.amount, item: ItemConvert.ItemToJson(item), life: system3.currentTick, currAmount: totalAmount, nowAmount: en.getComponent("item").itemStack.amount });
+      config.ItemListStack.delete(en);
     };
-    this.db.set(key, dataSave);
-    const clonedItemStack = this.itemStack.clone();
-    this.itemDB.set(key, [clonedItemStack]);
-    return dataSave;
-  }
-  static removeProduct(key, itemDB, db) {
-    itemDB.delete(db.get(key).itemStack);
-    db.delete(key);
-  }
-  static setProduct(key, page, data) {
-    const db = new DatabaseMap(`market:${page}`);
-    db.set(key, data);
-  }
-  static getProduct(getBy, options) {
-    if (getBy == 2 /* all */) {
-      const data = /* @__PURE__ */ new Set();
-      const lastId = [];
-      world6.getDynamicPropertyIds().filter((x) => x.match(/^\$DatabaseMap␞([a-zA-Z0-9_]+):([0-9a-zA-Z_]+)␞([a-zA-Z0-9_]+)$/)).forEach((id) => {
-        const idParts = id.replace(/^\$DatabaseMap␞([a-zA-Z0-9_]+:\d+)␞[a-zA-Z0-9_]+$/, "$1");
-        if (lastId.some((part) => part == idParts)) return;
-        lastId.push(idParts);
-        [...new DatabaseMap(idParts).values()].forEach((d) => {
-          if (options?.hide ?? false) {
-            if (!d.isHide) {
-              data.add(d);
-            }
-          } else {
-            data.add(d);
-          }
-        });
-      });
-      return [...data];
-    } else if (getBy == 0 /* owners */) {
-      const data = /* @__PURE__ */ new Set();
-      const lastId = [];
-      world6.getDynamicPropertyIds().filter((x) => x.match(/^\$DatabaseMap␞([a-zA-Z0-9_]+):([0-9a-zA-Z_]+)␞([a-zA-Z0-9_]+)$/)).forEach((id) => {
-        const idParts = id.replace(/^\$DatabaseMap␞([a-zA-Z0-9_]+:\d+)␞[a-zA-Z0-9_]+$/, "$1");
-        if (lastId.some((part) => part == idParts)) return;
-        lastId.push(idParts);
-        [...new DatabaseMap(idParts).values()].forEach((d) => {
-          data.add(d);
-        });
-      });
-      console.warn([...data].map((x) => x.itemStack).join(", "));
-      return [...data].filter((x) => x.owner == options?.owners);
+    const UpdateItemStack = (enData) => {
+      const en = world5.getDimension("overworld").getEntities().filter((x) => x.id == enData[0])[0];
+      if (en && en.isValid) {
+        const data = config.ItemStackData.get(en.id);
+        const item = en.getComponent("item").itemStack;
+        config.ItemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount, nowAmount: en.getComponent("item").itemStack.amount });
+      }
+    };
+    if (system3.currentTick % 2 === 0) {
+      for (const en of config.ItemListStack) {
+        CombineItemStack(en);
+        yield;
+      }
     } else {
-      const data = /* @__PURE__ */ new Set();
-      const dataReturn = [];
-      const lastId = [];
-      world6.getDynamicPropertyIds().filter((x) => x.match(/^\$DatabaseMap␞([a-zA-Z0-9_]+):([0-9a-zA-Z_]+)␞([a-zA-Z0-9_]+)$/)).forEach((id) => {
-        const idParts = id.replace(/^\$DatabaseMap␞([a-zA-Z0-9_]+:\d+)␞[a-zA-Z0-9_]+$/, "$1");
-        if (lastId.some((part) => part == idParts)) return;
-        lastId.push(idParts);
-        [...new DatabaseMap(idParts).values()].forEach((d) => {
-          data.add(d);
-        });
-      });
-      for (let i = 0; i < data.size; i++) {
-        if (new QuickItemDatabase(`it_market`, 5, 1).get([...data][i].itemStack)[0].typeId == options?.typeId) {
-          dataReturn.push([...data][i]);
-        }
-      }
-      return dataReturn;
-    }
-  }
-};
-
-// packs/scripts/plugins/MarketSystem/utils/CalculatePageSize.ts
-function CalculatePageSize(number) {
-  const maxPage = 27;
-  if (number == 0) return 1;
-  return Math.floor((number - 1) / maxPage) + 1;
-}
-
-// packs/scripts/plugins/MarketSystem/utils/CalculateExpiredTime.ts
-function CalculateExpiredTime(releaseTime) {
-  const releaseDate = new Date(releaseTime);
-  const expiryDate = new Date(releaseDate);
-  expiryDate.setHours(expiryDate.getHours() + 3);
-  const now = /* @__PURE__ */ new Date();
-  const remainingTimeMs = expiryDate.getTime() - now.getTime();
-  if (remainingTimeMs <= 0) {
-    return null;
-  }
-  const hours = Math.floor(remainingTimeMs / (1e3 * 60 * 60));
-  const minutes = Math.floor(remainingTimeMs % (1e3 * 60 * 60) / (1e3 * 60));
-  const seconds = Math.floor(remainingTimeMs % (1e3 * 60) / 1e3);
-  return { hours, minutes, seconds };
-}
-
-// packs/scripts/plugins/MarketSystem/utils/Constants.ts
-var inventory_enabled = true;
-var custom_content = {
-  "custom:block": {
-    texture: "minecraft:gold_block",
-    type: "block"
-  },
-  "custom:item": {
-    texture: "textures/items/paper",
-    type: "item"
-  }
-};
-var number_of_custom_items = Object.values(custom_content).filter((v) => v.type === "item").length;
-var custom_content_keys = new Set(Object.keys(custom_content));
-var CHEST_UI_SIZES = /* @__PURE__ */ new Map([
-  ["single", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA72\xA77\xA7r", 27]],
-  ["small", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA72\xA77\xA7r", 27]],
-  ["double", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA75\xA74\xA7r", 54]],
-  ["large", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA75\xA74\xA7r", 54]],
-  ["1", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA70\xA71\xA7r", 1]],
-  ["5", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA70\xA75\xA7r", 5]],
-  ["9", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA70\xA79\xA7r", 9]],
-  ["18", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA71\xA78\xA7r", 18]],
-  ["27", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA72\xA77\xA7r", 27]],
-  ["36", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA73\xA76\xA7r", 36]],
-  ["45", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA74\xA75\xA7r", 45]],
-  ["54", ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA75\xA74\xA7r", 54]],
-  [1, ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA70\xA71\xA7r", 1]],
-  [5, ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA70\xA75\xA7r", 5]],
-  [9, ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA70\xA79\xA7r", 9]],
-  [18, ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA71\xA78\xA7r", 18]],
-  [27, ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA72\xA77\xA7r", 27]],
-  [36, ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA73\xA76\xA7r", 36]],
-  [45, ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA74\xA75\xA7r", 45]],
-  [54, ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA75\xA74\xA7r", 54]]
-]);
-
-// packs/scripts/plugins/MarketSystem/class/ChestForms.ts
-import { ActionFormData as ActionFormData2 } from "@minecraft/server-ui";
-var ChestFormData = class {
-  titleText;
-  slotCount;
-  buttonArray;
-  constructor(size = "small") {
-    const sizing = CHEST_UI_SIZES.get(size) ?? ["\xA7c\xA7h\xA7e\xA7s\xA7t\xA72\xA77\xA7r", 27];
-    this.titleText = { rawtext: [{ text: `${sizing[0]}` }] };
-    this.buttonArray = Array(sizing[1]).fill(["", void 0]);
-    this.slotCount = sizing[1];
-  }
-  title(text) {
-    if (typeof text === "string") {
-      this.titleText.rawtext?.push({ text });
-    } else if (typeof text === "object") {
-      if (text.rawtext) {
-        this.titleText.rawtext?.push(...text.rawtext);
-      } else {
-        this.titleText.rawtext?.push(text);
+      for (const enData of config.ItemStackData) {
+        UpdateItemStack(enData);
+        yield;
       }
     }
-    return this;
-  }
-  button(slot, itemName, itemDesc, texture, stackSize = 1, durability = 0, enchanted = false) {
-    const targetTexture = custom_content_keys.has(texture) ? custom_content[texture]?.texture : texture;
-    const ID = typeIdToDataId.get(targetTexture) ?? typeIdToID.get(targetTexture);
-    const buttonRawtext = {
-      rawtext: [
-        {
-          text: `stack#${String(Math.min(Math.max(stackSize, 1), 99)).padStart(2, "0")}dur#${String(Math.min(Math.max(durability, 0), 99)).padStart(2, "0")}\xA7r`
-        }
-      ]
-    };
-    if (typeof itemName === "string") {
-      buttonRawtext.rawtext?.push({ text: itemName ? `${itemName}\xA7r` : "\xA7r" });
-    } else if (typeof itemName === "object" && itemName.rawtext) {
-      buttonRawtext.rawtext?.push(...itemName.rawtext, { text: "\xA7r" });
-    } else return;
-    if (Array.isArray(itemDesc) && itemDesc.length > 0) {
-      for (const obj of itemDesc) {
-        if (typeof obj === "string") {
-          buttonRawtext.rawtext?.push({ text: `
-${obj}` });
-        } else if (typeof obj === "object" && obj.rawtext) {
-          buttonRawtext.rawtext?.push({ text: `
-` }, ...obj.rawtext);
-        }
-      }
+    const fastModeStacking = config.ItemStackConfig.get("FastModeStacking");
+    if (fastModeStacking) {
+      system3.run(() => FastModeStacking(config));
+    } else {
+      system3.run(() => system3.runJob(StackingItem(config)));
     }
-    this.buttonArray.splice(Math.max(0, Math.min(slot, this.slotCount - 1)), 1, [
-      buttonRawtext,
-      ID === void 0 ? targetTexture : (ID + (ID < 256 ? 0 : number_of_custom_items)) * 65536 + (enchanted ? 32768 : 0)
-    ]);
-    return this;
-  }
-  pattern(pattern, key) {
-    for (let i = 0; i < pattern.length; i++) {
-      const row = pattern[i];
-      for (let j = 0; j < row.length; j++) {
-        const letter = row.charAt(j);
-        const data = key[letter];
-        if (!data) continue;
-        const slot = j + i * 9;
-        const targetTexture = custom_content_keys.has(data.texture) ? custom_content[data.texture]?.texture : data.texture;
-        const ID = typeIdToDataId.get(targetTexture) ?? typeIdToID.get(targetTexture);
-        const { stackAmount = 1, durability = 0, itemName, itemDesc, enchanted = false } = data;
-        const stackSize = String(Math.min(Math.max(stackAmount, 1), 99)).padStart(2, "0");
-        const durValue = String(Math.min(Math.max(durability, 0), 99)).padStart(2, "0");
-        const buttonRawtext = {
-          rawtext: [{ text: `stack#${stackSize}dur#${durValue}\xA7r` }]
-        };
-        if (typeof itemName === "string") {
-          buttonRawtext.rawtext?.push({ text: `${itemName}\xA7r` });
-        } else if (itemName?.rawtext) {
-          buttonRawtext.rawtext?.push(...itemName.rawtext, { text: "\xA7r" });
-        } else continue;
-        if (Array.isArray(itemDesc) && itemDesc.length > 0) {
-          for (const obj of itemDesc) {
-            if (typeof obj === "string") {
-              buttonRawtext.rawtext?.push({ text: `
-${obj}` });
-            } else if (obj?.rawtext) {
-              buttonRawtext.rawtext?.push({ text: `
-`, ...obj.rawtext });
-            }
-          }
-        }
-        this.buttonArray.splice(Math.max(0, Math.min(slot, this.slotCount - 1)), 1, [
-          buttonRawtext,
-          ID === void 0 ? targetTexture : (ID + (ID < 256 ? 0 : number_of_custom_items)) * 65536 + (enchanted ? 32768 : 0)
-        ]);
-      }
-    }
-    return this;
-  }
-  show(player) {
-    const form = new ActionFormData2().title(this.titleText);
-    this.buttonArray.forEach((button) => {
-      form.button(button[0], button[1]?.toString());
+  } catch (_e) {
+    system3.run(() => {
+      StackingItem(config);
     });
-    if (!inventory_enabled) return form.show(player);
-    const container = player.getComponent("inventory").container;
-    for (let i = 0; i < container.size; i++) {
-      const item = container.getItem(i);
-      if (!item) continue;
-      const typeId = item.typeId;
-      const targetTexture = custom_content_keys.has(typeId) ? custom_content[typeId]?.texture : typeId;
-      const ID = typeIdToDataId.get(targetTexture) ?? typeIdToID.get(targetTexture);
-      const durability = item.getComponent("durability");
-      const durDamage = durability ? Math.round((durability.maxDurability - durability.damage) / durability.maxDurability * 99) : 0;
-      const amount = item.amount;
-      const formattedItemName = typeId.replace(/.*(?<=:)/, "").replace(/_/g, " ").replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
-      const buttonRawtext = {
-        rawtext: [
-          {
-            text: `stack#${String(amount).padStart(2, "0")}dur#${String(durDamage).padStart(2, "0")}\xA7r${formattedItemName}`
-          }
-        ]
+  }
+}
+function FastModeStacking(config) {
+  try {
+    const UnStackItem = config.ItemStackConfig.has("UnStackItem") ? config.ItemStackConfig.get("UnStackItem") : [];
+    const CombineItemStack = (en) => {
+      if (!en.isValid) return;
+      const item = en.getComponent("item").itemStack;
+      let totalAmount = 0;
+      if (!(item.nameTag || item.typeId.includes("potion") || item.typeId.includes("shulker_box") || item.typeId.includes("bundle") || item.typeId.includes("bed") || item.typeId.includes("bottle") || [...UnStackItem].some((x) => item.typeId.includes(x)))) {
+        const itemNearBy = getItemNearBy(en, config);
+        for (const target of itemNearBy) {
+          totalAmount += config.ItemStackData.get(target.id).amount;
+          if (config.ItemStackData.has(target.id)) config.ItemStackData.delete(target.id);
+          if (config.ItemListStack.has(target)) config.ItemListStack.delete(target);
+          target.addTag("fakeItem");
+          target.remove();
+        }
+      }
+      config.ItemStackData.set(en.id, { amount: totalAmount + item.amount, item: ItemConvert.ItemToJson(item), life: system3.currentTick, currAmount: totalAmount, nowAmount: en.getComponent("item").itemStack.amount });
+      config.ItemListStack.delete(en);
+    };
+    const UpdateItemStack = (enData) => {
+      const en = world5.getDimension("overworld").getEntities().filter((x) => x.id == enData[0])[0];
+      if (en && en.isValid) {
+        const data = config.ItemStackData.get(en.id);
+        const item = en.getComponent("item").itemStack;
+        config.ItemStackData.set(en.id, { amount: data.currAmount + item.amount, item: data.item, life: data.life, currAmount: data.currAmount, nowAmount: en.getComponent("item").itemStack.amount });
+      }
+    };
+    if (system3.currentTick % 2 === 0) {
+      for (const en of config.ItemListStack) {
+        CombineItemStack(en);
+      }
+    } else {
+      for (const enData of config.ItemStackData) {
+        UpdateItemStack(enData);
+      }
+    }
+    const fastModeStacking = config.ItemStackConfig.get("FastModeStacking");
+    if (fastModeStacking) {
+      system3.run(() => FastModeStacking(config));
+    } else {
+      system3.runJob(StackingItem(config));
+    }
+  } catch (e) {
+    console.warn(e);
+    system3.run(() => {
+      FastModeStacking(config);
+    });
+  }
+}
+function* SeeingItem(config) {
+  try {
+    const ListStack = [...config.ItemStackData.keys()];
+    const radiusSeeing = config.ItemStackConfig.get("RadiusSeeing") || 7;
+    for (const pl of world5.getAllPlayers()) {
+      const allEnititys = pl.dimension.getEntities({ type: "minecraft:item" }).filter((x) => ListStack.some((d) => d == x.id));
+      const filterEntitys = pl.dimension.getEntities({ maxDistance: radiusSeeing, location: pl.location, type: "minecraft:item" }).filter((x) => ListStack.some((d) => d == x.id));
+      const updateItemName = (en) => {
+        const itemData = config.ItemStackData.get(en.id);
+        const displayText = config.ItemStackConfig.get("DisplayText") || "";
+        if (itemData && en.isValid) {
+          const timeData = getTimeRemaining(5, 30, itemData.life);
+          let text = displayText;
+          text = `\xA7e\uE10E ` + text;
+          text = text.replace(/%a/g, `${getItemColorCode(itemData.amount)}x${itemData.amount}\xA7r`);
+          text = text.replace(/%n/g, ItemsToName(en) ?? "Unknown Item");
+          text = text.replace(/%m/g, `${Math.max(timeData.m, 0)}`);
+          text = text.replace(/%s/g, `${timeData.s}`);
+          text = text.replace(/%l/g, "\n");
+          en.nameTag = text;
+        }
       };
-      const loreText = item.getLore().join("\n");
-      if (loreText) buttonRawtext.rawtext?.push({ text: loreText });
-      const finalID = ID === void 0 ? targetTexture : (ID + (ID < 256 ? 0 : number_of_custom_items)) * 65536;
-      form.button(buttonRawtext, finalID.toString());
+      const updateTime = (en, itemData) => {
+        const timeData = getTimeRemaining(5, 30, itemData.life);
+        if (timeData.m < 0) {
+          config.ItemStackData.delete(en.id);
+          en.addTag("fakeItem");
+          en.remove();
+        } else if (system3.currentTick % 20 == 0) {
+          const playerNears = getAllPlayers((pl2) => {
+            return Vector3Utils.distance(pl2.location, en.location) <= radiusSeeing && pl2.dimension === en.dimension;
+          });
+          if (playerNears.length == 0) en.nameTag = "";
+        }
+        ;
+      };
+      for (const en of filterEntitys) {
+        updateItemName(en);
+        yield;
+      }
+      for (const en of allEnititys) {
+        const itemData = config.ItemStackData.get(en.id);
+        if (itemData && en.isValid) {
+          updateTime(en, itemData);
+          yield;
+        }
+      }
+      yield;
     }
-    return form.show(player);
+    system3.runJob(SeeingItem(config));
+  } catch (_e) {
+    system3.run(() => {
+      SeeingItem(config);
+    });
   }
-};
-
-// packs/scripts/plugins/MarketSystem/utils/SimplifyEnchantText.ts
-function SimpifyEnchantText(enchantments) {
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).replace(/_/g, " ");
-  return enchantments.map((enchantment) => {
-    const name = capitalize(enchantment.type.id);
-    const level = enchantment.level;
-    const romanNumerals = ["I", "II", "III", "IV", "V"];
-    return `\xA77${name} ${romanNumerals[level - 1]}\xA7r`;
-  }).join("\n");
 }
-
-// packs/scripts/plugins/MarketSystem/class/MarketUi.ts
-var MarketUi = class _MarketUi {
-  moneyScore;
-  savedUi;
-  config;
-  constructor(config) {
-    this.moneyScore = new DatabaseMap(config.moneyScore);
-    this.savedUi = /* @__PURE__ */ new Map();
-    this.config = config;
-  }
-  initializeScore(pl) {
-    let obj = world7.scoreboard.getObjective(this.config.moneyScore);
-    if (!obj) {
-      world7.scoreboard.addObjective(this.config.moneyScore);
-      obj = world7.scoreboard.getObjective(this.config.moneyScore);
+function getItemNearBy(en, config) {
+  const radius = config.ItemStackConfig.get("RadiusCombine") || 15;
+  const UnStackItem = config.ItemStackConfig.get("UnStackItem") || [];
+  const itemStack = en.getComponent("item").itemStack;
+  const allEntities = getAllEntities((x) => {
+    if (x.dimension !== en.dimension) return false;
+    if (x.typeId !== "minecraft:item") return false;
+    if (Vector3Utils.distance(en.location, x.location) > radius) return false;
+    return true;
+  });
+  const jsonItem = ItemConvert.ItemToJson(itemStack);
+  jsonItem.amount = 0;
+  return allEntities.filter((target) => {
+    if (!en.isValid || !target.isValid) return false;
+    if (target.id === en.id) return false;
+    const jsonTarget = ItemConvert.ItemToJson(target.getComponent("item").itemStack);
+    jsonTarget.amount = 0;
+    if (JSON.stringify(jsonItem) !== JSON.stringify(jsonTarget)) return false;
+    const targetItemStack = target.getComponent("item").itemStack;
+    if ([...UnStackItem].some((x) => x == targetItemStack.typeId)) return false;
+    if (targetItemStack.nameTag) return false;
+    if (!config.ItemStackData.has(target.id)) return false;
+    if (itemStack.getLore().join(",") !== targetItemStack.getLore().join(",")) return false;
+    if (itemStack.typeId !== targetItemStack.typeId) return false;
+    if (itemStack.getTags().join(",") !== targetItemStack.getTags().join(",")) return false;
+    if (itemStack.hasComponent("minecraft:potion") || targetItemStack.hasComponent("minecraft:potion")) return false;
+    if (itemStack.hasComponent("minecraft:book") || targetItemStack.hasComponent("minecraft:book")) return false;
+    if (itemStack.hasComponent("minecraft:inventory") || targetItemStack.hasComponent("minecraft:inventory")) return false;
+    if (itemStack.hasComponent("minecraft:dyeable") && targetItemStack.hasComponent("minecraft:dyeable")) {
+      const itemDyeable = itemStack.getComponent("minecraft:dyeable");
+      const targetDyeable = targetItemStack.getComponent("minecraft:dyeable");
+      console.info(itemDyeable, targetDyeable);
     }
-    if (obj && !obj.hasParticipant(pl)) {
-      obj.setScore(pl.scoreboardIdentity ?? pl, 0);
-    }
-    return;
-  }
-  // Utility to show a simple message form
-  showMessageForm(title, message, confirmButton, cancelButton, onConfirm, onCancel, pl, itemDB) {
-    const msgUi = new MessageFormData().title(title).body(message).button1(confirmButton).button2(cancelButton);
-    msgUi.show(pl).then((res) => {
-      if (res.canceled) return;
-      res.selection === 0 ? onConfirm(pl, itemDB) : onCancel(pl);
-    });
-  }
-  // Main UI for the market
-  showMainUi(pl, itemDB) {
-    this.initializeScore(pl);
-    if (this.savedUi.get(pl) ?? false) return;
-    const mainUi = new ActionFormData3().title("\xA7d\u0E2B\u0E19\u0E49\u0E32\u0E2B\u0E25\u0E31\u0E01 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C").button(`\xA7e\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E43\u0E19\u0E15\u0E25\u0E32\u0E14`, "textures/ui/sidebar_icons/marketplace").button(`\xA7a\u0E1A\u0E31\u0E0D\u0E0A\u0E35`, "textures/ui/sidebar_icons/my_characters").button(`\xA7b\u0E23\u0E49\u0E32\u0E19\u0E04\u0E49\u0E32\xA77\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13`, "textures/ui/sidebar_icons/promotag");
-    mainUi.show(pl).then((res) => {
-      switch (res.selection) {
-        case 2:
-          this.initiateItemSale(pl, itemDB);
-          break;
-        case 0:
-          this.viewProductUi(pl, itemDB, 1);
-          break;
-        case 1:
-          this.accountUI(pl, itemDB);
-          break;
-      }
-    });
-  }
-  accountUI(pl, itemDB) {
-    const accountUi = new ModalFormData();
-    accountUi.title(`\xA7a\u0E1A\u0E31\u0E0D\u0E0A\u0E35 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`);
-    accountUi.textField(
-      `
- \xA77\u0E04\u0E38\u0E13\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E16\u0E2D\u0E19\u0E40\u0E07\u0E34\u0E19\u0E08\u0E32\u0E01\u0E01\u0E32\u0E23\u0E02\u0E32\u0E22\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E44\u0E14\u0E49\u0E17\u0E35\u0E48\u0E19\u0E35\u0E48
- \xA77\u0E40\u0E07\u0E34\u0E19\xA77\u0E08\u0E32\u0E01\u0E01\u0E32\u0E23\xA7c\u0E02\u0E32\u0E22\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32: \xA7a$${this.moneyScore.get(pl.id) ?? 0}
-
-\xA77\u0E08\u0E33\u0E19\u0E27\u0E19\u0E40\u0E07\u0E34\u0E19: `,
-      `\xA77\u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E30\u0E1A\u0E38\u0E40\u0E07\u0E34\u0E19\u0E17\u0E35\u0E48\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23\u0E16\u0E2D\u0E19 \xA77(1-${this.moneyScore.get(pl.id) ?? 0})`
-    );
-    accountUi.toggle(`\xA77\u0E01\u0E25\u0E31\u0E1A/\xA7b\u0E16\u0E2D\u0E19\u0E40\u0E07\u0E34\u0E19`);
-    accountUi.show(pl).then((res) => {
-      if (res.canceled) return;
-      if (parseInt(res.formValues[0]) < 1) {
-        return this.accountUI(pl, itemDB);
-      }
-      if (res.formValues[1] == false) {
-        this.showMainUi(pl, itemDB);
-      } else if ((this.moneyScore.get(pl.id) ?? 0) < parseInt(res.formValues[0])) {
-        this.showMessageForm(
-          `\xA7e\u0E40\u0E40\u0E08\u0E49\u0E07\u0E40\u0E15\u0E37\u0E2D\u0E19 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`,
-          `\xA77\u0E04\u0E38\u0E13\u0E21\u0E35\u0E40\u0E07\u0E34\u0E19\u0E44\u0E21\u0E48\u0E1E\u0E2D\u0E17\u0E35\u0E48\u0E08\u0E30\u0E16\u0E2D\u0E19\u0E40\u0E07\u0E34\u0E19`,
-          `\xA7a\u0E01\u0E25\u0E31\u0E1A`,
-          `\xA7c\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01`,
-          (pl2, itemDB2) => {
-            this.accountUI(pl2, itemDB2);
-          },
-          () => {
-          },
-          pl,
-          itemDB
-        );
-      } else {
-        this.moneyScore.set(
-          pl.name,
-          this.moneyScore.get(pl.name) - parseInt(res.formValues[0])
-        );
-        world7.scoreboard.getObjective(this.config.moneyScore)?.setScore(pl, parseInt(res.formValues[0]));
-        pl.playSound("random.orb");
-        this.accountUI(pl, itemDB);
-      }
-    });
-  }
-  buyProduct(pl, itemDB, product, data, page, res) {
-    const selection = res;
-    const item = itemDB.get([...data.keys()][selection])[0];
-    const productUi = new ModalFormData();
-    const ID = typeIdToDataId.get(item.typeId) ?? typeIdToID.get(item.typeId);
-    const durability = item.hasComponent("durability") ? `\xA7c${item.getComponent("durability").maxDurability - item.getComponent("durability").damage}\xA77/\xA7c${item.getComponent("durability").maxDurability}\xA7r` : `\xA7c0\xA77/\xA7c0`;
-    const enchanted = (item.getComponent("enchantable")?.getEnchantments() ?? []).length > 0;
-    productUi.title(
-      `\xA7c\xA7h\xA7e\xA7y\xA7t${(ID + (ID < 262 ? 0 : 0)) * 65536 + (enchanted ? 32768 : 0)}`
-    );
-    productUi.textField(
-      `
-
-
-    \xA7e\u0E0A\u0E37\u0E48\u0E2D\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32: \xA7f${SimplifyItemTypeId(
-        item
-      )}
-    \xA7c\u0E08\u0E33\u0E19\u0E27\u0E19\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77: \xA7f${item.amount}\xA7cx\xA7r
-    \xA7d\u0E04\u0E27\u0E32\u0E21\u0E04\u0E07\u0E17\u0E19\xA77: \xA77${durability}
-    \xA7b\u0E23\u0E32\u0E04\u0E32\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77: \xA7a${[...data.entries()][res][1].prices}
-
-
-
-
-`,
-      "hide(-)"
-    );
-    productUi.toggle(`\xA7a\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\xA77\u0E01\u0E32\u0E23\u0E0B\u0E37\u0E49\u0E2D \xA77(\u0E01\u0E25\u0E31\u0E1A\xA77/\u0E0B\u0E37\u0E49\u0E2D\xA77)`);
-    productUi.show(pl).then((res2) => {
-      if (res2.canceled) return;
-      if (res2.formValues[1] == false) {
-        return this.viewProductUi(pl, itemDB, page);
-      }
-      const score = world7.scoreboard.getObjective(this.config.moneyScore)?.getScore(pl) ?? 0;
-      if (score < [...data.entries()][selection][1].prices) {
-        this.showMessageForm(
-          `\xA7e\u0E40\u0E40\u0E08\u0E49\u0E07\u0E40\u0E15\u0E37\u0E2D\u0E19 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`,
-          `\xA77\u0E04\u0E38\u0E13\u0E21\u0E35\u0E40\u0E07\u0E34\u0E19\u0E44\u0E21\u0E48\u0E1E\u0E2D\u0E17\u0E35\u0E48\u0E08\u0E30\u0E0B\u0E37\u0E49\u0E2D\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E19\u0E35\u0E49`,
-          `\xA7a\u0E01\u0E25\u0E31\u0E1A`,
-          `\xA7c\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01`,
-          (pl2, itemDB2) => {
-            this.buyProduct(pl2, itemDB2, product, data, page, selection);
-          },
-          () => {
-          },
-          pl,
-          itemDB
-        );
-      } else {
-        const dataIt = [...data.entries()][selection][1];
-        this.showMessageForm(
-          `\xA7e\u0E40\u0E40\u0E08\u0E49\u0E07\u0E40\u0E15\u0E37\u0E2D\u0E19 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`,
-          `\xA77\u0E04\u0E38\u0E13\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23\u0E0B\u0E37\u0E49\u0E2D\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E23\u0E32\u0E04\u0E32 \xA7c$${dataIt.prices} \xA77\u0E43\u0E0A\u0E48\u0E2B\u0E23\u0E37\u0E2D\u0E44\u0E21\u0E48?
-\u0E2B\u0E32\u0E01\u0E0B\u0E37\u0E49\u0E2D\u0E04\u0E38\u0E13\u0E08\u0E30\u0E21\u0E35\xA7a\u0E40\u0E07\u0E34\u0E19\xA77\u0E40\u0E2B\u0E25\u0E37\u0E2D \xA7c($${score - dataIt.prices})`,
-          `\xA7a\u0E43\u0E0A\u0E48`,
-          `\xA7c\u0E01\u0E25\u0E31\u0E1A`,
-          (pl2, itemDB2) => {
-            const item2 = itemDB2.get(dataIt.itemStack)[0];
-            pl2.sendMessage(
-              `\xA77\u0E0B\u0E37\u0E49\u0E2D\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77: \xA7e${SimplifyItemTypeId(item2)} \xA77\u0E08\u0E33\u0E19\u0E27\u0E19 \xA7a${item2.amount}\xA77x \xA77\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08`
-            );
-            pl2.playSound("random.orb");
-            pl2.getComponent("inventory").container.addItem(item2);
-            world7.scoreboard.getObjective(this.config.moneyScore)?.setScore(pl2, score - dataIt.prices);
-            Product.removeProduct(dataIt.itemStack, itemDB2, data);
-            const now = this.moneyScore.get(pl2.name) ?? 0;
-            this.moneyScore.set(dataIt.owner, now + dataIt.prices);
-          },
-          () => {
-            this.buyProduct(pl, itemDB, product, data, page, selection);
-          },
-          pl,
-          itemDB
-        );
-      }
-    });
-  }
-  // View product UI
-  viewProductUi(pl, itemDB, page) {
-    const data = new DatabaseMap(`market:${page}`);
-    for (let i = 0; i < [...data.keys()].length; i++) {
-      if (CalculateExpiredTime(data.get([...data.keys()][i]).releaseDate) == null) {
-        Product.removeProduct([...data.keys()][i], itemDB, data);
-      }
-    }
-    const market = new ChestFormData("36");
-    const productBtn = [];
-    market.title(
-      `\xA7e\uA844\uA88A\u0E19\uA734\u0E32\xA77\u0E43\u0E19\u0E15\u0E25\u0E32\u0E14 \xA77(${page}/${CalculatePageSize(
-        Product.getProduct(2 /* all */, { hide: true }).length
-      )}) \xA7e\u0E40\u0E07\u0E34\u0E19\xA77 \xA7a$${world7.scoreboard.getObjective(this.config.moneyScore)?.getScore(pl) ?? 0}`
-    );
-    for (let i = 0; i < [...data.keys()].length; i++) {
-      productBtn.push(i);
-      const item = itemDB.get(data.get([...data.keys()][i]).itemStack)[0];
-      let des = "";
-      des += item.getComponent("enchantable")?.getEnchantments() ? SimpifyEnchantText(
-        item.getComponent("enchantable")?.getEnchantments() ?? []
-      ) : "\xA77None Enchantments";
-      des += "\n";
-      if (item.hasComponent("durability")) {
-        des += `\xA77Durability: ${item.getComponent("durability").maxDurability - item.getComponent("durability").damage}/${item.getComponent("durability").maxDurability}\xA7r`;
-      } else des += "\xA77Durability: \xA770/0\xA7r";
-      des += "\n\n";
-      des += "-------------------------------------";
-      des += "\n";
-      des += "\xA7c\u0E23\u0E32\u0E04\u0E32\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32: \xA7a$" + data.get([...data.keys()][i]).prices;
-      des += "\n";
-      des += "\xA7r\xA7e\u0E1C\u0E39\u0E49\u0E02\u0E32\u0E22\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32: \xA7e" + data.get([...data.keys()][i]).owner;
-      des += "\n";
-      des += "\xA7a\u0E40\u0E2B\u0E25\u0E37\u0E2D\u0E40\u0E27\u0E25\u0E32\xA77\u0E2D\u0E35\u0E01: \xA7c" + CalculateExpiredTime(data.get([...data.keys()][i]).releaseDate).hours + "." + CalculateExpiredTime(data.get([...data.keys()][i]).releaseDate).minutes + "\xA77H";
-      des += "\n";
-      des += "-------------------------------------";
-      if (!data.get([...data.keys()][i]).isHide) {
-        market.button(
-          i,
-          SimplifyItemTypeId(item),
-          [des],
-          item.typeId,
-          item.amount,
-          item.hasComponent("durability") ? item.getComponent("durability").maxDurability - item.getComponent("durability").damage : 0,
-          (item.getComponent("enchantable")?.getEnchantments() ?? []).length > 0
-        );
-      }
-    }
-    market.button(27, "\xA7c\u0E01\u0E25\u0E31\u0E1A", [], "", 1, 0, false);
-    market.button(31, "\xA77\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E2B\u0E19\u0E49\u0E32", [], "textures/ui/magnifyingGlass", 1);
-    market.button(35, "\xA7a\u0E16\u0E31\u0E14\u0E44\u0E1B", [], "", 1, 0, false);
-    market.show(pl).then((res) => {
-      if (res.canceled) return;
-      if (productBtn.some((x) => x == res.selection)) {
-        this.buyProduct(
-          pl,
-          itemDB,
-          data.get([...data.keys()][res.selection]),
-          data,
-          page,
-          res.selection
-        );
-      } else if (res.selection == 31) {
-        pl.playSound("random.click");
-        const ui = new ModalFormData();
-        ui.title(`\xA76\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E2B\u0E19\u0E49\u0E32 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`);
-        ui.textField(
-          `
- \xA77\u0E01\u0E23\u0E38\u0E13\u0E32\u0E43\u0E2A\u0E48\u0E2B\u0E21\u0E32\u0E22\u0E40\u0E25\u0E02\u0E2B\u0E19\u0E49\u0E32\u0E17\u0E35\u0E48\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23\u0E44\u0E1B
-
-`,
-          `\u0E2B\u0E21\u0E32\u0E22\u0E40\u0E25\u0E02\u0E2B\u0E19\u0E49\u0E32 (1-${CalculatePageSize(
-            Product.getProduct(2 /* all */, { hide: true }).length
-          )})`
-        );
-        ui.show(pl).then((res2) => {
-          if (res2.canceled) return;
-          if (parseInt(res2.formValues[0]) > CalculatePageSize(
-            Product.getProduct(2 /* all */, { hide: true }).length
-          ) || parseInt(res2.formValues[0]) < 1) {
-            return;
-          }
-          this.viewProductUi(
-            pl,
-            itemDB,
-            parseInt(res2.formValues[0])
-          );
-        });
-      } else if (res.selection == 27) {
-        if (page - 1 <= 0) {
-          pl.playSound("mob.villager.no");
-          return this.viewProductUi(pl, itemDB, 1);
-        } else {
-          pl.playSound("random.click");
-          return this.viewProductUi(pl, itemDB, page - 1);
-        }
-      } else if (res.selection == 35) {
-        pl.playSound("random.click");
-        if (page + 1 > CalculatePageSize(
-          Product.getProduct(2 /* all */, { hide: true }).length
-        )) {
-          pl.playSound("mob.villager.no");
-          return this.viewProductUi(pl, itemDB, page);
-        } else {
-          pl.playSound("random.click");
-          return this.viewProductUi(pl, itemDB, page + 1);
+    if (itemStack.hasComponent(ItemEnchantableComponent2.componentId) && targetItemStack.hasComponent(ItemEnchantableComponent2.componentId)) {
+      const itemEn = itemStack.getComponent(ItemEnchantableComponent2.componentId);
+      const targetEn = targetItemStack.getComponent(ItemEnchantableComponent2.componentId);
+      const itemEnchants = itemEn.getEnchantments();
+      const targetEnchants = targetEn.getEnchantments();
+      if (itemEnchants.length !== targetEnchants.length) return false;
+      for (let i = 0; i < itemEnchants.length; i++) {
+        if (itemEnchants[i].type.id !== targetEnchants[i].type.id || itemEnchants[i].level !== targetEnchants[i].level) {
+          return false;
         }
       }
-    });
-  }
-  initiateItemSale(pl, itemDB) {
-    for (let i = 0; i < 27; i++) {
-      const itemStack = pl.getComponent("inventory").container.getItem(i);
-      if (itemStack) {
-        new Product(
-          itemStack,
-          pl.name,
-          0,
-          CalculatePageSize(
-            Product.getProduct(2 /* all */, { hide: true }).length
-          ),
-          itemDB
-        ).addProduct();
-      }
     }
-    const ui = new ActionFormData3();
-    const products = Product.getProduct(0 /* owners */, {
-      owners: pl.name
-    });
-    const productBtn = [];
-    ui.title(`\xA76\u0E23\u0E49\u0E32\u0E19\u0E04\u0E49\u0E32\u0E02\u0E2D\u0E07\u0E09\u0E31\u0E19 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`);
-    ui.body(`
- \xA77\u0E04\u0E38\u0E13\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E14\u0E39\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E40\u0E40\u0E25\u0E30\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E44\u0E14\u0E49\u0E17\u0E35\u0E48\u0E19\u0E35\u0E48`);
-    ui.button(
-      `\xA76${pl.name}
-\xA7a\u0E08\u0E33\u0E19\u0E27\u0E19\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13 \xA7c${products.length}\xA77/\xA7c5`,
-      `textures/ui/default_cast/efe_icon`
-    );
-    ui.button(`\xA7c\u0E25\u0E07\u0E02\u0E32\u0E22\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32
-\xA77\u0E04\u0E25\u0E34\u0E01\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E25\u0E07\u0E02\u0E32\u0E22\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32`);
-    products.forEach((btn, i) => {
-      productBtn.push(i + 2);
-      const itemStack = itemDB.get(btn.itemStack)[0];
-      const ID = typeIdToDataId.get(itemStack.typeId) ?? typeIdToID.get(itemStack.typeId);
-      const number_of_1_16_100_items = 0;
-      const enchanted = (itemStack.getComponent("enchantable")?.getEnchantments() ?? []).length > 0;
-      ui.button(
-        `${SimplifyItemTypeId(itemStack)}
-\xA77\u0E08\u0E33\u0E19\u0E27\u0E19: \xA7c${itemStack.amount}x \xA77| \xA77\u0E40\u0E2B\u0E25\u0E37\u0E2D\xA7a\u0E40\u0E27\u0E25\u0E32\xA77: \xA7c${CalculateExpiredTime(btn.releaseDate).hours}.${CalculateExpiredTime(btn.releaseDate).minutes} \xA77H`,
-        `${(ID + (ID < 262 ? 0 : number_of_1_16_100_items)) * 65536 + (enchanted ? 32768 : 0)}`
-      );
-    });
-    if (products.length == 0) {
-      ui.button(`\xA7c\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E04\u0E49\u0E32\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13`);
+    return true;
+  });
+}
+function getTimeRemaining(minutes, seconds, referenceTick) {
+  const now = system3.currentTick;
+  const specifiedTimeTicks = (minutes * 60 + seconds) * 20;
+  const targetTick = referenceTick + specifiedTimeTicks;
+  let diffTicks = targetTick - now;
+  const diffMinutes = Math.floor(diffTicks / (20 * 60));
+  diffTicks -= diffMinutes * (20 * 60);
+  const diffSeconds = Math.floor(diffTicks / 20);
+  return { m: diffMinutes, s: diffSeconds };
+}
+function ItemsToName(entity) {
+  return entity.getComponent("item").itemStack.nameTag ? entity.getComponent("item").itemStack.nameTag : entity.getComponent("item").itemStack.typeId.split(":")[1].split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+function getItemColorCode(amount) {
+  if (amount >= 1290) return "\xA79";
+  if (amount >= 960) return "\xA7b";
+  if (amount >= 390) return "\xA7a";
+  if (amount >= 108) return "\xA7e";
+  if (amount >= 88) return "\xA7g";
+  if (amount >= 68) return "\xA7p";
+  if (amount >= 48) return "\xA76";
+  if (amount >= 18) return "\xA7v";
+  return "\xA7c";
+}
+function deStackItemStack(config, itemRemovedData) {
+  try {
+    const itemData = config.DimensionDataBackUp.has(itemRemovedData.id) ? config.DimensionDataBackUp.get(itemRemovedData.id) : config.ItemStackData.get(itemRemovedData.id);
+    if (!itemData) return;
+    const itemToSpawn = itemData.amount - itemData.nowAmount;
+    if (itemToSpawn > 0) {
+      const itemStackSpawn = ItemConvert.JsonToItem(itemData.item).clone ? ItemConvert.JsonToItem(itemData.item).clone() : new ItemStack2(itemData.item.typeId, itemData.item.amount);
+      itemStackSpawn.amount = itemToSpawn <= itemStackSpawn.maxAmount ? itemToSpawn : itemStackSpawn.maxAmount;
+      const itemSetData = { ...itemData };
+      itemSetData.currAmount -= itemStackSpawn.amount;
+      itemSetData.amount -= itemStackSpawn.amount;
+      const enBase = world5.getDimension(itemRemovedData.dim).spawnItem(itemStackSpawn, { ...itemRemovedData.location, y: world5.getDimension(itemRemovedData.dim).heightRange.max });
+      const itemStackData = config.ItemStackData;
+      itemStackData.set(enBase.id, itemSetData);
+      system3.run(() => {
+        if (!enBase.isValid) return;
+        enBase.teleport({ x: itemRemovedData.location.x, y: itemRemovedData.location.y, z: itemRemovedData.location.z });
+      });
     }
-    ui.button(`\xA7f\u0E01\u0E25\u0E31\u0E1A`, "");
-    ui.show(pl).then((res) => {
-      if (res.canceled) return;
-      switch (res.selection) {
-        case 1:
-          this.startSellItem(pl, itemDB);
-          break;
-      }
-      if (productBtn.some((x) => x == res.selection) && products.length !== 0) {
-        this.productManagers(
-          pl,
-          itemDB,
-          products[res.selection - 2]
-        );
-      } else if (res.selection >= productBtn.length + 2) {
-        this.showMainUi(pl, itemDB);
-      }
-    });
-  }
-  productManagers(pl, itemDB, product) {
-    const productM = new ActionFormData3();
-    const itemStack = itemDB.get(product.itemStack)[0];
-    productM.title(
-      `\xA7b\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 | \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C (\xA7e${SimplifyItemTypeId(itemStack)}\xA77)`
-    );
-    productM.body(`
- \xA77\u0E04\u0E38\u0E13\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E44\u0E14\u0E49\u0E17\u0E35\u0E48\u0E19\u0E35\u0E48
-`);
-    productM.button(
-      `\xA7e\u0E14\u0E39\u0E23\u0E32\u0E22\u0E25\u0E30\u0E40\u0E2D\u0E35\u0E22\u0E14\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32
-`,
-      `textures/ui/icon_book_writable`
-    );
-    productM.button(`\xA7c\u0E25\u0E1A\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32`, `textures/ui/cancel`);
-    productM.button(`\xA7a\u0E40\u0E40\u0E01\u0E49\u0E44\u0E02\xA77\u0E23\u0E32\u0E04\u0E32\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32`, `textures/ui/book_edit_default`);
-    if (product.isHide) {
-      productM.button(`\xA77\u0E0B\u0E48\u0E2D\u0E19\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 \xA77(\xA7a\u0E40\u0E1B\u0E34\u0E14\xA77)`, `textures/ui/icon_none`);
-    } else {
-      productM.button(`\xA77\u0E0B\u0E48\u0E2D\u0E19\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 \xA77(\xA7c\u0E1B\u0E34\u0E14\xA77)`, `textures/ui/icon_none`);
+    config.ItemStackData.delete(itemRemovedData.id);
+    if (config.DimensionDataBackUp.has(itemRemovedData.id)) {
+      config.DimensionDataBackUp.delete(itemRemovedData.id);
     }
-    productM.button(`\xA7f\u0E01\u0E25\u0E31\u0E1A`, ``);
-    productM.show(pl).then((res) => {
-      if (res.canceled) return;
-      switch (res.selection) {
-        case 0:
-          this.showProductDetails(pl, itemDB, product);
-          break;
-        case 1:
-          this.deleteProduct(pl, itemDB, product);
-          break;
-        case 2:
-          this.editProductPrice(pl, itemDB, product);
-          break;
-        case 3:
-          product.isHide = !product.isHide;
-          Product.setProduct(
-            product.itemStack,
-            CalculatePageSize(
-              Product.getProduct(2 /* all */, { hide: true }).length
-            ),
-            product
-          );
-          pl.playSound("random.orb");
-          this.productManagers(pl, itemDB, product);
-          break;
-        case 4:
-          this.initiateItemSale(pl, itemDB);
-          break;
-      }
-    });
-  }
-  editProductPrice(pl, itemDB, product) {
-    const item = itemDB.get(product.itemStack)[0];
-    const durability = item.hasComponent("durability") ? `\xA7c${item.getComponent("durability").maxDurability - item.getComponent("durability").damage}\xA77/\xA7c${item.getComponent("durability").maxDurability}\xA7r` : `\xA7c0\xA77/\xA7c0`;
-    const ID = typeIdToDataId.get(item.typeId) ?? typeIdToID.get(item.typeId);
-    const sellUi = new ModalFormData().title(
-      `\xA7c\xA7h\xA7e\xA7y\xA7t${(ID + (ID < 262 ? 0 : 0)) * 65536 + ((item.getComponent("enchantable")?.getEnchantments() ?? []).length > 0 ? 32768 : 0)}`
-    ).textField(
-      `
-
-    \xA7e\u0E0A\u0E37\u0E48\u0E2D\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32: \xA7f${SimplifyItemTypeId(
-        item
-      )}
-    \xA7c\u0E08\u0E33\u0E19\u0E27\u0E19\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77: \xA7f${item.amount}\xA7cx\xA7r
-    \xA7d\u0E04\u0E27\u0E32\u0E21\u0E04\u0E07\u0E17\u0E19\xA77: \xA77${durability}
-
-
-`,
-      "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E43\u0E2A\u0E48\u0E23\u0E32\u0E04\u0E32\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32",
-      {
-        defaultValue: `${product.prices}`
-      }
-    ).toggle("\xA77\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E17\u0E35\u0E48\u0E08\u0E30\u0E40\u0E40\u0E01\u0E49\u0E44\u0E02");
-    sellUi.show(pl).then((res) => {
-      if (res.canceled) return;
-      if (parseInt(res.formValues[0]) < 1) {
-        return this.editProductPrice(pl, itemDB, product);
-      }
-      if (res.formValues[1] == true) {
-        const price = parseInt(res.formValues[0]);
-        if (isNaN(price)) {
-          pl.sendMessage(
-            "\xA77\u0E01\u0E32\u0E23\u0E40\u0E40\u0E01\u0E49\u0E44\u0E02\u0E23\u0E32\u0E04\u0E32\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E16\u0E39\u0E01\xA7c\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\xA77\n  -\u0E40\u0E19\u0E37\u0E48\u0E2D\u0E07\u0E08\u0E32\u0E01\u0E04\u0E38\u0E13\u0E1B\u0E49\u0E2D\u0E19\u0E23\u0E32\u0E04\u0E32\u0E44\u0E21\u0E48\xA7c\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07\xA77 (\xA7c\u0E15\u0E31\u0E27\u0E40\u0E25\u0E02\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19\xA77)"
-          );
-          pl.playSound("mob.villager.no");
-        } else {
-          this.showMessageForm(
-            "\xA7e\u0E40\u0E40\u0E08\u0E49\u0E07\u0E40\u0E15\u0E37\u0E2D\u0E19 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C",
-            "\xA77\u0E04\u0E38\u0E13\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23\u0E40\u0E40\u0E01\u0E49\u0E44\u0E02\u0E23\u0E32\u0E04\u0E32\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E43\u0E0A\u0E48\u0E2B\u0E23\u0E37\u0E2D\u0E44\u0E21\u0E48?",
-            "\xA7a\u0E43\u0E0A\u0E48",
-            "\xA7c\u0E44\u0E21\u0E48\u0E43\u0E0A\u0E48",
-            () => {
-              pl.sendMessage(
-                `\xA77\u0E40\u0E40\u0E01\u0E49\u0E44\u0E02\u0E23\u0E32\u0E04\u0E32\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 \xA7e${SimplifyItemTypeId(item)} \xA77\u0E08\u0E33\u0E19\u0E27\u0E19 \xA7a${item.amount}\xA77x \xA77\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08`
-              );
-              pl.playSound("random.orb");
-              product.prices = price;
-              Product.setProduct(
-                product.itemStack,
-                CalculatePageSize(
-                  Product.getProduct(2 /* all */).length
-                ),
-                product
-              );
-            },
-            () => {
-            },
-            pl,
-            itemDB
-          );
-        }
-      } else {
-        pl.sendMessage(
-          "\u0E01\u0E32\u0E23\u0E40\u0E40\u0E01\u0E49\u0E44\u0E02\u0E23\u0E32\u0E04\u0E32\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\n  -\u0E40\u0E19\u0E37\u0E48\u0E2D\u0E07\u0E08\u0E32\u0E01\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E01\u0E32\u0E23\u0E40\u0E40\u0E01\u0E49\u0E44\u0E02"
-        );
-        pl.playSound("mob.villager.no");
-      }
-    });
-  }
-  deleteProduct(pl, itemDB, product) {
-    this.showMessageForm(
-      `\xA7e\u0E40\u0E40\u0E08\u0E49\u0E07\u0E40\u0E15\u0E37\u0E2D\u0E19 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`,
-      `
-\xA77\u0E04\u0E38\u0E13\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23\u0E25\u0E1A\xA7c\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77\u0E19\u0E35\u0E49\u0E43\u0E0A\u0E48\u0E2B\u0E23\u0E37\u0E2D\u0E44\u0E21\u0E48?`,
-      `\xA7a\u0E43\u0E0A\u0E48`,
-      `\xA7c\u0E44\u0E21\u0E48\u0E43\u0E0A\u0E48`,
-      (pl2, itemDB2) => {
-        pl2.sendMessage(
-          `\xA7c\u0E25\u0E1A\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77: \xA7e${SimplifyItemTypeId(
-            itemDB2.get(product.itemStack)[0]
-          )} \xA77\u0E08\u0E33\u0E19\u0E27\u0E19 \xA7a${itemDB2.get(product.itemStack)[0].amount}\xA77x \xA77\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08`
-        );
-        pl2.playSound("random.orb");
-        let page = 1;
-        Product.getProduct(2 /* all */).forEach((p, i) => {
-          if (p.itemStack == product.itemStack) page = CalculatePageSize(i);
-        });
-        pl2.getComponent("inventory").container.addItem(
-          itemDB2.get(product.itemStack)[0]
-        );
-        Product.removeProduct(
-          product.itemStack,
-          itemDB2,
-          new DatabaseMap(`market:${page}`)
-        );
-      },
-      () => {
-      },
-      pl,
-      itemDB
-    );
-  }
-  showProductDetails(pl, itemDB, product) {
-    const item = itemDB.get(product.itemStack)[0];
-    pl.playSound("random.click");
-    const durability = item.hasComponent("durability") ? `\xA7c${item.getComponent("durability").maxDurability - item.getComponent("durability").damage}\xA77/\xA7c${item.getComponent("durability").maxDurability}\xA7r` : `\xA7c0\xA77/\xA7c0`;
-    const ID = typeIdToDataId.get(item.typeId) ?? typeIdToID.get(item.typeId);
-    const sellUi = new ModalFormData().title(
-      `\xA7c\xA7h\xA7e\xA7y\xA7t${(ID + (ID < 262 ? 0 : 0)) * 65536 + ((item.getComponent("enchantable")?.getEnchantments() ?? []).length > 0 ? 32768 : 0)}`
-    ).textField(
-      `
-
-
-    \xA7e\u0E0A\u0E37\u0E48\u0E2D\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32: \xA7f${SimplifyItemTypeId(
-        item
-      )}
-    \xA7c\u0E08\u0E33\u0E19\u0E27\u0E19\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77: \xA7f${item.amount}\xA7cx\xA7r
-    \xA7d\u0E04\u0E27\u0E32\u0E21\u0E04\u0E07\u0E17\u0E19\xA77: \xA77${durability}
-    \xA7b\u0E23\u0E32\u0E04\u0E32\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77: \xA7a$${product.prices}
-
-
-
-
-`,
-      "hide(-)"
-    ).submitButton(`\xA77\u0E01\u0E25\u0E31\u0E1A`);
-    sellUi.show(pl).then((res) => {
-      if (res.canceled) return;
-      this.productManagers(pl, itemDB, product);
-    });
-  }
-  startSellItem(pl, itemDB) {
-    pl.playSound("random.click");
-    if (Product.getProduct(0 /* owners */, { owners: pl.name }).length >= 100) {
-      this.showMessageForm(
-        `\xA7c\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`,
-        `\xA77\u0E04\u0E38\u0E13\u0E21\u0E35\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E21\u0E32\u0E01\u0E40\u0E01\u0E34\u0E19\u0E44\u0E1B\u0E43\u0E19\u0E23\u0E49\u0E32\u0E19\u0E04\u0E49\u0E32\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13`,
-        `\xA7a\u0E01\u0E25\u0E31\u0E1A`,
-        `\xA7c\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01`,
-        (pl2, itemDB2) => {
-          this.initiateItemSale(pl2, itemDB2);
-        },
-        () => {
-        },
-        pl,
-        itemDB
-      );
+  } catch (e) {
+    const itemData = config.ItemStackData.get(itemRemovedData.id);
+    console.warn(e.message);
+    if (e.message.includes("Trying to")) {
+      config.DimensionDataBackUp.set(itemRemovedData.id, itemData);
+      console.info(`ItemStacker: Item ${itemRemovedData.id} is in a different dimension, saving data for later.`);
       return;
     }
-    const interval = system5.runInterval(() => {
-      this.savedUi.set(pl, true);
-      pl.onScreenDisplay.setActionBar(
-        `\xA77\u0E01\u0E32\u0E23\u0E25\u0E07\u0E02\u0E32\u0E22\xA76\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77:
-    \xA7e-\xA77\u0E19\u0E33\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E17\u0E35\u0E48\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23\u0E25\u0E07\xA7e\u0E02\u0E32\u0E22\xA77\u0E21\u0E32\u0E44\u0E27\u0E49\u0E0A\u0E48\u0E2D\u0E07\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E0A\u0E48\u0E2D\u0E07\xA7c\u0E2A\u0E38\u0E14\u0E17\u0E49\u0E32\u0E22\xA77
-    \xA7e-\xA77\u0E01\u0E14\u0E22\u0E48\u0E2D\u0E2B\u0E23\u0E37\u0E2D Shift \u0E40\u0E1E\u0E37\u0E48\u0E2D\xA7a\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\xA77`
-      );
-      if (pl.isSneaking) {
-        const itemStack = pl.getComponent("inventory").container.getItem(8);
-        if (itemStack) {
-          this.showSellUi(pl, itemStack, itemDB);
-        } else {
-          this.showMessageForm(
-            `\xA7c\u0E02\u0E49\u0E2D\u0E1C\u0E34\u0E14\u0E1E\u0E25\u0E32\u0E14 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C`,
-            `\xA77\u0E04\u0E38\u0E13\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E43\u0E19\u0E0A\u0E48\u0E2D\u0E07\u0E40\u0E01\u0E47\u0E1A\u0E02\u0E2D\u0E07\u0E2A\u0E38\u0E14\u0E17\u0E49\u0E32\u0E22`,
-            `\xA7a\u0E25\u0E2D\u0E07\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07`,
-            `\xA7c\u0E2D\u0E2D\u0E01`,
-            () => {
-              this.startSellItem(pl, itemDB);
-            },
-            () => {
-              pl.playSound("mob.villager.no");
-            },
-            pl,
-            itemDB
-          );
-        }
-        this.savedUi.delete(pl);
-        system5.clearRun(interval);
-      }
+    ;
+    system3.run(() => {
+      const itemStack = ItemConvert.JsonToItem(itemData.item);
+      const sizeStack = getSizeStack(itemData.amount - itemData.currAmount, itemData.amount, itemStack.maxAmount);
+      const itemStackSpawn = ItemConvert.JsonToItem(itemData.item).clone ? ItemConvert.JsonToItem(itemData.item).clone() : new ItemStack2(itemData.item.typeId, itemData.item.amount);
+      sizeStack.forEach((item) => {
+        itemStackSpawn.amount = item;
+        const enBase = world5.getDimension(itemRemovedData.dim).spawnItem(ItemConvert.JsonToItem(itemStackSpawn), { ...itemRemovedData.location, y: itemRemovedData.location.y + 100 });
+        enBase.addTag("fakeItem");
+        system3.runTimeout(() => {
+          if (enBase.isValid) {
+            config.ItemListStack.add(enBase);
+          }
+        }, 40);
+      });
     });
+    config.ItemStackData.delete(itemRemovedData.id);
   }
-  // Show sell item UI
-  showSellUi(pl, item, itemDB) {
-    const durability = item.hasComponent("durability") ? `\xA7c${item.getComponent("durability").maxDurability - item.getComponent("durability").damage}\xA77/\xA7c${item.getComponent("durability").maxDurability}\xA7r` : `\xA7c0\xA77/\xA7c0`;
-    const ID = typeIdToDataId.get(item.typeId) ?? typeIdToID.get(item.typeId);
-    const sellUi = new ModalFormData().title(
-      `\xA7c\xA7h\xA7e\xA7y\xA7t${(ID + (ID < 262 ? 0 : 0)) * 65536 + ((item.getComponent("enchantable")?.getEnchantments() ?? []).length > 0 ? 32768 : 0)}`
-    ).textField(
-      `
+}
+function getSizeStack(current, amount, maxStack) {
+  const remaining = amount - current;
+  return [...Array(Math.floor(remaining / maxStack)).fill(maxStack), remaining % maxStack].filter(Boolean);
+}
 
-    \xA7e\u0E0A\u0E37\u0E48\u0E2D\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32: \xA7f${SimplifyItemTypeId(
-        item
-      )}
-    \xA7c\u0E08\u0E33\u0E19\u0E27\u0E19\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\xA77: \xA7f${item.amount}\xA7cx\xA7r
-    \xA7d\u0E04\u0E27\u0E32\u0E21\u0E04\u0E07\u0E17\u0E19\xA77: \xA77${durability}
+// packs/scripts/kisux3/plugins/ConfigMenu/index.ts
+import { ItemStack as ItemStack3, system as system4, world as world7 } from "@minecraft/server";
 
+// packs/scripts/kisux3/configs/Lang.ts
+import { world as world6 } from "@minecraft/server";
 
-`,
-      "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E43\u0E2A\u0E48\u0E23\u0E32\u0E04\u0E32\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32"
-    ).toggle("\xA77\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E17\u0E35\u0E48\u0E08\u0E30\u0E25\u0E07\xA7c\u0E02\u0E32\u0E22\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32");
-    sellUi.show(pl).then((res) => {
-      if (res.canceled) return;
-      if (parseInt(res.formValues[0]) < 1) {
-        return this.showSellUi(pl, item, itemDB);
-      }
-      if (res.formValues[1] == true) {
-        const price = parseInt(res.formValues[0]);
-        if (isNaN(price)) {
-          pl.sendMessage(
-            "\xA77\u0E01\u0E32\u0E23\u0E02\u0E32\u0E22\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E16\u0E39\u0E01\xA7c\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\xA77\n  -\u0E40\u0E19\u0E37\u0E48\u0E2D\u0E07\u0E08\u0E32\u0E01\u0E04\u0E38\u0E13\u0E1B\u0E49\u0E2D\u0E19\u0E23\u0E32\u0E04\u0E32\u0E44\u0E21\u0E48\xA7c\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07\xA77 (\xA7c\u0E15\u0E31\u0E27\u0E40\u0E25\u0E02\u0E40\u0E17\u0E48\u0E32\u0E19\u0E31\u0E49\u0E19\xA77)"
-          );
-          pl.playSound("mob.villager.no");
-        } else {
-          this.showMessageForm(
-            "\xA7e\u0E40\u0E40\u0E08\u0E49\u0E07\u0E40\u0E15\u0E37\u0E2D\u0E19 \xA77| \xA77\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E2D\u0E19\u0E44\u0E25\u0E19\u0E4C",
-            "\xA77\u0E2B\u0E25\u0E31\u0E07\u0E08\u0E32\u0E01\u0E25\u0E07\u0E02\u0E32\u0E22\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E08\u0E30\u0E16\u0E39\u0E01\u0E25\u0E1A\u0E43\u0E19\u0E15\u0E25\u0E32\u0E14\u0E2D\u0E35\u0E01 \xA7a3 \xA77\u0E0A\u0E31\u0E48\u0E27\u0E42\u0E21\u0E07 (\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E08\u0E30\u0E01\u0E25\u0E31\u0E1A\u0E21\u0E32\u0E43\u0E19\u0E0A\u0E48\u0E2D\u0E07\u0E40\u0E01\u0E47\u0E1A\u0E02\u0E2D\u0E07)",
-            "\xA7a\u0E02\u0E32\u0E22",
-            "\xA7c\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01",
-            () => {
-              const sysProduct = new Product(
-                item,
-                pl.name,
-                price,
-                CalculatePageSize(
-                  Product.getProduct(2 /* all */).length
-                ),
-                itemDB
-              );
-              sysProduct.addProduct();
-              pl.sendMessage(
-                `\xA77\u0E25\u0E07\xA7c\u0E02\u0E32\u0E22\xA77\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32 \xA7e${SimplifyItemTypeId(item)} \xA77\u0E08\u0E33\u0E19\u0E27\u0E19 \xA7a${item.amount}\xA77x \xA77\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08`
-              );
-              pl.playSound("random.orb");
-              pl.getComponent("inventory").container.setItem(8);
-              new _MarketUi(this.config).showMainUi(pl, itemDB);
-            },
-            () => {
-            },
-            pl,
-            itemDB
-          );
-        }
-      } else {
-        pl.sendMessage(
-          "\u0E01\u0E32\u0E23\u0E02\u0E32\u0E22\u0E2A\u0E34\u0E19\u0E04\u0E49\u0E32\u0E16\u0E39\u0E01\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\n  -\u0E40\u0E19\u0E37\u0E48\u0E2D\u0E07\u0E08\u0E32\u0E01\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E01\u0E32\u0E23\u0E25\u0E07\u0E02\u0E32\u0E22"
-        );
-        pl.playSound("mob.villager.no");
-      }
-    });
+// packs/scripts/core/class/LangguageContext.ts
+var LanguageContext = class {
+  static instance;
+  languageData = {};
+  constructor() {
+    this.languageData["en"] = {};
+    this.languageData["th"] = {};
+  }
+  setLanguage(lang, data) {
+    this.languageData[lang] = data;
+  }
+  getTranslation(key, pl) {
+    const lang = pl.getDynamicProperty("language") || "en";
+    if (this.languageData[lang] && this.languageData[lang][key]) {
+      return this.languageData[lang][key](pl);
+    }
+    return this.languageData["en"][key]?.(pl) || key;
+  }
+  setPlayerLanguage(pl, lang) {
+    pl.setDynamicProperty("language", lang);
   }
 };
+var LangguageContext_default = LanguageContext;
 
-// packs/scripts/plugins/MarketSystem/index.ts
-var MarketSystem = class extends PluginBase {
-  name = "MarketSystem";
-  version = "1.0.0";
-  itemDB = null;
-  onLoad() {
-    this.itemDB = new QuickItemDatabase("it_market", 5, 1);
-    if (this.itemDB == null) return;
-    this.events.on("AfterItemUse", (ev) => {
-      const { source, itemStack } = ev;
-      if (itemStack.typeId == "minecraft:compass") {
-        if (source.isSneaking) {
-          this.itemDB.clear();
-          this.world.clearDynamicProperties();
-          this.world.structureManager.getWorldStructureIds().forEach((id) => {
-            if (id.includes("it_market")) {
-              this.world.structureManager.delete(id);
+// packs/scripts/kisux3/configs/Lang.ts
+var LanguageContext2 = new LangguageContext_default();
+KXEvents.on(null, "after:worldLoad", () => {
+  LanguageContext2.setLanguage("en", {
+    "allstacker.toggle.fast_mode_stacking": () => "\xA7cOFF\xA77/\xA7aON \xA7rFast Mode Stacking\xA7r",
+    "allstacker.message.fast_mode_stacking.changed": () => "\xA7aFast Mode Stacking\xA7r changed to: %value",
+    "allstacker.title.configmenu": () => "\xA78All Stackers Settings",
+    "allstacker.body.configmenu": (pl) => `Hello, \xA7e${pl.name}\xA7r!
+
+This is the configuration menu.
+You can manage settings here.`,
+    "allstacker.button.language": () => "\xA73Language",
+    "allstacker.title.language": () => "\xA78Language Settings",
+    "allstacker.body.language": () => "Select your preferred language.",
+    "allstacker.message.language.set.english": () => `\xA77[All Stacker] \xA7rLanguage set to \xA7aEnglish\xA7r.`,
+    "allstacker.message.language.set.thai": () => `\xA77[All Stacker] \xA7rLanguage set to \xA7a\u0E44\u0E17\u0E22\xA7r.`,
+    "allstacker.button.back": () => `\xA7cBack`,
+    "allstacker.label.plugin.list": () => `\xA77Plugins`,
+    "allstacker.label.plugin.enabled": () => `\xA72Enabled\xA7r`,
+    "allstacker.label.plugin.disabled": () => `\xA7cDisabled\xA7r`,
+    // ItemStacker Main Settings
+    "allstacker.title.itemstacker": () => "\xA78Item Stackers Settings",
+    "allstacker.body.itemstacker": () => "Adjust the settings for item stacking.",
+    "allstacker.label.itemstacker.description": () => "\xA7aCan\xA77 add, remove, view \xA7cunstacked items\xA7r.",
+    "allstacker.button.stacking_settings": () => "Stacking Settings",
+    "allstacker.button.advanced_settings": () => "Advanced Settings",
+    "allstacker.label.advanced.description": () => "\xA7aCan\xA77 \xA72on\xA77/\xA7coff\xA7r and adjust the radius for seeing items, display text, and more.",
+    // Unstacked Items
+    "allstacker.title.unstacked": () => "\xA78Unstacked Items",
+    "allstacker.body.unstacked": () => "Manage the items that are not stacked.",
+    "allstacker.label.unstacked": () => "\xA7aCan\xA77 add, remove, view \xA7cunstacked items\xA7r.",
+    "allstacker.button.add_unstacked": () => "Add Unstacked Item",
+    "allstacker.button.remove_unstacked": () => "Remove Unstacked Item",
+    "allstacker.button.view_unstacked": () => "View Unstacked Items",
+    // Add Unstacked Item
+    "allstacker.title.select_item": () => "\xA78Select Item",
+    "allstacker.body.select_item": () => "Select an item in your inventory to unstack.",
+    "allstacker.message.unstacked.added": () => `\xA7aAdded\xA7r %name to unstacked items.`,
+    // Remove Unstacked Item
+    "allstacker.title.remove_unstacked": () => "\xA78Remove Unstacked Item",
+    "allstacker.body.remove_unstacked": () => "Select an item to remove from unstacked items.",
+    "allstacker.message.unstacked.removed": () => `\xA7cRemoved\xA7r %name from unstacked items.`,
+    // View Unstacked Items
+    "allstacker.title.unstacked_items": () => "\xA78Unstacked Items",
+    "allstacker.body.unstacked_items": () => "List of items that are not stacked.",
+    "allstacker.label.no_unstacked_items": () => "\xA7cNo unstacked items found.",
+    // Advanced Settings
+    "allstacker.title.advanced_settings": () => "\xA78Advanced Settings",
+    "allstacker.body.advanced_settings": () => "Save changes.",
+    "allstacker.label.advanced.description_full": () => "Manage advanced settings for item stacking.",
+    "allstacker.toggle.itemstack": () => "\xA7cOFF\xA77/\xA7aON \xA7rItemStack\xA7r",
+    "allstacker.slider.radius_seeing": () => "\xA77Radius to seeing items\xA7r",
+    "allstacker.slider.radius_combine": () => "\xA77Radius to combine items\xA7r",
+    "allstacker.textfield.display_text": () => "\xA77Display Text\xA7r\n %%a\xA77 - show amount\xA7r\n %%n \xA77- show name\xA7r\n %%m \xA77- show minutes\xA7r\n %%s \xA77- show seconds\xA7r\n %%l \xA77- new line\xA7r",
+    "allstacker.textfield.display_text.placeholder": () => "Customize the text displayed for stacked items.",
+    // Messages
+    "allstacker.message.display_text.changed": () => "\xA7aDisplay text changed to: %value",
+    "allstacker.message.radius_seeing.changed": () => "\xA7aRadius to seeing items\xA7r changed to: %value",
+    "allstacker.message.radius_combine.changed": () => "\xA7aRadius to combine items\xA7r changed to: %value",
+    "allstacker.message.plugin.enabled": () => "\xA7aItemStacker plugin is now enabled!",
+    "allstacker.message.plugin.disabled": () => "\xA7aItemStacker plugin is now disabled!",
+    // MobStacker Main Settings
+    "allstacker.title.mobstacker": () => "\xA78Mob Stacker Settings",
+    "allstacker.body.mobstacker": () => "Configure the Mob Stacker plugin.",
+    "allstacker.label.mobstacker.description": () => "\xA7aCan\xA77 add, remove, view \xA7bstacked mobs\xA7r.",
+    "allstacker.button.mobstacker_settings": () => "Stacking Settings",
+    "allstacker.label.mobstacker.advanced.description": () => "\xA7aCan\xA77 \xA72on\xA77/\xA7coff\xA7r and adjust the radius of stacking, display text of stacked mobs, and more.",
+    // MobStacker Stacking Settings
+    "allstacker.title.mob_stacking_settings": () => "\xA78Stacking Settings",
+    "allstacker.body.mob_stacking_settings": () => "Configure the stacking settings for mobs.",
+    "allstacker.button.add_stacked_mobs": () => "Add Stacked Mobs",
+    "allstacker.button.remove_stacked_mobs": () => "Remove Stacked Mobs",
+    "allstacker.button.view_stacked_mobs": () => "View Stacked Mobs",
+    // Add Stacked Mobs
+    "allstacker.title.add_stacked_mobs": () => "\xA78Add Stacked Mobs",
+    "allstacker.body.add_stacked_mobs": () => "Select the mobs you want to stack within a radius of 10 blocks.",
+    "allstacker.label.no_stackable_mobs": () => "\xA7cNo stackable mobs found in the radius.",
+    "allstacker.message.mob.added": () => "\xA7aAdded %name to the stackable mobs.",
+    // Remove Stacked Mobs
+    "allstacker.title.remove_stacked_mobs": () => "\xA78Remove Stacked Mobs",
+    "allstacker.body.remove_stacked_mobs": () => "Select the mobs you want to remove from stacking.",
+    "allstacker.label.no_stacked_mobs": () => "\xA7cNo stackable mobs found.",
+    "allstacker.message.mob.removed": () => "\xA7aRemoved %name from the stackable mobs.",
+    // View Stacked Mobs
+    "allstacker.title.view_stacked_mobs": () => "\xA78View Stacked Mobs",
+    "allstacker.body.view_stacked_mobs": () => "List of currently stackable mobs.",
+    // MobStacker Advanced Settings
+    "allstacker.title.mob_advanced_settings": () => "\xA78Advanced Settings",
+    "allstacker.body.mob_advanced_settings": () => "",
+    "allstacker.label.mob_advanced.description": () => "Configure advanced settings for the Mob Stacker plugin.",
+    "allstacker.toggle.mobstacker": () => "\xA7cOFF\xA77/\xA7aON\xA7f MobStacker",
+    "allstacker.dropdown.mob_death_mode": () => "\xA77Mob Death Mode",
+    "allstacker.slider.radius_stacking": () => "\xA77Radius to stacking near mobs",
+    "allstacker.textfield.mob_display_text": () => "\xA77Display Text\n \xA7r%%a \xA77- show amount\n\xA7r %%n \xA77- show name\n \xA7r%%l \xA77- new line",
+    "allstacker.textfield.mob_display_text.placeholder": () => "Enter the display text for stacked mobs",
+    "allstacker.button.save_changes": () => "\xA78Save Changes",
+    // MobStacker Messages
+    "allstacker.message.mob_death_mode.changed": () => "\xA7aUpdated mob death mode to %value.",
+    "allstacker.message.stacking_radius.changed": () => "\xA7aUpdated stacking radius to %value blocks.",
+    "allstacker.message.mob_display_text.changed": () => "\xA7aUpdated display text to: %value",
+    "allstacker.message.mobstacker.enabled": () => "\xA7aMob Stacker plugin is now enabled.",
+    "allstacker.message.mobstacker.disabled": () => "\xA7aMob Stacker plugin is now disabled."
+  });
+  LanguageContext2.setLanguage("th", {
+    "allstacker.toggle.fast_mode_stacking": () => "\xA7c\u0E1B\u0E34\u0E14\xA77/\xA7a\u0E40\u0E1B\u0E34\u0E14 \xA7rFast Mode Stacking\xA7r",
+    "allstacker.message.fast_mode_stacking.changed": () => "\xA7aFast Mode Stacking\xA7r \u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E40\u0E1B\u0E47\u0E19: %value",
+    "allstacker.title.configmenu": () => "\xA78\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E17\u0E31\u0E49\u0E07\u0E2B\u0E21\u0E14",
+    "allstacker.body.configmenu": (pl) => `\u0E2A\u0E27\u0E31\u0E2A\u0E14\u0E35, \xA7e${pl.name}\xA7r!
+
+\u0E19\u0E35\u0E48\u0E04\u0E37\u0E2D\u0E40\u0E21\u0E19\u0E39\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32.
+\u0E04\u0E38\u0E13\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E44\u0E14\u0E49\u0E17\u0E35\u0E48\u0E19\u0E35\u0E48.`,
+    "allstacker.button.language": () => "\xA73\u0E20\u0E32\u0E29\u0E32",
+    "allstacker.title.language": () => "\xA78\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E20\u0E32\u0E29\u0E32",
+    "allstacker.body.language": () => "\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E20\u0E32\u0E29\u0E32\u0E17\u0E35\u0E48\u0E04\u0E38\u0E13\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23.",
+    "allstacker.message.language.set.english": () => `\xA77[All Stacker] \xA7r\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E20\u0E32\u0E29\u0E32\u0E40\u0E1B\u0E47\u0E19 \xA7aEnglish\xA7r.`,
+    "allstacker.message.language.set.thai": () => `\xA77[All Stacker] \xA7r\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E20\u0E32\u0E29\u0E32\u0E40\u0E1B\u0E47\u0E19 \xA7a\u0E44\u0E17\u0E22\xA7r.`,
+    "allstacker.button.back": () => `\xA7c\u0E01\u0E25\u0E31\u0E1A`,
+    "allstacker.label.plugin.list": () => `\xA77\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19`,
+    "allstacker.label.plugin.enabled": () => `\xA72\u0E40\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\xA7r`,
+    "allstacker.label.plugin.disabled": () => `\xA7c\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\xA7r`,
+    // ItemStacker Main Settings
+    "allstacker.title.itemstacker": () => "\xA78\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21",
+    "allstacker.body.itemstacker": () => "\u0E1B\u0E23\u0E31\u0E1A\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21.",
+    "allstacker.label.itemstacker.description": () => "\xA7a\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\xA77 \u0E40\u0E1E\u0E34\u0E48\u0E21, \u0E25\u0E1A, \u0E14\u0E39 \xA7c\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E23\u0E27\u0E21\xA7r.",
+    "allstacker.button.stacking_settings": () => "\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21",
+    "allstacker.button.advanced_settings": () => "\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E02\u0E31\u0E49\u0E19\u0E2A\u0E39\u0E07",
+    "allstacker.label.advanced.description": () => "\xA7a\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\xA77 \xA72\u0E40\u0E1B\u0E34\u0E14\xA77/\xA7c\u0E1B\u0E34\u0E14\xA7r \u0E41\u0E25\u0E30\u0E1B\u0E23\u0E31\u0E1A\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E40\u0E2B\u0E47\u0E19\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21, \u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25 \u0E41\u0E25\u0E30\u0E2D\u0E37\u0E48\u0E19\u0E46",
+    // Unstacked Items
+    "allstacker.title.unstacked": () => "\xA78\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07",
+    "allstacker.body.unstacked": () => "\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07.",
+    "allstacker.label.unstacked": () => "\xA7a\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\xA77 \u0E40\u0E1E\u0E34\u0E48\u0E21, \u0E25\u0E1A, \u0E14\u0E39 \xA7c\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07\xA7r.",
+    "allstacker.button.add_unstacked": () => "\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07",
+    "allstacker.button.remove_unstacked": () => "\u0E25\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07",
+    "allstacker.button.view_unstacked": () => "\u0E14\u0E39\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07",
+    // Add Unstacked Item
+    "allstacker.title.select_item": () => "\xA78\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21",
+    "allstacker.body.select_item": () => "\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E43\u0E19\u0E0A\u0E48\u0E2D\u0E07\u0E40\u0E01\u0E47\u0E1A\u0E02\u0E2D\u0E07\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E44\u0E21\u0E48\u0E43\u0E2B\u0E49\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07.",
+    "allstacker.message.unstacked.added": () => `\xA7a\u0E40\u0E1E\u0E34\u0E48\u0E21\xA7r %name \u0E25\u0E07\u0E43\u0E19\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07.`,
+    // Remove Unstacked Item
+    "allstacker.title.remove_unstacked": () => "\xA78\u0E25\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07",
+    "allstacker.body.remove_unstacked": () => "\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E17\u0E35\u0E48\u0E08\u0E30\u0E25\u0E1A\u0E2D\u0E2D\u0E01\u0E08\u0E32\u0E01\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07.",
+    "allstacker.message.unstacked.removed": () => `\xA7c\u0E25\u0E1A\xA7r %name \u0E2D\u0E2D\u0E01\u0E08\u0E32\u0E01\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07.`,
+    // View Unstacked Items
+    "allstacker.title.unstacked_items": () => "\xA78\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07",
+    "allstacker.body.unstacked_items": () => "\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E02\u0E2D\u0E07\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07.",
+    "allstacker.label.no_unstacked_items": () => "\xA7c\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E17\u0E35\u0E48\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E08\u0E31\u0E14\u0E40\u0E23\u0E35\u0E22\u0E07.",
+    // Advanced Settings
+    "allstacker.title.advanced_settings": () => "\xA78\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E02\u0E31\u0E49\u0E19\u0E2A\u0E39\u0E07",
+    "allstacker.body.advanced_settings": () => "\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E01\u0E32\u0E23\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E41\u0E1B\u0E25\u0E07.",
+    "allstacker.label.advanced.description_full": () => "\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E02\u0E31\u0E49\u0E19\u0E2A\u0E39\u0E07\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21.",
+    "allstacker.toggle.itemstack": () => "\xA7c\u0E1B\u0E34\u0E14\xA77/\xA7a\u0E40\u0E1B\u0E34\u0E14 \xA7r\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\xA7r",
+    "allstacker.slider.radius_seeing": () => "\xA77\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E40\u0E2B\u0E47\u0E19\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\xA7r",
+    "allstacker.slider.radius_combine": () => "\xA77\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\xA7r",
+    "allstacker.textfield.display_text": () => "\xA77\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25\xA7r\n %%a\xA77 - \u0E41\u0E2A\u0E14\u0E07\u0E08\u0E33\u0E19\u0E27\u0E19\xA7r\n %%n \xA77- \u0E41\u0E2A\u0E14\u0E07\u0E0A\u0E37\u0E48\u0E2D\xA7r\n %%m \xA77- \u0E41\u0E2A\u0E14\u0E07\u0E19\u0E32\u0E17\u0E35\xA7r\n %%s \xA77- \u0E41\u0E2A\u0E14\u0E07\u0E27\u0E34\u0E19\u0E32\u0E17\u0E35\xA7r\n %%l \xA77- \u0E1A\u0E23\u0E23\u0E17\u0E31\u0E14\u0E43\u0E2B\u0E21\u0E48\xA7r",
+    "allstacker.textfield.display_text.placeholder": () => "\u0E1B\u0E23\u0E31\u0E1A\u0E41\u0E15\u0E48\u0E07\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E17\u0E35\u0E48\u0E41\u0E2A\u0E14\u0E07\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E01\u0E31\u0E19.",
+    // Messages
+    "allstacker.message.display_text.changed": () => "\xA7a\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25\u0E40\u0E1B\u0E47\u0E19: %value",
+    "allstacker.message.radius_seeing.changed": () => "\xA7a\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E07\u0E40\u0E2B\u0E47\u0E19\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\xA7r \u0E40\u0E1B\u0E47\u0E19: %value",
+    "allstacker.message.radius_combine.changed": () => "\xA7a\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E44\u0E2D\u0E40\u0E17\u0E47\u0E21\xA7r \u0E40\u0E1B\u0E47\u0E19: %value",
+    "allstacker.message.plugin.enabled": () => "\xA7a\u0E40\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 ItemStacker \u0E41\u0E25\u0E49\u0E27!",
+    "allstacker.message.plugin.disabled": () => "\xA7a\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 ItemStacker \u0E41\u0E25\u0E49\u0E27!",
+    // MobStacker Main Settings
+    "allstacker.title.mobstacker": () => "\xA78\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E21\u0E2D\u0E1A",
+    "allstacker.body.mobstacker": () => "\u0E01\u0E33\u0E2B\u0E19\u0E14\u0E04\u0E48\u0E32\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 Mob Stacker.",
+    "allstacker.label.mobstacker.description": () => "\xA7a\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\xA77 \u0E40\u0E1E\u0E34\u0E48\u0E21, \u0E25\u0E1A, \u0E14\u0E39 \xA7b\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E01\u0E31\u0E19\xA7r.",
+    "allstacker.button.mobstacker_settings": () => "\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21",
+    "allstacker.label.mobstacker.advanced.description": () => "\xA7a\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\xA77 \xA72\u0E40\u0E1B\u0E34\u0E14\xA77/\xA7c\u0E1B\u0E34\u0E14\xA7r \u0E41\u0E25\u0E30\u0E1B\u0E23\u0E31\u0E1A\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21, \u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25\u0E02\u0E2D\u0E07\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E01\u0E31\u0E19 \u0E41\u0E25\u0E30\u0E2D\u0E37\u0E48\u0E19\u0E46",
+    // MobStacker Stacking Settings
+    "allstacker.title.mob_stacking_settings": () => "\xA78\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21",
+    "allstacker.body.mob_stacking_settings": () => "\u0E01\u0E33\u0E2B\u0E19\u0E14\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E21\u0E2D\u0E1A.",
+    "allstacker.button.add_stacked_mobs": () => "\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49",
+    "allstacker.button.remove_stacked_mobs": () => "\u0E25\u0E1A\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49",
+    "allstacker.button.view_stacked_mobs": () => "\u0E14\u0E39\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49",
+    // Add Stacked Mobs
+    "allstacker.title.add_stacked_mobs": () => "\xA78\u0E40\u0E1E\u0E34\u0E48\u0E21\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49",
+    "allstacker.body.add_stacked_mobs": () => "\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E04\u0E38\u0E13\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23\u0E43\u0E2B\u0E49\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49\u0E43\u0E19\u0E23\u0E30\u0E22\u0E30 10 \u0E1A\u0E25\u0E47\u0E2D\u0E01.",
+    "allstacker.label.no_stackable_mobs": () => "\xA7c\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49\u0E43\u0E19\u0E23\u0E30\u0E22\u0E30\u0E19\u0E35\u0E49.",
+    "allstacker.message.mob.added": () => "\xA7a\u0E40\u0E1E\u0E34\u0E48\u0E21 %name \u0E25\u0E07\u0E43\u0E19\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49.",
+    // Remove Stacked Mobs
+    "allstacker.title.remove_stacked_mobs": () => "\xA78\u0E25\u0E1A\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49",
+    "allstacker.body.remove_stacked_mobs": () => "\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E04\u0E38\u0E13\u0E15\u0E49\u0E2D\u0E07\u0E01\u0E32\u0E23\u0E25\u0E1A\u0E2D\u0E2D\u0E01\u0E08\u0E32\u0E01\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21.",
+    "allstacker.label.no_stacked_mobs": () => "\xA7c\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49.",
+    "allstacker.message.mob.removed": () => "\xA7a\u0E25\u0E1A %name \u0E2D\u0E2D\u0E01\u0E08\u0E32\u0E01\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49.",
+    // View Stacked Mobs
+    "allstacker.title.view_stacked_mobs": () => "\xA78\u0E14\u0E39\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49",
+    "allstacker.body.view_stacked_mobs": () => "\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E2A\u0E32\u0E21\u0E32\u0E23\u0E16\u0E23\u0E27\u0E21\u0E44\u0E14\u0E49\u0E43\u0E19\u0E1B\u0E31\u0E08\u0E08\u0E38\u0E1A\u0E31\u0E19.",
+    // MobStacker Advanced Settings
+    "allstacker.title.mob_advanced_settings": () => "\xA78\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E02\u0E31\u0E49\u0E19\u0E2A\u0E39\u0E07",
+    "allstacker.body.mob_advanced_settings": () => "",
+    "allstacker.label.mob_advanced.description": () => "\u0E01\u0E33\u0E2B\u0E19\u0E14\u0E04\u0E48\u0E32\u0E01\u0E32\u0E23\u0E15\u0E31\u0E49\u0E07\u0E04\u0E48\u0E32\u0E02\u0E31\u0E49\u0E19\u0E2A\u0E39\u0E07\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 Mob Stacker.",
+    "allstacker.toggle.mobstacker": () => "\xA7c\u0E1B\u0E34\u0E14\xA77/\xA7a\u0E40\u0E1B\u0E34\u0E14\xA7f MobStacker",
+    "allstacker.dropdown.mob_death_mode": () => "\xA77\u0E42\u0E2B\u0E21\u0E14\u0E01\u0E32\u0E23\u0E15\u0E32\u0E22\u0E02\u0E2D\u0E07\u0E21\u0E2D\u0E1A",
+    "allstacker.slider.radius_stacking": () => "\xA77\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E21\u0E2D\u0E1A\u0E43\u0E01\u0E25\u0E49\u0E40\u0E04\u0E35\u0E22\u0E07",
+    "allstacker.textfield.mob_display_text": () => "\xA77\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25\n \xA7r%%a \xA77- \u0E41\u0E2A\u0E14\u0E07\u0E08\u0E33\u0E19\u0E27\u0E19\n\xA7r %%n \xA77- \u0E41\u0E2A\u0E14\u0E07\u0E0A\u0E37\u0E48\u0E2D\n \xA7r%%l \xA77- \u0E1A\u0E23\u0E23\u0E17\u0E31\u0E14\u0E43\u0E2B\u0E21\u0E48",
+    "allstacker.textfield.mob_display_text.placeholder": () => "\u0E43\u0E2A\u0E48\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E21\u0E2D\u0E1A\u0E17\u0E35\u0E48\u0E23\u0E27\u0E21\u0E01\u0E31\u0E19",
+    "allstacker.button.save_changes": () => "\xA78\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E01\u0E32\u0E23\u0E40\u0E1B\u0E25\u0E35\u0E48\u0E22\u0E19\u0E41\u0E1B\u0E25\u0E07",
+    // MobStacker Messages
+    "allstacker.message.mob_death_mode.changed": () => "\xA7a\u0E2D\u0E31\u0E1B\u0E40\u0E14\u0E15\u0E42\u0E2B\u0E21\u0E14\u0E01\u0E32\u0E23\u0E15\u0E32\u0E22\u0E02\u0E2D\u0E07\u0E21\u0E2D\u0E1A\u0E40\u0E1B\u0E47\u0E19 %value.",
+    "allstacker.message.stacking_radius.changed": () => "\xA7a\u0E2D\u0E31\u0E1B\u0E40\u0E14\u0E15\u0E23\u0E30\u0E22\u0E30\u0E01\u0E32\u0E23\u0E23\u0E27\u0E21\u0E40\u0E1B\u0E47\u0E19 %value \u0E1A\u0E25\u0E47\u0E2D\u0E01.",
+    "allstacker.message.mob_display_text.changed": () => "\xA7a\u0E2D\u0E31\u0E1B\u0E40\u0E14\u0E15\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E2A\u0E14\u0E07\u0E1C\u0E25\u0E40\u0E1B\u0E47\u0E19: %value",
+    "allstacker.message.mobstacker.enabled": () => "\xA7a\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 Mob Stacker \u0E40\u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E41\u0E25\u0E49\u0E27.",
+    "allstacker.message.mobstacker.disabled": () => "\xA7a\u0E1B\u0E25\u0E31\u0E4A\u0E01\u0E2D\u0E34\u0E19 Mob Stacker \u0E1B\u0E34\u0E14\u0E43\u0E0A\u0E49\u0E07\u0E32\u0E19\u0E41\u0E25\u0E49\u0E27."
+  });
+  world6.getPlayers().forEach((pl) => {
+    if (!pl.getDynamicProperty("language")) {
+      LanguageContext2.setPlayerLanguage(pl, "en");
+    }
+  });
+});
+
+// packs/scripts/kisux3/plugins/ConfigMenu/index.ts
+var ConfigMenu = class extends PluginBase {
+  config = {};
+  static setEnabled(pluginName, enabled) {
+    const plugin = PluginLoader.find((p) => p.name === pluginName);
+    if (plugin) {
+      plugin.setting.enabled = enabled;
+      const configLoadder = PluginLoader.find((p) => p.setting.config?.Loadder);
+      if (!configLoadder) {
+        console.warn(`ConfigMenu: Loadder plugin not found for ${pluginName}`);
+        return;
+      }
+      const config = configLoadder.main.getConfig();
+      if (config && config.PluginEnabled) {
+        config.PluginEnabled.set(pluginName, enabled);
+        const isLoadded = PluginLoader.find((p) => p.name === pluginName).setting.config.isLoadded;
+        if (!isLoadded) {
+          PluginLoader.find((p) => p.name === pluginName).setting.config.isLoadded = true;
+          PluginLoader.find((p) => p.name === pluginName).main.onLoad();
+        }
+      }
+    }
+  }
+  showConfig(pl) {
+    const pluginSettingList = PluginLoader.filter((plugin) => plugin.name !== this.name);
+    const configPage = new PageBuilder("configMenu");
+    const pluginListPage = new IActionForm_default(`${LanguageContext2.getTranslation("allstacker.title.configmenu", pl)}`, `${LanguageContext2.getTranslation("allstacker.body.configmenu", pl)}`);
+    pluginListPage.addButton(`${LanguageContext2.getTranslation("allstacker.button.language", pl)}`, "textures/ui/world_glyph_color_2x_black_outline", () => {
+      const langPage = new IActionForm_default(`${LanguageContext2.getTranslation("allstacker.title.language", pl)}`, `${LanguageContext2.getTranslation("allstacker.body.language", pl)}`);
+      langPage.addDivider();
+      langPage.addButton("\xA7cEnglish \xA78[ENG]\xA7r", "textures/kisux3/ENG_Lang", () => {
+        world7.sendMessage(LanguageContext2.getTranslation("allstacker.message.language.set.english", pl));
+        LanguageContext2.setPlayerLanguage(pl, "en");
+      });
+      langPage.addButton("\xA72\u0E44\u0E17\u0E22 \xA78[TH]\xA7r", "textures/kisux3/TH_Lang", () => {
+        world7.sendMessage(LanguageContext2.getTranslation("allstacker.message.language.set.thai", pl));
+        LanguageContext2.setPlayerLanguage(pl, "th");
+      });
+      langPage.addDivider();
+      langPage.addButton(`${LanguageContext2.getTranslation("allstacker.button.back", pl)}`, "", () => {
+        configPage.showPage(pl, "plugin-settings");
+      });
+      configPage.addPage("language-settings", langPage);
+      configPage.showPage(pl, "language-settings");
+    });
+    pluginListPage.addDivider();
+    pluginListPage.addLabel(`${LanguageContext2.getTranslation("allstacker.label.plugin.list", pl)} \xA77(\xA7c${pluginSettingList.length}\xA77)\xA7r`);
+    pluginSettingList.forEach((plugin) => {
+      const isHasConfig = plugin.main.addConfig(pl, configPage, false);
+      if (isHasConfig) {
+        const pluginIcon = plugin.setting.config?.PluginIcon || "textures/ui/icon_book_writable";
+        pluginListPage.addButton(plugin.name + `
+[${plugin.setting.enabled ? `${LanguageContext2.getTranslation("allstacker.label.plugin.enabled", pl)}` : `${LanguageContext2.getTranslation("allstacker.label.plugin.disabled", pl)}`}]`, pluginIcon, () => {
+          plugin.main.addConfig(pl, configPage, true);
+          configPage.showPage(pl, plugin.name);
+        });
+      }
+    });
+    configPage.addPage("plugin-settings", pluginListPage);
+    configPage.showPage(pl, "plugin-settings");
+    return true;
+  }
+  onLoad(_ev) {
+    this.config = this.getConfig();
+    this.config.PluginEnabled = new JsonDatabase("PluginEnabled", world7);
+    const pluginText = [];
+    PluginLoader.forEach((plugin) => {
+      const pluginName = plugin.name;
+      if (!this.config.PluginEnabled.has(pluginName)) {
+        this.config.PluginEnabled.set(pluginName, true);
+        plugin.setting.enabled = true;
+      } else {
+        const isEnabled = this.config.PluginEnabled.get(pluginName);
+        this.config.PluginEnabled.set(pluginName, isEnabled);
+        plugin.setting.enabled = isEnabled;
+      }
+      pluginText.push(`${pluginName}: ${plugin.setting.enabled ? "\xA7aEnabled" : "\xA7cDisabled"}`);
+    });
+    const i = system4.runInterval(() => {
+      const players = world7.getPlayers();
+      if (players.length > 0) {
+        system4.clearRun(i);
+        pluginText.forEach((text) => {
+          world7.sendMessage(`\xA77[All Stacker] \xA7r${text}`);
+        });
+      }
+    });
+    this.config.LoadedConfig = true;
+  }
+  onStartup(ev) {
+    KXEvents.on(this, "after:playerSpawn", (ev2) => {
+      if (!ev2.initialSpawn) return;
+      const isFirstJoin = !ev2.player.getTags().includes("kisu:joined_before");
+      if (isFirstJoin) {
+        ev2.player.addTag("kisu:joined_before");
+        this.giveConfigMenu(ev2.player);
+      }
+    });
+    const showConfig = this.showConfig.bind(this);
+    ev.itemComponentRegistry.registerCustomComponent("kisu:show_config", {
+      onUse(ev2) {
+        showConfig(ev2.source);
+      }
+    });
+  }
+  giveConfigMenu(pl) {
+    const containers = pl.getComponent("inventory");
+    const configMenuItem = new ItemStack3("kisu:ac_setting", 1);
+    if (containers.container.emptySlotsCount > 0) {
+      containers.container.addItem(configMenuItem);
+    } else {
+      pl.dimension.spawnItem(configMenuItem, pl.location);
+    }
+  }
+};
+var ConfigMenu_default = ConfigMenu;
+
+// packs/scripts/kisux3/plugins/ItemStacker/index.ts
+var itemName = (item) => {
+  return (item.split(":")[1] ? item.split(":")[1] : item).split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+};
+var ItemStacker = class extends PluginBase {
+  config = {};
+  addConfig(pl, page, showUI = true) {
+    if (!showUI) return true;
+    const optionsConfig = {
+      "Stacking Settings": () => {
+        const unStackPage = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.unstacked", pl), LanguageContext2.getTranslation("allstacker.body.unstacked", pl));
+        unStackPage.addDivider();
+        unStackPage.addLabel(LanguageContext2.getTranslation("allstacker.label.unstacked", pl));
+        unStackPage.addButton(LanguageContext2.getTranslation("allstacker.button.add_unstacked", pl), "textures/ui/icon_book_writable", () => {
+          const inventory = pl.getComponent("inventory").container;
+          const itemList = {};
+          for (let i = 0; i < inventory.size; i++) {
+            const item = inventory.getItem(i);
+            if (item) {
+              itemList[itemName(item.typeId)] = item;
+            }
+          }
+          const itemSelectForm = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.select_item", pl), LanguageContext2.getTranslation("allstacker.body.select_item", pl));
+          itemSelectForm.addDivider();
+          Object.entries(itemList).forEach(([name, item]) => {
+            if (!item || !item.typeId) return;
+            if (this.config.ItemStackConfig.get("UnStackItem")?.includes(item.typeId)) return;
+            itemSelectForm.addButton(name, "", () => {
+              const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
+              this.config.ItemStackConfig.set("UnStackItem", [...unStackItems, item.typeId]);
+              pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.unstacked.added", pl).replace("%name", name));
+              page.showPage(pl, this.name + "_unstacked");
+            });
+          });
+          itemSelectForm.addDivider();
+          itemSelectForm.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+            page.showPage(pl, this.name + "_unstacked");
+          });
+          page.addPage(this.name + "_unstacked_select", itemSelectForm);
+          page.showPage(pl, this.name + "_unstacked_select");
+        });
+        unStackPage.addButton(LanguageContext2.getTranslation("allstacker.button.remove_unstacked", pl), "textures/ui/icon_book_writable", () => {
+          const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
+          const removeItemForm = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.remove_unstacked", pl), LanguageContext2.getTranslation("allstacker.body.remove_unstacked", pl));
+          removeItemForm.addDivider();
+          unStackItems.forEach((itemId) => {
+            removeItemForm.addButton(itemName(itemId), "", () => {
+              this.config.ItemStackConfig.set("UnStackItem", unStackItems.filter((id) => id !== itemId));
+              pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.unstacked.removed", pl).replace("%name", itemName(itemId)));
+              page.showPage(pl, this.name + "_unstacked");
+            });
+          });
+          removeItemForm.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+            page.showPage(pl, this.name + "_unstacked");
+          });
+          page.addPage(this.name + "_unstacked_remove", removeItemForm);
+          page.showPage(pl, this.name + "_unstacked_remove");
+        });
+        unStackPage.addButton(LanguageContext2.getTranslation("allstacker.button.view_unstacked", pl), "textures/ui/icon_book_writable", () => {
+          const unStackItems = this.config.ItemStackConfig.get("UnStackItem") || [];
+          const viewItemsForm = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.unstacked_items", pl), LanguageContext2.getTranslation("allstacker.body.unstacked_items", pl));
+          viewItemsForm.addDivider();
+          if (unStackItems.length === 0) {
+            viewItemsForm.addLabel(LanguageContext2.getTranslation("allstacker.label.no_unstacked_items", pl));
+          } else {
+            unStackItems.forEach((itemId) => {
+              viewItemsForm.addButton(itemName(itemId), "", () => {
+                page.showPage(pl, this.name + "_unstacked");
+              });
+            });
+          }
+          viewItemsForm.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+            page.showPage(pl, this.name + "_unstacked");
+          });
+          page.addPage(this.name + "_unstacked_view", viewItemsForm);
+          page.showPage(pl, this.name + "_unstacked_view");
+        });
+        unStackPage.addDivider();
+        unStackPage.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+          page.showPage(pl, this.name);
+        });
+        page.addPage(this.name + "_unstacked", unStackPage);
+        page.showPage(pl, this.name + "_unstacked");
+      },
+      "Advanced Settings": () => {
+        const advandSetting = new IModalForm_default(LanguageContext2.getTranslation("allstacker.title.advanced_settings", pl), LanguageContext2.getTranslation("allstacker.body.advanced_settings", pl));
+        const isEnable = PluginLoader.find((plugin) => plugin.name === this.name)?.setting.enabled || false;
+        const RadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
+        const RadiusCombine = this.config.ItemStackConfig.get("RadiusCombine") || 15;
+        const DisplayText = this.config.ItemStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+        const FastModeStacking2 = this.config.ItemStackConfig.get("FastModeStacking") || false;
+        advandSetting.addLabel(LanguageContext2.getTranslation("allstacker.label.advanced.description_full", pl));
+        advandSetting.addDivider();
+        advandSetting.addToggle(LanguageContext2.getTranslation("allstacker.toggle.itemstack", pl), isEnable);
+        advandSetting.addSlider(LanguageContext2.getTranslation("allstacker.slider.radius_seeing", pl), 1, 50, 1, RadiusSeeing);
+        advandSetting.addSlider(LanguageContext2.getTranslation("allstacker.slider.radius_combine", pl), 1, 50, 1, RadiusCombine);
+        advandSetting.addToggle(LanguageContext2.getTranslation("allstacker.toggle.fast_mode_stacking", pl), FastModeStacking2);
+        advandSetting.addTextField(LanguageContext2.getTranslation("allstacker.textfield.display_text", pl), LanguageContext2.getTranslation("allstacker.textfield.display_text.placeholder", pl), DisplayText);
+        advandSetting.addCallback((values, canceled) => {
+          if (canceled) return;
+          const isEnable2 = values[2];
+          const radiusSeeing = values[3];
+          const radiusCombine = values[4];
+          const displayText = values[6];
+          const fastModeStacking = values[5];
+          const oldEnable = PluginLoader.find((plugin) => plugin.name === this.name)?.setting.enabled || false;
+          const oldRadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
+          const oldDisplayText = this.config.ItemStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+          const oldRadiusCombine = this.config.ItemStackConfig.get("RadiusCombine") || 15;
+          const oldFastModeStacking = this.config.ItemStackConfig.get("FastModeStacking") || false;
+          this.config.ItemStackConfig.set("RadiusSeeing", radiusSeeing);
+          this.config.ItemStackConfig.set("DisplayText", displayText);
+          this.config.ItemStackConfig.set("RadiusCombine", radiusCombine);
+          this.config.ItemStackConfig.set("FastModeStacking", fastModeStacking);
+          if (oldDisplayText !== displayText && displayText !== void 0) {
+            pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.display_text.changed", pl).replace("%value", displayText));
+          }
+          if (oldRadiusSeeing !== radiusSeeing && radiusSeeing !== void 0) {
+            pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.radius_seeing.changed", pl).replace("%value", radiusSeeing.toString()));
+          }
+          if (oldRadiusCombine !== radiusCombine && radiusCombine !== void 0) {
+            pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.radius_combine.changed", pl).replace("%value", radiusCombine.toString()));
+          }
+          if (oldEnable !== isEnable2 && isEnable2 !== void 0) {
+            PluginLoader.find((plugin) => plugin.name === this.name).setting.enabled = isEnable2;
+            ConfigMenu_default.setEnabled(this.name, isEnable2);
+            const message = isEnable2 ? LanguageContext2.getTranslation("allstacker.message.plugin.enabled", pl) : LanguageContext2.getTranslation("allstacker.message.plugin.disabled", pl);
+            pl.sendMessage(message);
+          }
+          if (fastModeStacking !== oldFastModeStacking && fastModeStacking !== void 0) {
+            this.config.ItemStackConfig.set("FastModeStacking", fastModeStacking);
+            pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.fast_mode_stacking.changed", pl).replace("%value", fastModeStacking.toString()));
+          }
+        });
+        page.addPage(this.name + "_advanced_settings", advandSetting);
+        page.showPage(pl, this.name + "_advanced_settings");
+      }
+    };
+    const configUi = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.itemstacker", pl), LanguageContext2.getTranslation("allstacker.body.itemstacker", pl));
+    configUi.addDivider();
+    configUi.addLabel(LanguageContext2.getTranslation("allstacker.label.itemstacker.description", pl));
+    configUi.addButton(LanguageContext2.getTranslation("allstacker.button.stacking_settings", pl), "textures/blocks/barrier", () => {
+      optionsConfig["Stacking Settings"]();
+    });
+    configUi.addLabel(LanguageContext2.getTranslation("allstacker.label.advanced.description", pl));
+    configUi.addButton(LanguageContext2.getTranslation("allstacker.button.advanced_settings", pl), "textures/ui/settings_glyph_color_2x", () => {
+      optionsConfig["Advanced Settings"]();
+    });
+    configUi.addDivider();
+    configUi.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+      page.showPage(pl, "plugin-settings");
+    });
+    page.addPage(this.name, configUi);
+    return true;
+  }
+  onItemSpawned(ev) {
+    const isNewItems = (item) => {
+      return ev.entity.isValid && item.typeId === "minecraft:item" && !this.config.ItemStackData.has(ev.entity.id) && !ev.entity.hasTag("fakeItem");
+    };
+    if (isNewItems(ev.entity)) {
+      this.config.ItemListStack.add(ev.entity);
+    }
+  }
+  onItemRemoved(ev) {
+    if (ev.removedEntity.typeId !== "minecraft:item" || ev.removedEntity.hasTag("fakeItem") || this.config.ItemListStack.has(ev.removedEntity)) return;
+    const itemRemovedData = {
+      location: ev.removedEntity.location,
+      id: ev.removedEntity.id,
+      dim: ev.removedEntity.dimension.id
+    };
+    system5.run(() => deStackItemStack(this.config, itemRemovedData));
+  }
+  runJobs() {
+    const fastModeStacking = this.config.ItemStackConfig.get("FastModeStacking");
+    if (fastModeStacking) {
+      system5.run(() => FastModeStacking(this.config));
+    } else {
+      system5.runJob(StackingItem(this.config));
+    }
+    system5.runJob(SeeingItem(this.config));
+  }
+  onLoad(_ev) {
+    this.initializeConfig();
+    this.runJobs();
+    KXEvents.on(this, "after:entitySpawn", (ev) => {
+      this.onItemSpawned(ev);
+    });
+    KXEvents.on(this, "before:entityRemove", (ev) => {
+      this.onItemRemoved(ev);
+    });
+    this.config.isLoaded = true;
+  }
+  initializeConfig() {
+    this.config = this.getConfig();
+    this.config.ItemStackConfig = new JsonDatabase("ItemStackConfig", world8);
+    this.config.ItemStackData = new JsonDatabase("ItemStackData", world8);
+    this.config.DimensionDataBackUp = new JsonDatabase("DimensionDataBackUp", world8);
+    const UnStackItem = this.config.ItemStackConfig.get("UnStackItem") || [];
+    const DisplayText = this.config.ItemStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+    const RadiusSeeing = this.config.ItemStackConfig.get("RadiusSeeing") || 10;
+    const RadiusCombine = this.config.ItemStackConfig.get("RadiusCombine") || 15;
+    this.config.ItemStackConfig.set("UnStackItem", UnStackItem);
+    this.config.ItemStackConfig.set("DisplayText", DisplayText);
+    this.config.ItemStackConfig.set("RadiusSeeing", RadiusSeeing);
+    this.config.ItemStackConfig.set("RadiusCombine", RadiusCombine);
+  }
+};
+var ItemStacker_default = ItemStacker;
+
+// packs/scripts/kisux3/plugins/MobStacker/index.ts
+import { EntityDamageCause, EntityEquippableComponent, EntityProjectileComponent, EquipmentSlot, system as system7, world as world9 } from "@minecraft/server";
+
+// packs/scripts/kisux3/plugins/MobStacker/services/utils.ts
+import { EntityIsBabyComponent, EntityLeashableComponent, EntityScaleComponent, system as system6 } from "@minecraft/server";
+function* StackingMob(config) {
+  new Promise(async (resolve) => {
+    try {
+      const allEntities = getAllEntities((en) => {
+        if (!config.ResetEntities.has(en) && [...config.MobStackConfig.get("StackMob") || []].some((b) => b === en.typeId) && en.location) return true;
+        return false;
+      });
+      for (const entity of allEntities) {
+        let removedAmount = 0;
+        if (!entity.isValid) continue;
+        const nearEntities = getEntitiesNearBy(entity.dimension, entity, config);
+        if (!nearEntities || nearEntities.length === 0) {
+          continue;
+        }
+        for (const target of nearEntities) {
+          const amount = target.getDynamicProperty("StackingAmount") || 1;
+          const entityAmount = entity.getDynamicProperty("StackingAmount") || 1;
+          if (amount > entityAmount) continue;
+          target.dimension.spawnParticle("minecraft:large_explosion", { ...target.location, y: target.location.y + 0.5 });
+          target.remove();
+          removedAmount += amount;
+        }
+        const currAmount = entity.getDynamicProperty("StackingAmount") || 1;
+        const displayText = config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+        entity.setDynamicProperty("StackingAmount", removedAmount + currAmount);
+        let text = displayText;
+        text = `\xA7e\uE10E ` + text;
+        text = text.replace(/%a/g, `${getMobColorCode(removedAmount + currAmount)}x${removedAmount + currAmount}\xA7r`);
+        text = text.replace(/%n/g, EntityToName(entity));
+        text = text.replace(/%l/g, "\n");
+        entity.nameTag = text;
+      }
+      await system6.waitTicks(20);
+      resolve();
+    } catch (_error) {
+      system6.runTimeout(() => {
+        StackingMob(config);
+      }, 20);
+    }
+  }).finally(() => {
+    system6.runJob(StackingMob(config));
+  });
+}
+function EntityToName(en) {
+  return en.typeId.split(":")[1].split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+}
+function getEntitiesNearBy(dimension, en, config) {
+  const radiusStacking = config.MobStackConfig.get("RadiusStacking") || 10;
+  const allEn = dimension.getEntities({ location: en.location, maxDistance: radiusStacking, type: en.typeId }).filter((x) => x.id !== en.id).filter((x) => !config.ResetEntities.has(x)).filter((x) => x.hasComponent("is_baby") == en.hasComponent("is_baby")).filter((x) => !x.hasComponent("is_tamed")).filter((x) => {
+    if (x.hasComponent(EntityLeashableComponent.componentId)) {
+      const leashable = x.getComponent(EntityLeashableComponent.componentId);
+      if (leashable && leashable.leashHolder) return false;
+    }
+    return true;
+  }).filter((x) => x.getComponent("color")?.value == en.getComponent("color")?.value).filter((x) => {
+    const isHasStackEn = x.getDynamicProperty("StackingAmount");
+    const isHasStackTarget = en.getDynamicProperty("StackingAmount");
+    if (isHasStackEn && isHasStackTarget) return true;
+    if (!(isHasStackEn && isHasStackTarget)) return true;
+    return false;
+  }).filter((x) => {
+    if (!x.hasComponent(EntityScaleComponent.componentId)) return true;
+    if (x.getComponent(EntityScaleComponent.componentId).value !== en.getComponent(EntityScaleComponent.componentId).value) return false;
+  });
+  return allEn;
+}
+function getMobColorCode(amount) {
+  if (amount >= 1290) return "\xA79";
+  if (amount >= 960) return "\xA7b";
+  if (amount >= 390) return "\xA7a";
+  if (amount >= 108) return "\xA7e";
+  if (amount >= 88) return "\xA7g";
+  if (amount >= 68) return "\xA7p";
+  if (amount >= 48) return "\xA76";
+  if (amount >= 18) return "\xA7v";
+  return "\xA7c";
+}
+function spawnEntityClone(en) {
+  const entityNew = en.dimension.spawnEntity(en.typeId, en.location);
+  if (entityNew.hasComponent("color")) {
+    entityNew.getComponent("color").value = en.getComponent("color").value;
+  }
+  if (en.hasComponent(EntityIsBabyComponent.componentId)) {
+    try {
+      entityNew.triggerEvent("minecraft:entity_born");
+    } catch (_e) {
+    }
+  } else {
+    try {
+      entityNew.triggerEvent("minecraft:ageable_grow_up");
+    } catch (_e) {
+    }
+  }
+  return entityNew;
+}
+
+// packs/scripts/kisux3/plugins/MobStacker/index.ts
+var IdToName = (mob) => {
+  return mob.split(":")[1].split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+};
+var MobStacker = class extends PluginBase {
+  config = {};
+  onLoad(_ev) {
+    this.initializeConfig();
+    this.runJobs();
+    KXEvents.on(this, "after:entityDie", (ev) => {
+      this.onEntityDie(ev);
+    });
+    KXEvents.on(this, "before:playerInteractWithEntity", (ev) => {
+      this.onEntityInteract(ev);
+    });
+    KXEvents.on(this, "before:entityRemove", (ev) => {
+      this.onXpDrop(ev);
+    });
+  }
+  onXpDrop(ev) {
+    const RemovedEntityData = {
+      id: ev.removedEntity.id,
+      location: ev.removedEntity.location,
+      dimension: ev.removedEntity.dimension.id
+    };
+    system7.run(() => {
+      if (this.config.Xp_Queue.has(RemovedEntityData.id)) {
+        const xpData = this.config.Xp_Queue.get(RemovedEntityData.id) || 0;
+        const xp_orb = world9.getDimension(RemovedEntityData.dimension).getEntities({
+          location: RemovedEntityData.location,
+          type: "minecraft:xp_orb",
+          maxDistance: 1,
+          excludeTags: ["kisu:mob_stacker_xp_orb"]
+        });
+        for (let i = 0; i < xpData; i++) {
+          xp_orb.forEach((orb) => {
+            if (orb.isValid) {
+              const orbSpawn = world9.getDimension(RemovedEntityData.dimension).spawnEntity("minecraft:xp_orb", orb.location);
+              orbSpawn.addTag("kisu:mob_stacker_xp_orb");
             }
           });
-          console.warn(
-            `[MarketSystem] Cleared all market data by ${source.name}`
-          );
-          this.itemDB.clear();
-          return;
         }
-        const ui = new MarketUi({ moneyScore: "money" });
-        ui.showMainUi(source, this.itemDB);
       }
     });
   }
+  onEntityInteract(ev) {
+    const amount = ev.target.getDynamicProperty("StackingAmount");
+    if (amount && amount > 1) {
+      const currAmount = amount || 1;
+      system7.run(() => {
+        if (!ev.target.isValid) return;
+        const entityNew = spawnEntityClone(ev.target);
+        entityNew.setDynamicProperty("StackingAmount", currAmount - 1);
+        const displayText = this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+        if (currAmount - 1 > 1) {
+          let text = displayText;
+          text = `\xA7e\uE10E ` + text;
+          text = text.replace(/%a/g, `${getMobColorCode(currAmount - 1)}x${currAmount - 1}\xA7r`);
+          text = text.replace(/%n/g, EntityToName(entityNew));
+          text = text.replace(/%l/g, "\n");
+          entityNew.nameTag = text;
+        }
+        ev.target.setDynamicProperty("StackingAmount", 1);
+        if (ev.target.nameTag.includes("\uE10E")) {
+          ev.target.nameTag = "";
+          this.config.ResetEntities.add(ev.target);
+          system7.runTimeout(() => {
+            this.config.ResetEntities.delete(ev.target);
+          }, 200);
+        } else {
+          this.config.ResetEntities.add(ev.target);
+          system7.runTimeout(() => {
+            this.config.ResetEntities.delete(ev.target);
+          }, 200);
+        }
+      });
+    }
+  }
+  onEntityDie(ev) {
+    if (!ev.deadEntity.isValid) return;
+    if (ev.deadEntity.hasComponent(EntityProjectileComponent.componentId)) return;
+    if (ev.damageSource.cause == EntityDamageCause.none || ev.damageSource.cause == EntityDamageCause.selfDestruct) return;
+    const currAmount = ev.deadEntity.getDynamicProperty("StackingAmount") || 1;
+    if (currAmount <= 1) return;
+    const MobDeathMode = this.config.MobStackConfig.get("MobDeathMode") || "All";
+    if (MobDeathMode === "All") {
+      const spawnClone = spawnEntityClone(ev.deadEntity);
+      if (currAmount > 32) {
+        for (let i = 0; i < 31; i++) {
+          const { x, y, z } = spawnClone.location;
+          const randomTag = Array.from(
+            { length: Math.floor(Math.random() * 13) + 1 },
+            () => String.fromCharCode(
+              Math.random() < 0.5 ? Math.floor(Math.random() * 26) + 65 : Math.floor(Math.random() * 26) + 97
+              // a-z
+            )
+          ).join("");
+          const isFireDamage = ev.damageSource.cause === EntityDamageCause.fire || ev.damageSource.cause === EntityDamageCause.fireTick || ev.damageSource.cause === EntityDamageCause.lava;
+          if (!ev.damageSource.damagingEntity || !ev.damageSource.damagingEntity.isValid) {
+            spawnClone.addTag(randomTag);
+            if (isFireDamage) {
+              spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+            } else {
+              const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone);
+              if (!loot) return;
+              loot.forEach((item) => {
+                spawnClone.dimension.spawnItem(item, spawnClone.location);
+              });
+            }
+          } else {
+            const itemHeld = ev.damageSource.damagingEntity.hasComponent(EntityEquippableComponent.componentId) ? ev.damageSource.damagingEntity.getComponent(EntityEquippableComponent.componentId).getEquipment(EquipmentSlot.Mainhand) : null;
+            spawnClone.addTag(randomTag);
+            if (itemHeld && ev.damageSource.damagingEntity.typeId === "minecraft:player") {
+              const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone, itemHeld);
+              if (!loot) return;
+              loot.forEach((item) => {
+                ev.damageSource.damagingEntity.dimension.spawnItem(item, spawnClone.location);
+              });
+            } else if (ev.damageSource.cause === EntityDamageCause.projectile && ["minecraft:skeleton", "minecraft:stray", "minecraft:bogged"].includes(ev.damageSource.damagingEntity.typeId)) {
+              ev.damageSource.damagingEntity.addTag(randomTag + "_projectile");
+              ev.damageSource.damagingEntity.runCommand(`execute as @e[tag=${randomTag}_projectile] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+            } else if (ev.damageSource.damagingEntity) {
+              const damagingEntity = ev.damageSource.damagingEntity;
+              damagingEntity.addTag(randomTag + "_entity");
+              damagingEntity.dimension.runCommand(`execute as @e[tag=${randomTag}_entity] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`);
+            } else {
+              if (isFireDamage) {
+                spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              } else {
+                const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone);
+                if (!loot) return;
+                loot.forEach((item) => {
+                  spawnClone.dimension.spawnItem(item, spawnClone.location);
+                });
+              }
+            }
+          }
+        }
+        spawnClone.remove();
+        const entityNew = spawnEntityClone(ev.deadEntity);
+        entityNew.setDynamicProperty("StackingAmount", currAmount - 32);
+        const displayText = this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+        let text = displayText;
+        text = `\xA7e\uE10E ` + text;
+        text = text.replace(/%a/g, `${getMobColorCode(currAmount - 32)}x${currAmount - 32}\xA7r`);
+        text = text.replace(/%n/g, EntityToName(entityNew));
+        text = text.replace(/%l/g, "\n");
+        entityNew.nameTag = text;
+        this.config.Xp_Queue.set(ev.deadEntity.id, 31);
+      } else {
+        const isFireDamage = ev.damageSource.cause === EntityDamageCause.fire || ev.damageSource.cause === EntityDamageCause.fireTick || ev.damageSource.cause === EntityDamageCause.lava;
+        for (let i = 0; i < currAmount - 1; i++) {
+          const { x, y, z } = spawnClone.location;
+          const randomTag = Array.from(
+            { length: Math.floor(Math.random() * 13) + 1 },
+            () => String.fromCharCode(
+              Math.random() < 0.5 ? Math.floor(Math.random() * 26) + 65 : Math.floor(Math.random() * 26) + 97
+              // a-z
+            )
+          ).join("");
+          if (!ev.damageSource.damagingEntity || !ev.damageSource.damagingEntity.isValid) {
+            spawnClone.addTag(randomTag);
+            if (isFireDamage) {
+              spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+            } else {
+              const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone);
+              if (!loot) return;
+              loot.forEach((item) => {
+                spawnClone.dimension.spawnItem(item, spawnClone.location);
+              });
+            }
+          } else {
+            const itemHeld = ev.damageSource.damagingEntity.hasComponent(EntityEquippableComponent.componentId) ? ev.damageSource.damagingEntity.getComponent(EntityEquippableComponent.componentId).getEquipment(EquipmentSlot.Mainhand) : null;
+            spawnClone.addTag(randomTag);
+            if (itemHeld && ev.damageSource.damagingEntity.typeId === "minecraft:player") {
+              ev.damageSource.damagingEntity.dimension.runCommand(`execute as ${ev.damageSource.damagingEntity.name} at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}] mainhand`);
+            } else if (ev.damageSource.cause === EntityDamageCause.projectile && ["minecraft:skeleton", "minecraft:stray", "minecraft:bogged"].includes(ev.damageSource.damagingEntity.typeId)) {
+              ev.damageSource.damagingEntity.addTag(randomTag + "_projectile");
+              ev.damageSource.damagingEntity.runCommand(`execute as @e[tag=${randomTag}_projectile] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+            } else if (ev.damageSource.damagingEntity) {
+              const damagingEntity = ev.damageSource.damagingEntity;
+              damagingEntity.addTag(randomTag + "_entity");
+              damagingEntity.dimension.runCommand(`execute as @e[tag=${randomTag}_entity] at @s run loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+            } else {
+              if (isFireDamage) {
+                spawnClone.dimension.runCommand(`loot spawn ${x} ${y} ${z} kill @e[tag=${randomTag}]`);
+              } else {
+                const loot = world9.getLootTableManager().generateLootFromEntity(spawnClone);
+                if (!loot) return;
+                loot.forEach((item) => {
+                  spawnClone.dimension.spawnItem(item, spawnClone.location);
+                });
+              }
+            }
+          }
+        }
+        spawnClone.remove();
+        this.config.Xp_Queue.set(ev.deadEntity.id, currAmount - 1);
+      }
+    } else if (ev.deadEntity.getDynamicProperty("StackingAmount")) {
+      if (currAmount - 1 <= 0) {
+        return;
+      } else {
+        const entityNew = spawnEntityClone(ev.deadEntity);
+        if (currAmount - 1 <= 1) return;
+        entityNew.setDynamicProperty("StackingAmount", currAmount - 1);
+        const displayText = this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+        let text = displayText;
+        text = `\xA7e\uE10E ` + text;
+        text = text.replace(/%a/g, `${getMobColorCode(currAmount - 1)}x${currAmount - 1}\xA7r`);
+        text = text.replace(/%n/g, EntityToName(entityNew));
+        text = text.replace(/%l/g, "\n");
+        entityNew.nameTag = text;
+      }
+    }
+  }
+  runJobs() {
+    system7.runJob(StackingMob(this.config));
+  }
+  addConfig(pl, page, showUI = true) {
+    if (!showUI) return true;
+    const configUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.mobstacker", pl), LanguageContext2.getTranslation("allstacker.body.mobstacker", pl));
+    configUI.addDivider();
+    configUI.addLabel(LanguageContext2.getTranslation("allstacker.label.mobstacker.description", pl));
+    configUI.addButton(LanguageContext2.getTranslation("allstacker.button.mobstacker_settings", pl), "textures/blocks/build_allow", () => {
+      const stackedUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.mob_stacking_settings", pl), LanguageContext2.getTranslation("allstacker.body.mob_stacking_settings", pl));
+      stackedUI.addDivider();
+      stackedUI.addLabel(LanguageContext2.getTranslation("allstacker.label.mobstacker.advanced.description", pl));
+      stackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.add_stacked_mobs", pl), "textures/ui/icon_book_writable", () => {
+        const addStackedUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.add_stacked_mobs", pl), LanguageContext2.getTranslation("allstacker.body.add_stacked_mobs", pl));
+        addStackedUI.addDivider();
+        const radius = 10;
+        const nearEntities = pl.dimension.getEntities({
+          location: pl.location,
+          maxDistance: radius
+        }).filter((en) => en.typeId !== "minecraft:player");
+        const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
+        nearEntities.forEach((en) => {
+          if (en.isValid && !mobStackList.includes(en.typeId)) {
+            addStackedUI.addButton(`${EntityToName(en)}`, "", () => {
+              mobStackList.push(en.typeId);
+              this.config.MobStackConfig.set("StackMob", mobStackList);
+              pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.mob.added", pl).replace("%name", EntityToName(en)));
+              page.showPage(pl, this.name + "_stacked");
+            });
+          }
+        });
+        if (nearEntities.filter((en) => en.isValid && !mobStackList.includes(en.typeId)).length === 0) {
+          addStackedUI.addLabel(LanguageContext2.getTranslation("allstacker.label.no_stackable_mobs", pl));
+        }
+        addStackedUI.addDivider();
+        addStackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+          page.showPage(pl, this.name + "_stacked");
+        });
+        page.addPage(this.name + "_add_stacked", addStackedUI);
+        page.showPage(pl, this.name + "_add_stacked");
+      });
+      stackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.remove_stacked_mobs", pl), "textures/ui/icon_book_writable", () => {
+        const removeStackedUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.remove_stacked_mobs", pl), LanguageContext2.getTranslation("allstacker.body.remove_stacked_mobs", pl));
+        removeStackedUI.addDivider();
+        const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
+        if (mobStackList.length === 0) {
+          removeStackedUI.addLabel(LanguageContext2.getTranslation("allstacker.label.no_stacked_mobs", pl));
+        } else {
+          mobStackList.forEach((mob) => {
+            removeStackedUI.addButton(IdToName(mob), "", () => {
+              const index = mobStackList.indexOf(mob);
+              if (index > -1) {
+                mobStackList.splice(index, 1);
+                this.config.MobStackConfig.set("StackMob", mobStackList);
+                pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.mob.removed", pl).replace("%name", IdToName(mob)));
+                page.showPage(pl, this.name + "_stacked");
+              }
+            });
+          });
+        }
+        removeStackedUI.addDivider();
+        removeStackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+          page.showPage(pl, this.name + "_stacked");
+        });
+        page.addPage(this.name + "_remove_stacked", removeStackedUI);
+        page.showPage(pl, this.name + "_remove_stacked");
+      });
+      stackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.view_stacked_mobs", pl), "textures/ui/icon_book_writable", () => {
+        const mobStackList = this.config.MobStackConfig.get("StackMob") || [];
+        const stackedMobsUI = new IActionForm_default(LanguageContext2.getTranslation("allstacker.title.view_stacked_mobs", pl), LanguageContext2.getTranslation("allstacker.body.view_stacked_mobs", pl));
+        stackedMobsUI.addDivider();
+        if (mobStackList.length === 0) {
+          stackedMobsUI.addLabel(LanguageContext2.getTranslation("allstacker.label.no_stacked_mobs", pl));
+        } else {
+          mobStackList.forEach((mob) => {
+            stackedMobsUI.addButton(IdToName(mob), "", () => {
+              page.showPage(pl, this.name + "_stacked");
+            });
+          });
+        }
+        stackedMobsUI.addDivider();
+        stackedMobsUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+          page.showPage(pl, this.name + "_stacked");
+        });
+        page.addPage(this.name + "_view_stacked", stackedMobsUI);
+        page.showPage(pl, this.name + "_view_stacked");
+      });
+      stackedUI.addDivider();
+      stackedUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+        page.showPage(pl, this.name);
+      });
+      page.addPage(this.name + "_stacked", stackedUI);
+      page.showPage(pl, this.name + "_stacked");
+    });
+    configUI.addLabel(LanguageContext2.getTranslation("allstacker.label.mobstacker.advanced.description", pl));
+    configUI.addButton(LanguageContext2.getTranslation("allstacker.button.advanced_settings", pl), "textures/ui/advanced_glyph_color", () => {
+      const advancedSettingsUI = new IModalForm_default(LanguageContext2.getTranslation("allstacker.title.mob_advanced_settings", pl), LanguageContext2.getTranslation("allstacker.body.mob_advanced_settings", pl));
+      advancedSettingsUI.addLabel(LanguageContext2.getTranslation("allstacker.label.mob_advanced.description", pl));
+      advancedSettingsUI.addDivider();
+      advancedSettingsUI.addToggle(LanguageContext2.getTranslation("allstacker.toggle.mobstacker", pl), PluginLoader.find((pl2) => pl2.name === this.name)?.setting.enabled || false);
+      advancedSettingsUI.addDropdown(LanguageContext2.getTranslation("allstacker.dropdown.mob_death_mode", pl), ["All", "Only one"], this.config.MobStackConfig.get("MobDeathMode") === "All" ? 0 : 1);
+      advancedSettingsUI.addSlider(LanguageContext2.getTranslation("allstacker.slider.radius_stacking", pl), 1, 100, 1, this.config.MobStackConfig.get("RadiusStacking") || 10);
+      advancedSettingsUI.addTextField(LanguageContext2.getTranslation("allstacker.textfield.mob_display_text", pl), LanguageContext2.getTranslation("allstacker.textfield.mob_display_text.placeholder", pl), `${this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r"}`);
+      advancedSettingsUI.addCallback((formValues, canceled) => {
+        if (canceled) return;
+        const radius = formValues[4];
+        const displayText = formValues[5];
+        const mobDeathMode = formValues[3] === 0 ? "All" : "Only one";
+        const isEnabled = formValues[2];
+        const oldRadius = this.config.MobStackConfig.get("RadiusStacking") || 10;
+        const oldDisplayText = this.config.MobStackConfig.get("DisplayText") || "\xA77\xA7c\xA7l%a \xA7r%n\xA7r";
+        const oldEnabled = PluginLoader.find((pl2) => pl2.name === this.name)?.setting.enabled || false;
+        const oldDeathMode = this.config.MobStackConfig.get("MobDeathMode") || "All";
+        console.info(mobDeathMode, oldDeathMode);
+        if (mobDeathMode !== oldDeathMode && mobDeathMode !== void 0) {
+          this.config.MobStackConfig.set("MobDeathMode", mobDeathMode);
+          pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.mob_death_mode.changed", pl).replace("%value", mobDeathMode));
+        }
+        if (radius !== oldRadius && radius !== void 0) {
+          this.config.MobStackConfig.set("RadiusStacking", radius);
+          pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.stacking_radius.changed", pl).replace("%value", radius.toString()));
+        }
+        if (displayText !== oldDisplayText && displayText !== void 0) {
+          this.config.MobStackConfig.set("DisplayText", displayText);
+          pl.sendMessage(LanguageContext2.getTranslation("allstacker.message.mob_display_text.changed", pl).replace("%value", displayText));
+        }
+        if (isEnabled !== oldEnabled && isEnabled !== void 0) {
+          PluginLoader.find((pl2) => pl2.name === this.name).setting.enabled = isEnabled;
+          ConfigMenu_default.setEnabled(this.name, isEnabled);
+          const message = isEnabled ? LanguageContext2.getTranslation("allstacker.message.mobstacker.enabled", pl) : LanguageContext2.getTranslation("allstacker.message.mobstacker.disabled", pl);
+          pl.sendMessage(message);
+        }
+      });
+      advancedSettingsUI.setSubmitButton(LanguageContext2.getTranslation("allstacker.button.save_changes", pl));
+      page.addPage(this.name + "_advanced_settings", advancedSettingsUI);
+      page.showPage(pl, this.name + "_advanced_settings");
+    });
+    configUI.addDivider();
+    configUI.addButton(LanguageContext2.getTranslation("allstacker.button.back", pl), "", () => {
+      page.showPage(pl, "plugin-settings");
+    });
+    page.addPage(this.name, configUI);
+    return true;
+  }
+  initializeConfig() {
+    this.config = this.getConfig();
+    this.config.MobStackConfig = new JsonDatabase("MobStackConfig", world9);
+    if (!this.config.MobStackConfig.has("StackMob")) {
+      this.config.MobStackConfig.set("StackMob", [
+        "minecraft:pig",
+        "minecraft:cow",
+        "minecraft:sheep",
+        "minecraft:chicken"
+      ]);
+    }
+    if (!this.config.MobStackConfig.has("DisplayText")) {
+      this.config.MobStackConfig.set("DisplayText", "\xA77\xA7c\xA7l%a \xA7r%n\xA7r");
+    }
+    if (!this.config.MobStackConfig.has("RadiusStacking")) {
+      this.config.MobStackConfig.set("RadiusStacking", 10);
+    }
+    if (!this.config.MobStackConfig.has("MobDeathMode")) {
+      this.config.MobStackConfig.set("MobDeathMode", "All");
+    }
+  }
 };
+var MobStacker_default = MobStacker;
+
+// packs/scripts/kisux3/configs/PluginLoader.ts
+var PluginLoader = [
+  {
+    name: "ConfigMenu",
+    description: "Provides a configuration menu for plugins.",
+    version: "1.0.0",
+    main: new ConfigMenu_default("ConfigMenu", "Provides a configuration menu for plugins.", "1.0.0"),
+    setting: {
+      enabled: true,
+      config: {
+        PluginEnabled: null,
+        LoadedConfig: false,
+        Loadder: true
+      }
+    }
+  },
+  {
+    name: "Item Stackers",
+    description: "Manage item stacking configurations.",
+    version: "1.0.0",
+    main: new ItemStacker_default("Item Stackers", "Manage item stacking configurations.", "1.0.0"),
+    setting: {
+      enabled: true,
+      config: {
+        RadiusSeeing: null,
+        ItemStackData: null,
+        ItemListStack: /* @__PURE__ */ new Set(),
+        SeeingItemStack: /* @__PURE__ */ new Set(),
+        DimensionDataBackUp: null,
+        PluginIcon: "textures/items/arrow",
+        isLoaded: false
+      }
+    }
+  },
+  {
+    name: "Mob Stacker",
+    description: "Manage mob stacking configurations.",
+    version: "1.0.0",
+    main: new MobStacker_default("Mob Stacker", "Manage mob stacking configurations.", "1.0.0"),
+    setting: {
+      enabled: true,
+      config: {
+        ResetEntities: /* @__PURE__ */ new Set(),
+        MobStackConfig: null,
+        PluginIcon: "textures/items/spawn_eggs/spawn_egg_cow",
+        isLoaded: false,
+        Xp_Queue: /* @__PURE__ */ new Map()
+      }
+    }
+  }
+];
 
 // packs/scripts/Index.ts
-new class KisuAPI extends SystemBase {
-  onLoad() {
-    console.warn(`[KisuAPI] Loading MarketSystem Plugin...`);
-    this.pluginManagers.registerPlugin(MarketSystem);
+import { system as system8 } from "@minecraft/server";
+var pluginManager = PluginManager.getInstance();
+pluginManager.registerPlugins(PluginLoader);
+KXEvents.on(null, "before:startup", (ev) => {
+  pluginManager.startupPlugins(pluginManager.getPlugins(), ev);
+});
+KXEvents.on(null, "after:worldLoad", (ev) => {
+  const loadder = PluginLoader.find((x) => x.setting.config?.Loadder);
+  if (loadder) {
+    loadder.main.onLoad(ev);
   }
-}();
+  const i = system8.runInterval(() => {
+    if (!loadder) return;
+    if (loadder.setting.config.LoadedConfig) {
+      system8.clearRun(i);
+      pluginManager.getPlugins().filter((plugin) => plugin.name !== loadder.name).forEach((plugin) => {
+        if (plugin.main.onLoad) {
+          plugin.main.onLoad(ev);
+        }
+      });
+    }
+  }, 1);
+});
+KXEvents.on(null, "before:shutdown", (ev) => {
+  pluginManager.shutdownPlugins(pluginManager.getPlugins(), ev);
+});
 //# sourceMappingURL=Index.js.map

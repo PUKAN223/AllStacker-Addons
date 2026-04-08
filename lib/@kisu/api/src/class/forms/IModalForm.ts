@@ -1,12 +1,6 @@
-import { ModalFormData, ModalFormResponse } from "@minecraft/server-ui";
-import { Player } from "@minecraft/server";
-import { IModalFormTextField } from "../../types/forms/IModalForm/Elements/TextField.ts";
-import { IModalFormToggle } from "../../types/forms/IModalForm/Elements/Toggle.ts";
-import { IModalFormSlider } from "../../types/forms/IModalForm/Elements/Slider.ts";
-import { IModalFormDropdown } from "../../types/forms/IModalForm/Elements/Dropdown.ts";
-import { IModalFormDivider } from "../../types/forms/IModalForm/Elements/Divider.ts";
-import { IModalFormHeader } from "../../types/forms/IModalForm/Elements/Header.ts";
-import { IModalFormLabel } from "../../types/forms/IModalForm/Elements/Label.ts";
+import { ModalFormData, ModalFormResponse } from "npm:@minecraft/server-ui@2.0.0";
+import { Player } from "npm:@minecraft/server@2.3.0";
+import { IModalFormTextField, IModalFormToggle, IModalFormSlider, IModalFormDropdown, IModalFormHeader, IModalFormLabel, IModalFormDivider } from "@kisu/api";
 
 type FormElement =
   | IModalFormTextField
@@ -61,8 +55,8 @@ class IModalForm {
   /**
    * Add a text field
    */
-  public addTextField(label: string, placeholderText?: string, defaultValue?: string): this {
-    this.elements.push({ label, placeholderText, defaultValue });
+  public addTextField(label: string, placeholderText?: string, defaultValue?: string, tooltip?: string): this {
+    this.elements.push({ label, placeholderText, defaultValue, tooltip });
     return this;
   }
 
@@ -84,8 +78,8 @@ class IModalForm {
   /**
    * Add a toggle switch
    */
-  public addToggle(label: string, defaultValue?: boolean): this {
-    this.elements.push({ label, defaultValue });
+  public addToggle(label: string, defaultValue?: boolean, tooltip?: string): this {
+    this.elements.push({ label, defaultValue, tooltip });
     return this;
   }
 
@@ -112,9 +106,10 @@ class IModalForm {
     minimumValue: number,
     maximumValue: number,
     valueStep: number,
-    defaultValue?: number
+    defaultValue?: number,
+    tooltip?: string
   ): this {
-    this.elements.push({ label, minimumValue, maximumValue, valueStep, defaultValue });
+    this.elements.push({ label, minimumValue, maximumValue, valueStep, defaultValue, tooltip });
     return this;
   }
 
@@ -136,8 +131,8 @@ class IModalForm {
   /**
    * Add a dropdown
    */
-  public addDropdown(label: string, options: string[], defaultValueIndex?: number): this {
-    this.elements.push({ label, options, defaultValueIndex });
+  public addDropdown(label: string, options: string[], defaultValueIndex?: number, tooltip?: string): this {
+    this.elements.push({ label, options, defaultValueIndex, tooltip });
     return this;
   }
 
@@ -278,16 +273,17 @@ class IModalForm {
       } else if (this.isLabel(element)) {
         form.label(element.text_label);
       } else if (this.isTextField(element)) {
-        form.textField(element.label, element.placeholderText || "", { defaultValue: element.defaultValue || "" });
+        form.textField(element.label, element.placeholderText || "", { defaultValue: element.defaultValue || "", tooltip: element.tooltip });
       } else if (this.isToggle(element)) {
-        form.toggle(element.label, { defaultValue: element.defaultValue || false });
+        form.toggle(element.label, { defaultValue: element.defaultValue || false, tooltip: element.tooltip });
       } else if (this.isSlider(element)) {
         form.slider(element.label, element.minimumValue, element.maximumValue, {
           defaultValue: element.defaultValue || 0,
           valueStep: element.valueStep,
+          tooltip: element.tooltip,
         });
       } else if (this.isDropdown(element)) {
-        form.dropdown(element.label, element.options, { defaultValueIndex: element.defaultValueIndex || 0 });
+        form.dropdown(element.label, element.options, { defaultValueIndex: element.defaultValueIndex || 0, tooltip: element.tooltip });
       }
     });
 
@@ -348,4 +344,4 @@ class IModalForm {
   }
 }
 
-export default IModalForm;
+export { IModalForm };

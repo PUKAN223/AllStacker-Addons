@@ -1,0 +1,24 @@
+{
+    "format_version": 2,
+    "meta": {
+        "name": "All-Stackers-Addon",
+        "icon": "./packs/pack_icon.png",
+        "version": [2, 5, 0],
+        "description": "Make yours item, mob stackeable more than limit of Minecraft Bedrock Edition.",
+        "seed": 23456789,
+        "authors": ["KisuX3"]
+    },
+    "filters": [
+        {
+            "name": "TSBuilds",
+            "config": {}   
+        },
+        {
+            "name": "ManifestBuilds",
+            "config": {}
+        }
+    ],
+    "env": {
+        "GamePath": "C:/Users/KisuX3/AppData/Roaming/Minecraft Bedrock/users/shared/games/com.mojang"
+    }
+}
