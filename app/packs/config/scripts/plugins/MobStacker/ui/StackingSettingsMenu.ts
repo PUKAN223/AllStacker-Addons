@@ -111,9 +111,10 @@ function showAddStackedMob(
 
   const form = IActionForm.createForm(
     t("allstacker.button.add_stacked_mobs"),
-    t("allstacker.label.mobstacker.advanced.description"),
+    t("allstacker.body.mob_stacking_settings"),
   );
   form.addDivider();
+  form.addLabel(t("allstacker.label.mobstacker.description"));
 
   if (uniqueMobs.size === 0) {
     form.addLabel(t("allstacker.label.no_new_mobs"));
@@ -152,6 +153,7 @@ function showRemoveStackedMob(
     t("allstacker.body.mob_stacking_settings"),
   );
   form.addDivider();
+  form.addLabel(t("allstacker.label.mobstacker.description"));
 
   if (stackMobList.length === 0) {
     form.addLabel(t("allstacker.label.no_stacked_mobs"));
@@ -189,6 +191,7 @@ function showViewStackedMobs(
     t("allstacker.body.mob_stacking_settings"),
   );
   form.addDivider();
+  form.addLabel(t("allstacker.label.mobstacker.description"));
 
   if (stackMobList.length === 0) {
     form.addLabel(t("allstacker.label.no_stacked_mobs"));

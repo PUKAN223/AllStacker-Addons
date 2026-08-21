@@ -147,6 +147,13 @@ function openPluginSettings(
     );
 
     subMenu.addDivider();
+
+    const stackingLabelKey = `allstacker.label.${targetPlugin.name.toLowerCase()}.description`;
+    const stackingLabel = t(stackingLabelKey);
+    if (stackingLabel !== stackingLabelKey) {
+      subMenu.addLabel(stackingLabel);
+    }
+
     subMenu.addButton(
       t("allstacker.button.stacking_settings"),
       "textures/blocks/barrier",
@@ -154,6 +161,13 @@ function openPluginSettings(
         if (advancedSettings) advancedSettings();
       },
     );
+
+    const advancedLabelKey = `allstacker.label.${targetPlugin.name.toLowerCase()}.advanced.description`;
+    const advancedLabel = t(advancedLabelKey);
+    if (advancedLabel !== advancedLabelKey) {
+      subMenu.addLabel(advancedLabel);
+    }
+
     subMenu.addButton(
       t("allstacker.button.advanced_settings"),
       "textures/ui/settings_glyph_color_2x",

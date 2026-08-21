@@ -211,6 +211,13 @@ class SettingMenu {
       t("allstacker.ui.save"),
     );
 
+    const labelKey = `allstacker.label.${this.plugin.name.toLowerCase()}.advanced.description_full`;
+    const translatedLabel = t(labelKey);
+    if (translatedLabel !== labelKey) {
+      forms.addLabel(translatedLabel);
+      // Removed addDivider() here as requested by comments not to add dividers.
+    }
+
     forms.addLabel(this.MCColors(this.buttons.description).grey);
     // NOTE: Do NOT add dividers here — MCBE ModalFormData.divider() may shift
     // formValues indices, causing settings to be saved to the wrong keys.

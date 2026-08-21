@@ -111,9 +111,10 @@ function showAddUnstackedItem(
 
   const form = IActionForm.createForm(
     t("allstacker.button.add_unstacked"),
-    t("allstacker.label.unstacked"),
+    t("allstacker.body.unstacked"),
   );
   form.addDivider();
+  form.addLabel(t("allstacker.label.unstacked"));
 
   if (itemMap.size === 0) {
     form.addLabel(t("allstacker.label.no_new_items"));
@@ -152,6 +153,7 @@ function showRemoveUnstackedItem(
     t("allstacker.body.unstacked"),
   );
   form.addDivider();
+  form.addLabel(t("allstacker.label.unstacked"));
 
   if (unStackList.length === 0) {
     form.addLabel(t("allstacker.label.no_unstacked_items"));
@@ -189,6 +191,7 @@ function showViewUnstackedItems(
     t("allstacker.body.unstacked"),
   );
   form.addDivider();
+  form.addLabel(t("allstacker.label.unstacked"));
 
   if (unStackList.length === 0) {
     form.addLabel(t("allstacker.label.no_unstacked_items"));

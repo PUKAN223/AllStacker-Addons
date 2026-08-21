@@ -32,7 +32,7 @@ export function initTranslations() {
       "§aCan§7 add, remove, view §cunstacked items§r.",
     "allstacker.button.stacking_settings": "Stacking Settings",
     "allstacker.button.advanced_settings": "Advanced Settings",
-    "allstacker.label.advanced.description":
+    "allstacker.label.itemstacker.advanced.description":
       "§aCan§7 §2on§7/§coff§r and adjust the radius for seeing items, display text, and more.",
 
     // Unstacked Items
@@ -47,7 +47,7 @@ export function initTranslations() {
     // Advanced Settings
     "allstacker.title.advanced_settings": "§8Advanced Settings",
     "allstacker.body.advanced_settings": "Save changes.",
-    "allstacker.label.advanced.description_full":
+    "allstacker.label.itemstacker.advanced.description_full":
       "Manage advanced settings for item stacking.",
     "allstacker.toggle.itemstack": "§cOFF§7/§aON §rItemStack§r",
     "allstacker.slider.radius_seeing": "§7Radius to seeing items§r",
@@ -88,7 +88,7 @@ export function initTranslations() {
     // MobStacker Advanced Settings
     "allstacker.title.mob_advanced_settings": "§8Advanced Settings",
     "allstacker.body.mob_advanced_settings": "",
-    "allstacker.label.mob_advanced.description":
+    "allstacker.label.mobstacker.advanced.description_full":
       "Configure advanced settings for the Mob Stacker plugin.",
     "allstacker.toggle.mobstacker": "§cOFF§7/§aON§f MobStacker",
     "allstacker.dropdown.mob_death_mode": "§7Mob Death Mode",
@@ -268,7 +268,7 @@ export function initTranslations() {
 
     "allstacker.button.stacking_settings": "การตั้งค่าสแต็ก",
     "allstacker.button.advanced_settings": "การตั้งค่าขั้นสูง",
-    "allstacker.label.advanced.description":
+    "allstacker.label.itemstacker.advanced.description":
       "§aสามารถ§7 §2เปิด§7/§cปิด§r และปรับรัศมีการมองเห็น รูปแบบข้อความ และอื่นๆ",
     "allstacker.title.unstacked": "§8ไอเท็มที่ไม่ต้องรวม",
     "allstacker.body.unstacked": "จัดการไอเท็มที่จะไม่ถูกรวม",
