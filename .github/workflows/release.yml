@@ -3,10 +3,10 @@ name: Build & Release
 on:
   push:
     tags:
-      - "v*"          # matches v3.0.0, v3.0.0-beta.1, etc.
+      - "v*"
 
 permissions:
-  contents: write    # needed to create GitHub Releases
+  contents: write
 
 jobs:
   build-and-release:
@@ -34,11 +34,13 @@ jobs:
           key: deno-${{ hashFiles('deno.lock') }}
           restore-keys: deno-
 
-      # ── 4. Determine channel (beta vs production) ──────────────────────────
+      # ── 4. Determine channel & version ────────────────────────────────────
       - name: Determine channel
         id: channel
         run: |
           TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+          BASE_VERSION="${VERSION%%-*}"
           if [[ "$TAG" == *"-beta"* || "$TAG" == *"-alpha"* || "$TAG" == *"-rc"* ]]; then
             echo "is_prerelease=true" >> $GITHUB_OUTPUT
             echo "channel=Beta" >> $GITHUB_OUTPUT
@@ -46,14 +48,28 @@ jobs:
             echo "is_prerelease=false" >> $GITHUB_OUTPUT
             echo "channel=Release" >> $GITHUB_OUTPUT
           fi
-          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "base_version=$BASE_VERSION" >> $GITHUB_OUTPUT
 
-      # ── 5. Patch config.json version from git tag ─────────────────────────
-      - name: Patch config.json version
+      # ── 5. Extract CHANGELOG section for this tag ─────────────────────────
+      - name: Extract changelog
+        id: changelog
         run: |
           VERSION="${{ steps.channel.outputs.version }}"
-          BASE_VERSION="${VERSION%%-*}"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+          # Extract section between ## [VERSION] and next ## [
+          BODY=$(awk "/^## \[${VERSION}\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
+          if [ -z "$BODY" ]; then
+            BODY="No changelog entry found for ${VERSION}."
+          fi
+          # Write to file to avoid multiline issues with GITHUB_OUTPUT
+          echo "$BODY" > release_body.md
+          echo "file=release_body.md" >> $GITHUB_OUTPUT
+
+      # ── 6. Patch config.json version from git tag ─────────────────────────
+      - name: Patch config.json version
+        run: |
+          BASE="${{ steps.channel.outputs.base_version }}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE"
           node -e "
             const fs = require('fs');
             const cfg = JSON.parse(fs.readFileSync('app/packs/config.json','utf8'));
@@ -62,15 +78,15 @@ jobs:
             console.log('Patched version to', cfg.meta.version);
           "
 
-      # ── 6. Build packs ─────────────────────────────────────────────────────
+      # ── 7. Build ───────────────────────────────────────────────────────────
       - name: Build
         run: deno run build
 
-      # ── 7. Pack to .mcaddon ────────────────────────────────────────────────
+      # ── 8. Pack to .mcaddon ────────────────────────────────────────────────
       - name: Pack
         run: echo "n" | deno run packs
 
-      # ── 8. Rename artifacts with tag version ──────────────────────────────
+      # ── 9. Rename artifacts with tag ──────────────────────────────────────
       - name: Rename artifacts
         run: |
           TAG="${{ github.ref_name }}"
@@ -84,13 +100,13 @@ jobs:
           done
           ls -lh "$DIST"
 
-      # ── 9. Create GitHub Release ───────────────────────────────────────────
+      # ── 10. Create GitHub Release ──────────────────────────────────────────
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "${{ steps.channel.outputs.channel }} ${{ github.ref_name }}"
+          name: "${{ steps.channel.outputs.version }} ${{ steps.channel.outputs.channel }}"
           prerelease: ${{ steps.channel.outputs.is_prerelease }}
-          generate_release_notes: true
+          body_path: release_body.md
           files: |
             app/data/dist/addons/*.mcaddon
             app/data/dist/addons/*.zip
