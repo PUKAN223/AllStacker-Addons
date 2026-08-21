@@ -193,7 +193,7 @@ export class MobStackerPlugin extends PluginBase {
         default: ["All", "Only one"],
       },
       DisplayText: {
-        description: "Name-tag format. Tokens: %a=amount %n=name",
+        description: "Name-tag format. Tokens: %a=amount %n=name %l=new line",
         type: "string" as const,
         default: " §7§c§l%a §r%n§r",
       },

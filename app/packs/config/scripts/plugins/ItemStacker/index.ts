@@ -223,7 +223,7 @@ export class ItemStackerPlugin extends PluginBase {
         maxValue: 50,
       },
       DisplayText: {
-        description: "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec",
+        description: "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec %l=new line",
         type: "string" as const,
         default: " §7§c§l%a §r%n§r",
       },

@@ -127,8 +127,8 @@ export function initTranslations() {
       "Radius (blocks) where item name-tags are shown to players",
     "Radius (blocks) within which identical items are merged":
       "Radius (blocks) within which identical items are merged",
-    "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec":
-      "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec",
+    "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec %l=new line":
+      "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec %l=new line",
     "Comma-separated item type-IDs to never stack (e.g. minecraft:bow)":
       "Comma-separated item type-IDs to never stack (e.g. minecraft:bow)",
 
@@ -153,8 +153,8 @@ export function initTranslations() {
     "Comma-separated mob type-IDs to stack (e.g. minecraft:pig,minecraft:cow)":
       "Comma-separated mob type-IDs to stack (e.g. minecraft:pig,minecraft:cow)",
     "Toggle MobStacker on or off": "Toggle MobStacker on or off",
-    "Name-tag format. Tokens: %a=amount %n=name":
-      "Name-tag format. Tokens: %a=amount %n=name",
+    "Name-tag format. Tokens: %a=amount %n=name %l=new line":
+      "Name-tag format. Tokens: %a=amount %n=name %l=new line",
     "Enable feeding stacked mobs to breed them all at once": "Enable feeding stacked mobs to breed them all at once",
 
     // UI Extras
@@ -237,8 +237,8 @@ export function initTranslations() {
       "ระยะ (บล็อก) ที่จะแสดงชื่อและจำนวนไอเท็มให้ผู้เล่นเห็น",
     "Radius (blocks) within which identical items are merged":
       "ระยะ (บล็อก) ที่ไอเท็มชนิดเดียวกันจะถูกดูดรวมกัน",
-    "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec":
-      "รูปแบบข้อความ ตัวแปร: %a=จำนวน %n=ชื่อ %m=นาที %s=วินาที",
+    "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec %l=new line":
+      "รูปแบบข้อความ ตัวแปร: %a=จำนวน %n=ชื่อ %m=นาที %s=วินาที %l=ขึ้นบรรทัดใหม่",
     "Comma-separated item type-IDs to never stack (e.g. minecraft:bow)":
       "รายชื่อไอเท็มคั่นด้วยลูกน้ำที่จะไม่ถูกดูดรวมกัน (เช่น minecraft:bow)",
 
@@ -262,8 +262,8 @@ export function initTranslations() {
     "Comma-separated mob type-IDs to stack (e.g. minecraft:pig,minecraft:cow)":
       "รายชื่อม็อบคั่นด้วยลูกน้ำที่จะถูกรวม (เช่น minecraft:pig,minecraft:cow)",
     "Toggle MobStacker on or off": "เปิดหรือปิดระบบ MobStacker",
-    "Name-tag format. Tokens: %a=amount %n=name":
-      "รูปแบบข้อความ ตัวแปร: %a=จำนวน %n=ชื่อ",
+    "Name-tag format. Tokens: %a=amount %n=name %l=new line":
+      "รูปแบบข้อความ ตัวแปร: %a=จำนวน %n=ชื่อ %l=ขึ้นบรรทัดใหม่",
     "Enable feeding stacked mobs to breed them all at once": "เปิด/ปิด การให้อาหารสัตว์ทั้งสแต็กเพื่อผสมพันธุ์ทั้งหมดในครั้งเดียว",
 
     "allstacker.button.stacking_settings": "การตั้งค่าสแต็ก",
