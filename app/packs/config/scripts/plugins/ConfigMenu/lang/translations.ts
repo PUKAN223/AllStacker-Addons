@@ -282,6 +282,10 @@ export function initTranslations() {
     "allstacker.button.remove_stacked_mobs": "ลบม็อบที่รวมได้",
     "allstacker.button.view_stacked_mobs": "ดูม็อบที่รวมได้",
     "allstacker.title.mob_advanced_settings": "§8การตั้งค่าขั้นสูง",
+    "allstacker.label.itemstacker.advanced.description_full":
+      "จัดการการตั้งค่าขั้นสูงสำหรับการรวมไอเท็ม",
+    "allstacker.label.mobstacker.advanced.description_full":
+      "จัดการการตั้งค่าขั้นสูงสำหรับ Mob Stacker",
     "allstacker.label.itemstacker.description":
       "§aสามารถ§7 เพิ่ม, ลบ, ดู §cไอเท็มที่ไม่ต้องรวม§r",
     "allstacker.label.mobstacker.description":
