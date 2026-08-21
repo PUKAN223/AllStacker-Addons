@@ -35,22 +35,31 @@ class ManifestBuilds extends Filters {
       //UUID
       BPManifest.header.uuid = BPUUIDs[0] || "";
       //Script Module
-      BPManifest.modules.find((x) => x.language === "javascript")!.uuid =
-        BPUUIDs[1] || "";
+      //Script Module
+      const bpModule = BPManifest.modules.find((x) => x.language === "javascript");
+      if (bpModule) {
+        bpModule.uuid = BPUUIDs[1] || "";
+        bpModule.version = config.meta.version;
+      }
       //UUID
       RPManifest.header.uuid = RPUUIDs[0] || "";
       //Resource Module
-      RPManifest.modules.find((x) => x.type === "resources")!.uuid =
-        RPUUIDs[1] || "";
+      const rpModule = RPManifest.modules.find((x) => x.type === "resources");
+      if (rpModule) {
+        rpModule.uuid = RPUUIDs[1] || "";
+        rpModule.version = config.meta.version;
+      }
 
       //Dependencies
       const bpDep = BPManifest.dependencies?.find((dep) => dep.uuid);
       if (bpDep) {
         bpDep.uuid = RPManifest.header.uuid;
+        bpDep.version = config.meta.version;
       }
       const rpDep = RPManifest.dependencies?.find((dep) => dep.uuid);
       if (rpDep) {
         rpDep.uuid = BPManifest.header.uuid;
+        rpDep.version = config.meta.version;
       }
 
       this.fileManagers.writeFile(
