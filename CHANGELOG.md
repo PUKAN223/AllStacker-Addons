@@ -1,30 +1,28 @@
 # Changelog
 
-## [3.0.0] - 2026-08-22
+## 3.0.0 — 2026-08-22
 
-### ✨ What's New
+### New
 
-- **Mass Breeding** — Feed an entire mob stack at once to breed them all simultaneously.
-  Pairs are calculated from your food amount, babies spawn as a stack, and a 5-minute cooldown applies per stack.
+- **Mass Breeding** — hold food and right-click a stacked mob to breed the whole stack at once.
+  Uses food proportionally, spawns babies as a stack, 5 min cooldown per mob group.
+- Language switcher — EN / TH per player, in the settings menu.
+- Debug menu is now hidden from non-OP players.
 
-- **Language Support** — Each player can now choose between **English** and **Thai** from the settings menu.
+### Fixed
 
-- **Debug Menu is now OP-only** — The Debug Data section is hidden from regular players.
+- Advanced Settings menu not showing / kicking players out.
+- Stacked chickens laying wrong egg count.
+- Stacked adults vanishing after chunk reload.
+- Bundles unable to open while ItemStacker is enabled.
 
-### 🐛 Bug Fixes
+### Improved
 
-- Fixed Advanced Settings menu crashing or not opening.
-- Fixed stacked chickens dropping wrong number of eggs.
-- Fixed adult mob stacks disappearing after leaving and re-entering a chunk.
-- Fixed Bundle items breaking when right-clicked while ItemStacker is active.
-
-### ⚡ Improvements
-
-- Mob and item stacking now runs on a co-operative job instead of every tick — smoother TPS on large farms.
-- Settings are now saved permanently (survive server restarts).
+- Stacking runs on a shared job tick instead of every tick — less lag on big farms.
+- Settings now persist across restarts.
 
 ---
 
-## [2.7.0] - 2025
+## 2.7.0
 
-> Legacy release — see [2.7.0-dev branch](https://github.com/PUKAN223/AllStacker-Addons/tree/2.7.0-dev)
+See [2.7.0-dev](https://github.com/PUKAN223/AllStacker-Addons/tree/2.7.0-dev) for the previous release.
