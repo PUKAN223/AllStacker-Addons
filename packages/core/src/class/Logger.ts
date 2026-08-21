@@ -1,44 +1,39 @@
-import chalk, { type ChalkInstance } from "chalk";
+import type { ChalkInstance } from "chalk";
+import type { ILoggerAdapter } from  "@packages/core/src/interfaces/ILoggerAdapter.ts";
+import { ChalkLoggerAdapter } from  "@packages/core/src/adapters/ChalkLoggerAdapter.ts";
 
 class Logger {
-  private chalk = chalk;
+  private adapter: ILoggerAdapter;
 
-  private prefix(type: string, color: ChalkInstance) {
-    return color(` ${type} `) + `:`;
+  constructor(adapter?: ILoggerAdapter) {
+    this.adapter = adapter || new ChalkLoggerAdapter();
   }
 
-  public msg(message: string, type: string, color: ChalkInstance) {
-    const prefix = this.prefix(type.toUpperCase(), color);
-
-    console.log(`${prefix} ${this.chalk.grey(message)}`);
+  public msg(message: string, type: string, _color: ChalkInstance) {
+    // We pass undefined for colorHex since the new adapter interface
+    // accepts hex strings, but we maintain the signature for backward compatibility.
+    // Ideally, consumers should be updated to use the adapter directly.
+    this.adapter.msg(message, type);
   }
 
   public info(message: string) {
-    const prefix = this.prefix("INFO", this.chalk.bgBlue);
-
-    console.log(`${prefix} ${this.chalk.grey(message)}`);
+    this.adapter.info(message);
   }
 
   public error(message: string) {
-    const prefix = this.prefix("ERROR", this.chalk.bgRed);
-    console.log(`${prefix} ${this.chalk.grey(message)}`);
+    this.adapter.error(message);
   }
 
   public success(message: string) {
-    const prefix = this.prefix("SUCCESS", this.chalk.bgGreen);
-
-    console.log(`${prefix} ${this.chalk.grey(message)}`);
+    this.adapter.success(message);
   }
 
   public debug(message: string) {
-    const prefix = this.prefix("DEBUG", this.chalk.bgHex("#800080"));
-    console.log(`${prefix} ${this.chalk.grey(message)}`);
+    this.adapter.debug(message);
   }
 
   public process(message: string) {
-    //Yellow
-    const prefix = this.prefix("PROCESS", this.chalk.bgHex("#FFFF00"));
-    console.log(`${prefix} ${this.chalk.grey(message)}`);
+    this.adapter.process(message);
   }
 }
 

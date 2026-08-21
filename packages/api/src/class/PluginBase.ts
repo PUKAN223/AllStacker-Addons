@@ -7,17 +7,17 @@ import {
   world,
   type Player
 } from "@minecraft/server";
-import type { Config } from "./ConfigManagers.ts";
-import type { EventHandlers } from "./EventHanlders.ts";
-import type { PluginSettingOptions } from "../types/PluginSettingOptions.ts";
-import type { SystemBase } from "./SystemBase.ts";
-import type { WorldEvents } from "../types/WorldEvents.ts";
-import { Logger } from "./Logger.ts";
-import { PluginEventHandlers } from "./PluginEventHanlders.ts";
-import { SettingMenu } from "./SettingMenuBuilders.ts";
-import { PlayerManagers } from "./PlayerManagers.ts";
-import { ItemActionManager } from "./ItemActionManager.ts";
-import { MinecraftColors } from "./MinecraftColors.ts";
+import type { Config } from  "@packages/api/src/class/ConfigManagers.ts";
+import type { EventHandlers } from  "@packages/api/src/class/EventHanlders.ts";
+import type { PluginSettingOptions } from  "@packages/api/src/types/PluginSettingOptions.ts";
+import type { SystemBase } from  "@packages/api/src/class/SystemBase.ts";
+import type { WorldEvents } from  "@packages/api/src/types/WorldEvents.ts";
+import { Logger } from  "@packages/api/src/class/Logger.ts";
+import { PluginEventHandlers } from  "@packages/api/src/class/PluginEventHanlders.ts";
+import { SettingMenu } from  "@packages/api/src/class/SettingMenuBuilders.ts";
+import { PlayerManagers } from  "@packages/api/src/class/PlayerManagers.ts";
+import { ItemActionManager } from  "@packages/api/src/class/ItemActionManager.ts";
+import { MinecraftColors } from  "@packages/api/src/class/MinecraftColors.ts";
 
 type Awaitable<T> = T | Promise<T>;
 
@@ -41,7 +41,7 @@ class PluginBase {
     this.world = world;
     this.system = system;
     this.systemBase = systemBase;
-    this.settingMenu = new SettingMenu(this, this.getPluginSettings());
+    this.settingMenu = new SettingMenu(this, this.getPluginSettings(), undefined);
     this.playerManagers = new PlayerManagers();
     this.itemActionManager = new ItemActionManager(this);
   }
@@ -79,19 +79,20 @@ class PluginBase {
     const enabledSetting = (config as PluginSettingOptions | undefined)?.["Enabled"];
     const defaultEnabled = this.getPluginSettings().Enabled?.default ?? true;
 
-    if (enabledSetting && "value" in enabledSetting) {
-      return Boolean(enabledSetting.value);
-    }
-
-    if (enabledSetting && "default" in enabledSetting) {
-      return Boolean(enabledSetting.default);
+    if (enabledSetting !== undefined && enabledSetting !== null) {
+      if (typeof enabledSetting === "object") {
+        if ("value" in enabledSetting) return Boolean(enabledSetting.value);
+        if ("default" in enabledSetting) return Boolean(enabledSetting.default);
+      } else {
+        return Boolean(enabledSetting);
+      }
     }
 
     return Boolean(defaultEnabled);
   }
 
   public registerSettings(menu: typeof SettingMenu): void {
-    this.settingMenu = new menu(this, this.getPluginSettings());
+    this.settingMenu = new menu(this, this.getPluginSettings(), undefined);
   }
 
   public getPluginSettings(): PluginSettingOptions {
@@ -109,8 +110,15 @@ class PluginBase {
     return {};
   }
 
-  public getAdvancedSettings(_pl: Player, _plugin: PluginBase): (() => void) | null {
+  public getAdvancedSettings(_pl: Player, _plugin: PluginBase, _onBack: () => void): (() => void) | null {
     return null;
+  }
+
+  /** Resets config to default values for all settings. */
+  public resetConfig(): void {
+    this.config.clear();
+    this.initializeConfig();
+    this.logger.info(`Config reset to defaults.`);
   }
 
   private initializeConfig() {

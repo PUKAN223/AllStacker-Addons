@@ -1,8 +1,8 @@
 import { ActionFormData, type ActionFormResponse } from "@minecraft/server-ui";
-import type { IActionFormButton } from "../../types/forms/IActionForm/Elements/Button.ts";
-import type { IActionFormDivider } from "../../types/forms/IActionForm/Elements/Divider.ts";
-import type { IActionFormHeader } from "../../types/forms/IActionForm/Elements/Header.ts";
-import type { IActionFormLabel } from "../../types/forms/IActionForm/Elements/Label.ts";
+import type { IActionFormButton } from  "@packages/api/src/types/forms/IActionForm/Elements/Button.ts";
+import type { IActionFormDivider } from  "@packages/api/src/types/forms/IActionForm/Elements/Divider.ts";
+import type { IActionFormHeader } from  "@packages/api/src/types/forms/IActionForm/Elements/Header.ts";
+import type { IActionFormLabel } from  "@packages/api/src/types/forms/IActionForm/Elements/Label.ts";
 import type { Player } from "@minecraft/server";
 
 type FormElement =

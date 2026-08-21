@@ -22,14 +22,14 @@ class ManifestBuilds extends Filters {
       const BPUUIDs = this.uuidGen(config.meta.seed, 2);
       const RPUUIDs = this.uuidGen(config.meta.seed + 1000, 2);
 
-      BPManifest.header.name = config.meta.name +
-        `@${config.meta.version.join(".")} BP`;
-      RPManifest.header.name = config.meta.name +
-        `@${config.meta.version.join(".")} RP`;
+      BPManifest.header.name = config.meta.name + " BP";
+      RPManifest.header.name = config.meta.name + " RP";
       BPManifest.header.description = config.meta.description ||
         BPManifest.header.description;
       RPManifest.header.description = config.meta.description ||
         RPManifest.header.description;
+      BPManifest.header.version = config.meta.version;
+      RPManifest.header.version = config.meta.version;
       BPManifest.format_version = config.format_version;
       RPManifest.format_version = config.format_version;
       //UUID

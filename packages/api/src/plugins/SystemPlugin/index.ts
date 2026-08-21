@@ -1,5 +1,5 @@
 import type { StartupEvent } from "@minecraft/server";
-import { PluginBase } from "../../class/PluginBase.ts";
+import { PluginBase } from  "@packages/api/src/class/PluginBase.ts";
 import {
   CommandPermissionLevel,
   CustomCommandParamType,

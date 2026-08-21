@@ -10,17 +10,16 @@ import {
   type WorldAfterEvents,
   type WorldBeforeEvents,
 } from "@minecraft/server";
-import { ConfigManagers } from "./ConfigManagers.ts";
-import { EventHandlers } from "./EventHanlders.ts";
-import { Logger } from "./Logger.ts";
-import { PluginManagers } from "./PluginManagers.ts";
-import { SettingMenuBuilders } from "./SettingMenuBuilders.ts";
-import type { SystemBaseOptions } from "../types/SystemBaseOptions.ts";
-import type { WorldEvents } from "../types/WorldEvents.ts";
-import { PlayerManagers } from "./PlayerManagers.ts";
-import { SystemPlugin } from "../plugins/SystemPlugin/index.ts";
-import { PlayerUtils } from "../global/Player.ts";
-import { MinecraftColors } from "./MinecraftColors.ts";
+import { ConfigManagers } from  "@packages/api/src/class/ConfigManagers.ts";
+import { EventHandlers } from  "@packages/api/src/class/EventHanlders.ts";
+import { Logger } from  "@packages/api/src/class/Logger.ts";
+import { PluginManagers } from  "@packages/api/src/class/PluginManagers.ts";
+import { SettingMenuBuilders } from  "@packages/api/src/class/SettingMenuBuilders.ts";
+import type { SystemBaseOptions } from  "@packages/api/src/types/SystemBaseOptions.ts";
+import type { WorldEvents } from  "@packages/api/src/types/WorldEvents.ts";
+import { PlayerManagers } from  "@packages/api/src/class/PlayerManagers.ts";
+import { SystemPlugin } from  "@packages/api/src/plugins/SystemPlugin/index.ts";
+import { MinecraftColors } from  "@packages/api/src/class/MinecraftColors.ts";
 
 type Awaitable<T> = T | Promise<T>;
 
@@ -57,6 +56,12 @@ class SystemBase {
     this.pluginManagers = new PluginManagers(this.events, this);
     this.settingMenuBuilders = new SettingMenuBuilders();
     this.playerManagers = new PlayerManagers();
+
+    // Expose the SystemBase instance for runtime adapters and legacy shims.
+    // This lets lightweight adapters (ConfigMenu/PluginLoader) access pluginManagers.
+    // @ts-ignore: intentionally attaching to global object for runtime discovery
+    (globalThis as unknown as { __AXETH_SYSTEM__?: SystemBase })
+      .__AXETH_SYSTEM__ = this;
 
     if (options) {
       this.options = { ...this.options, ...options };
@@ -249,16 +254,19 @@ class SystemBase {
     const endTime = Date.now();
     const loadDuration = endTime - this.startTime;
     this.playerManagers.eachPlayer((pl) => {
-      PlayerUtils.sendToast(
-        pl,
-        "",
-        `${this.MCColors("Plugin Loaded").grey} (${
-          this.MCColors(pluginLoadCount.toString()).green
-        }/${this.MCColors(plugins.length.toString()).red}) ${
-          this.MCColors(`in ${loadDuration}ms`).grey
-        }`,
-        "textures/items/compass_item",
-        "textures/ui/greyBorder",
+      // PlayerUtils.sendToast(
+      //   pl,
+      //   "",
+      //   `${this.MCColors("Plugin Loaded").grey} (${
+      //     this.MCColors(pluginLoadCount.toString()).green
+      //   }/${this.MCColors(plugins.length.toString()).red}) ${
+      //     this.MCColors(`in ${loadDuration}ms`).grey
+      //   }`,
+      //   "textures/items/compass_item",
+      //   "textures/ui/greyBorder",
+      // );
+      pl.sendMessage(
+        `§7[§cAll Stackers§7] §7Core loaded in §a${loadDuration}§7ms§r`,
       );
     });
   }

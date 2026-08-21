@@ -3,7 +3,7 @@ import {
   type MessageFormResponse,
 } from "@minecraft/server-ui";
 import type { Player } from "@minecraft/server";
-import type { IMessageFormButton } from "../../types/forms/IMessageForm/Elements/Button.ts";
+import type { IMessageFormButton } from  "@packages/api/src/types/forms/IMessageForm/Elements/Button.ts";
 
 class IMessageForm {
   private title: string;

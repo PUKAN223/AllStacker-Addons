@@ -1,5 +1,5 @@
 import * as prompts from "@clack/prompts";
-import denoJson from "../deno.json" with { type: "json" };
+import denoJson from  "@packages/cli/deno.json" with { type: "json" };
 import * as string from "@utils/string";
 import "colors";
 import { Template } from "@axeth/template";

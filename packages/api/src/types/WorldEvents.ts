@@ -1,5 +1,5 @@
 import type { SystemAfterEvents, SystemBeforeEvents, WorldAfterEvents, WorldBeforeEvents } from "@minecraft/server";
-import type { EventPayloadMap } from "./EventPayloadMap.ts";
+import type { EventPayloadMap } from  "@packages/api/src/types/EventPayloadMap.ts";
 
 type AfterEvents = EventPayloadMap<WorldAfterEvents, "After">;
 type BeforeEvents = EventPayloadMap<WorldBeforeEvents, "Before">;

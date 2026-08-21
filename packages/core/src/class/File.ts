@@ -1,5 +1,5 @@
-import type { FileOptions } from "../types/FileOptions.ts";
-import { FileManagers } from "./FileManagers.ts";
+import type { FileOptions } from  "@packages/core/src/types/FileOptions.ts";
+import { FileManagers } from  "@packages/core/src/class/FileManagers.ts";
 
 class File {
   private name: string;
@@ -12,7 +12,7 @@ class File {
     this.name = options.name;
     this.path = options.path;
     this.content = options.content || "";
-    this.fileManagers = new FileManagers();
+    this.fileManagers = new FileManagers(options.fsAdapter);
 
     this.extension = this.path.split(".").pop()?.toLowerCase() || null;
   }

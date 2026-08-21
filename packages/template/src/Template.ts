@@ -1,5 +1,5 @@
 import path from "node:path";
-import templateData from "../data/templates.json" with { type: "json" };
+import templateData from  "@packages/template/data/templates.json" with { type: "json" };
 
 type TemplateKey = { [key: string]: unknown };
 type Spinner = {

@@ -1,5 +1,5 @@
 #!/usr/bin/env -S deno run -A
-export { AxethCLI } from "./src/AxethCLI.ts";
+export { AxethCLI } from  "@packages/cli/src/AxethCLI.ts";
 
-import { AxethCLI } from "./src/AxethCLI.ts";
+import { AxethCLI } from  "@packages/cli/src/AxethCLI.ts";
 new AxethCLI();

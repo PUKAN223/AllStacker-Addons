@@ -1,7 +1,7 @@
-import type { EventHandlers } from "./EventHanlders.ts";
-import type { PluginBase } from "./PluginBase.ts";
-import type { SystemBase } from "./SystemBase.ts";
-import type { WorldEvents } from "../types/WorldEvents.ts";
+import type { EventHandlers } from  "@packages/api/src/class/EventHanlders.ts";
+import type { PluginBase } from  "@packages/api/src/class/PluginBase.ts";
+import type { SystemBase } from  "@packages/api/src/class/SystemBase.ts";
+import type { WorldEvents } from  "@packages/api/src/types/WorldEvents.ts";
 
 class PluginManagers {
     private plugins: Map<string, PluginBase> = new Map();
@@ -62,6 +62,10 @@ class PluginManagers {
         if (!plugin.isLoaded) return;
         if (this.pausedListeners.has(plugin.name)) return;
 
+        try {
+            plugin.onDisable({} as any);
+        } catch(e) {}
+
         const paused = this.eventHandlers.suspendPlugin(plugin);
         this.pausedListeners.set(plugin.name, paused);
     }
@@ -78,6 +82,10 @@ class PluginManagers {
 
         this.eventHandlers.resumePlugin(plugin, paused);
         this.pausedListeners.delete(plugin.name);
+
+        try {
+            await plugin.onEnable({} as any);
+        } catch(e) {}
     }
 }
 

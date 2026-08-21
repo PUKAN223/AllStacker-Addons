@@ -1,10 +1,12 @@
-import { IActionForm } from "./forms/IActionForm.ts";
-import { IModalForm } from "./forms/IModalForm.ts";
+import { IActionForm } from  "@packages/api/src/class/forms/IActionForm.ts";
+import { IModalForm } from  "@packages/api/src/class/forms/IModalForm.ts";
 import type { Player } from "@minecraft/server";
-import type { PluginBase } from "./PluginBase.ts";
-import type { PluginManagers } from "./PluginManagers.ts";
-import type { PluginSettingOptions } from "../types/PluginSettingOptions.ts";
+import type { PluginBase } from  "@packages/api/src/class/PluginBase.ts";
+import type { PluginManagers } from  "@packages/api/src/class/PluginManagers.ts";
+import type { PluginSettingOptions } from  "@packages/api/src/types/PluginSettingOptions.ts";
 import { MinecraftColors } from "@axeth/api";
+
+import { LanguageManager } from "@axeth/api";
 
 class SettingMenuBuilders {
   private menus = new Map<string, SettingMenu>();
@@ -15,14 +17,19 @@ class SettingMenuBuilders {
 
   public settingMenu(pl: Player, pluginManagers: PluginManagers): void {
     const plugins = pluginManagers.getPlugins();
+    const t = LanguageManager.getInstance().for(pl);
 
     const settingMain = IActionForm.createForm(
-      `Settings Menu`,
-      `§fHello, §e${pl.name}§r\n\nThis is the configuration menu.\nYou can manage settings here.`,
+      t("allstacker.title.configmenu"),
+      t("allstacker.body.configmenu"),
     );
 
+    settingMain.addButton(t("allstacker.button.settings"), "textures/ui/icon_setting", () => {});
     settingMain.addDivider();
-    settingMain.addLabel(`§fPlugins (§c${plugins.length}§7)§r`);
+    
+    // Custom logic to handle dynamic plugin count in translation if needed, or stick to simple string
+    const pluginListText = t("allstacker.label.plugin.list");
+    settingMain.addLabel(`§f${pluginListText} (§c${plugins.length - 1}§7)§r`);
 
     for (const plugin of plugins) {
       if (plugin.isRuntime) continue;
@@ -38,11 +45,18 @@ class SettingMenuBuilders {
     player: Player,
     pluginManagers: PluginManagers,
   ): void {
-    const settings = new SettingMenu(plugin, plugin.getPluginSettings());
-    const statusText = plugin.isEnabled() ? "" : "";
+    const settings = new SettingMenu(plugin, plugin.getPluginSettings(), player);
+    const t = LanguageManager.getInstance().for(player);
+    
+    const enabledText = t("allstacker.label.plugin.enabled");
+    const disabledText = t("allstacker.label.plugin.disabled");
+    
+    const statusText = plugin.isEnabled()
+      ? `§8[§2${enabledText}§8]`
+      : `§8[§c${disabledText}§8]`;
 
     form.addButton(
-      `§f${settings.buttons.name}   ${statusText}`,
+      `§f${settings.buttons.name}\n${statusText}`,
       settings.buttons.icon,
       () => {
         this.showPluginSettingsPage(plugin, player, pluginManagers);
@@ -55,12 +69,13 @@ class SettingMenuBuilders {
     player: Player,
     pluginManagers: PluginManagers,
   ): void {
-    const settings = new SettingMenu(plugin, plugin.getPluginSettings());
-    const advancedSettings = plugin.getAdvancedSettings(player, plugin);
+    const settings = new SettingMenu(plugin, plugin.getPluginSettings(), player);
+    const advancedSettings = plugin.getAdvancedSettings(player, plugin, () => this.settingMenu(player, pluginManagers));
+    const t = LanguageManager.getInstance().for(player);
 
     const showDefaultSettings = () => {
       const page = settings.getPage();
-      page.setSubmitButton("§f" + page.getSubmitButtonText())
+      page.setSubmitButton("§8" + t("allstacker.ui.save"));
 
       page.show(player)
         .then(async (res) => {
@@ -84,24 +99,24 @@ class SettingMenuBuilders {
 
     if (advancedSettings) {
       const settingSelectionMenu = IActionForm.createForm(
-        "Settings Menu",
-        "Choose an option:",
+        t("allstacker.title.configmenu"),
+        t("allstacker.body.choose_option"),
       );
       settingSelectionMenu.addButton(
-        "§fAdvanced Settings",
+        "§f" + t("allstacker.button.advanced_settings"),
         "textures/ui/settings_glyph_color_2x",
         () => {
           showAdvancedSettings();
         },
       );
       settingSelectionMenu.addButton(
-        "§fDefault Settings",
+        "§f" + t("allstacker.button.stacking_settings"),
         "textures/ui/icon_setting",
         () => {
           showDefaultSettings();
         },
       );
-      settingSelectionMenu.show(player);
+      settingSelectionMenu.show(player).catch(() => {});
     } else {
       showDefaultSettings();
     }
@@ -112,14 +127,14 @@ class SettingMenuBuilders {
     formValues: (string | number | boolean)[],
     pluginManagers: PluginManagers,
   ): Promise<void> {
-    const startIndex = 2; // Skip label and divider
+    const startIndex = 0;
     const config = plugin.config.get() ?? {};
     const settingsKeysNone = Object.keys(plugin.getPluginSettings());
     const settingsKeys = settingsKeysNone.filter(
       (key) => plugin.getPluginSettings()[key]?.canUserModify !== false,
     );
 
-    for (let i = startIndex; i < formValues.length - 1; i++) {
+    for (let i = startIndex; i < formValues.length; i++) {
       const value = formValues[i];
       if (value === undefined) continue;
 
@@ -158,61 +173,79 @@ class SettingMenuBuilders {
 class SettingMenu {
   private plugin: PluginBase;
   private settings: PluginSettingOptions;
+  private player?: Player;
   private MCColors = (str: string) => new MinecraftColors(str);
+  private lang = LanguageManager.getInstance();
 
-  constructor(plugin: PluginBase, settings: PluginSettingOptions) {
+  constructor(plugin: PluginBase, settings: PluginSettingOptions, player?: Player) {
     this.plugin = plugin;
     this.settings = settings;
+    this.player = player;
   }
 
   get buttons(): { name: string; description: string; icon: string } {
+    const t = this.player ? this.lang.for(this.player) : (k: string) => this.lang.getTranslation(k);
+    
+    // Attempt to translate plugin name if it has a key, otherwise fallback to plugin.name
+    const titleKey = `allstacker.title.${this.plugin.name.toLowerCase()}`;
+    const translatedName = t(titleKey);
+    const finalName = translatedName !== titleKey ? translatedName : this.plugin.name;
+
+    const descKey = `allstacker.body.${this.plugin.name.toLowerCase()}`;
+    const translatedDesc = t(descKey);
+    const finalDesc = translatedDesc !== descKey ? translatedDesc : `§fSettings for ${this.plugin.name} plugin`;
+
     return {
-      name: this.plugin.name,
-      description: `§fSettings for ${this.plugin.name} plugin`,
+      name: finalName,
+      description: finalDesc,
       icon: this.plugin.icon || "textures/items/compass_item",
     };
   }
 
   public getPage(): IModalForm {
     const config = this.plugin.config.get() ?? {};
+    const t = this.player ? this.lang.for(this.player) : (k: string) => this.lang.getTranslation(k);
 
     const forms = IModalForm.createForm(
-      `${this.plugin.name} Settings`,
-      `Save changes.`,
+      this.buttons.name,
+      t("allstacker.ui.save"),
     );
 
     forms.addLabel(this.MCColors(this.buttons.description).grey);
-    forms.addDivider();
+    // NOTE: Do NOT add dividers here — MCBE ModalFormData.divider() may shift
+    // formValues indices, causing settings to be saved to the wrong keys.
 
     if (Object.keys(this.settings).length === 0) {
-      forms.addLabel("§cNo settings available for this plugin.§r");
-      forms.addDivider();
+      forms.addLabel(t("allstacker.label.no_settings"));
       return forms;
     }
 
-    this.addSettingFields(forms, config);
+    this.addSettingFields(forms, config, t);
 
-    forms.addDivider();
     return forms;
   }
 
   private addSettingFields(
     forms: IModalForm,
     config: PluginSettingOptions,
+    t: (key: string) => string
   ): void {
     for (const [key, setting] of Object.entries(this.settings)) {
       if (setting.canUserModify === false) continue;
 
       const savedValue = config[key]?.value;
       const defaultValue = setting.default;
+      
+      const translatedLabel = t(key);
+      const translatedTooltip = setting.description ? t(setting.description) : undefined;
 
       switch (setting.type) {
         case "boolean":
           forms.addToggle(
             {
-              label: key,
+              label: translatedLabel,
               defaultValue: (savedValue ?? defaultValue) as boolean,
-              tooltip: setting.description,
+              tooltip: translatedTooltip,
             },
             () => {},
           );
@@ -221,10 +254,10 @@ class SettingMenu {
         case "string":
           forms.addTextField(
             {
-              label: key,
-              placeholderText: setting.description,
+              label: translatedLabel,
+              placeholderText: translatedTooltip,
               defaultValue: (savedValue ?? defaultValue) as string,
-              tooltip: setting.description,
+              tooltip: translatedTooltip,
             },
             () => {},
           );
@@ -233,12 +266,12 @@ class SettingMenu {
         case "number":
           forms.addSlider(
             {
-              label: key,
+              label: translatedLabel,
               minimumValue: 1,
               maximumValue: setting.maxValue ?? 100,
               defaultValue: (savedValue ?? defaultValue) as number,
               valueStep: 1,
-              tooltip: setting.description,
+              tooltip: translatedTooltip,
             },
             () => {},
           );
@@ -247,14 +280,14 @@ class SettingMenu {
         case "array":
           forms.addDropdown(
             {
-              label: key,
+              label: translatedLabel,
               options: (defaultValue as (string | number | boolean)[]).map(
-                String,
+                (opt) => t(String(opt))
               ),
               defaultValueIndex: typeof savedValue === "number"
                 ? savedValue
                 : 0,
-              tooltip: setting.description,
+              tooltip: translatedTooltip,
             },
             () => {},
           );

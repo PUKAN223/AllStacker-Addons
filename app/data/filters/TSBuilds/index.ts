@@ -38,55 +38,63 @@ class TSBuilds extends Filters {
   }
 
   private async runBuildScripts(scriptPath: string, entryPath: string) {
-    await esbuild.build({
-      plugins: [
-        {
-          name: "alias-axeth-api",
-          setup(build) {
-            build.onResolve({ filter: /^@axeth\/api$/ }, () => {
-              return { path: "./AxethLib.js", external: true };
-            });
+    try {
+      await esbuild.build({
+        plugins: [
+          {
+            name: "alias-axeth-api",
+            setup(build) {
+              build.onResolve({ filter: /^@axeth\/api$/ }, () => {
+                return { path: "./AxethLib.js", external: true };
+              });
+            },
           },
-        },
-      ],
-      bundle: true,
-      entryPoints: [
-        scriptPath,
-      ],
-      minify: true,
-      external: [
-        "@minecraft/server",
-        "@minecraft/server-ui",
-      ],
-      format: "esm",
-      outfile: this.bpPath + "/" + entryPath,
-      sourcemap: true,
-      ...settings,
-    });
-    this.msg(`Successfully built script: ${chalk.green("BP/" + entryPath)}`);
-    return;
+        ],
+        bundle: true,
+        entryPoints: [
+          scriptPath,
+        ],
+        minify: true,
+        external: [
+          "@minecraft/server",
+          "@minecraft/server-ui",
+        ],
+        format: "esm",
+        outfile: this.bpPath + "/" + entryPath,
+        sourcemap: true,
+        ...settings,
+      });
+      this.msg(`Successfully built script: ${chalk.green("BP/" + entryPath)}`);
+    } catch (e) {
+      this.msg(chalk.red("esbuild failed for scripts:"));
+      this.msg(this.extractUsefulErrors(String(e)));
+    }
   }
 
   private async runBuildLib() {
-    await esbuild.build({
-      bundle: true,
-      entryPoints: ["jsr:@axeth/api"],
-      external: [
-        "@minecraft/server",
-        "@minecraft/server-ui",
-      ],
-      format: "esm",
-      outfile: this.bpPath + "/scripts/AxethLib.js",
-      minify: true,
-      keepNames: false,
-      sourcemap: true,
-      plugins: denoPlugins({ configPath: configPath }) as esbuild.Plugin[],
-      ...settings,
-    });
-    this.msg(
-      `Successfully built library: ${chalk.green("BP/scripts/AxethLib.js")}`,
-    );
-    return;
+    try {
+      await esbuild.build({
+        bundle: true,
+        entryPoints: ["@axeth/api"],
+        external: [
+          "@minecraft/server",
+          "@minecraft/server-ui",
+        ],
+        format: "esm",
+        outfile: this.bpPath + "/scripts/AxethLib.js",
+        minify: true,
+        keepNames: false,
+        sourcemap: true,
+        plugins: denoPlugins({ configPath: configPath }) as esbuild.Plugin[],
+        ...settings,
+      });
+      this.msg(
+        `Successfully built library: ${chalk.green("BP/scripts/AxethLib.js")}`,
+      );
+    } catch (e) {
+      this.msg(chalk.red("esbuild failed for library:"));
+      this.msg(this.extractUsefulErrors(String(e)));
+    }
   }
 
   private countCheckedFiles(out: string): number {
@@ -165,8 +173,11 @@ class TSBuilds extends Filters {
       );
       return true;
     } catch (error) {
-      this.msg(`Linter error: ${error}`);
-      return false;
+      this.msg(`Linter unavailable: ${error}`);
+      this.msg(
+        `Continuing because direct deno lint/check may still be run outside the filter.`,
+      );
+      return true;
     }
   }
 

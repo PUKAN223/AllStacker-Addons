@@ -1,9 +1,0 @@
-{
-  "format_version": "1.10.0",
-  "animations": {
-    "animation.empty_mnp_ci.mnp_ci": {
-      "loop": true,
-      "override_previous_animation": true
-    }
-  }
-}

@@ -1,12 +1,12 @@
 {
   "format_version": 2,
   "meta": {
-    "name": "KT-ThaiBan",
+    "name": "All-Stackers-Addon",
     "icon": "./packs/pack_icon.png",
-    "version": [1,0,0],
-    "description": "This addon create for KT ThaiBan Server by KisuX3",
-    "seed": 1234564321,
-    "authors": "{{author_name}}"
+    "version": [3, 0, 0],
+    "description": "Make yours item, mob stackeable more than limit of Minecraft Bedrock Edition.",
+    "seed": 123456773,
+    "authors": ["KisuX3"]
   },
   "filters": [
     {

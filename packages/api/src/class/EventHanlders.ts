@@ -1,4 +1,4 @@
-import type { PluginBase } from "./PluginBase.ts";
+import type { PluginBase } from  "@packages/api/src/class/PluginBase.ts";
 import { system } from "@minecraft/server";
 
 type Callback<T> = (payload: T) => void;
@@ -13,7 +13,7 @@ export class EventHandlers<AutoEvents extends Record<string, unknown>> {
   /** Set callbacks for dynamic subscription management */
   public setSubscriptionHandlers(
     onSubscribe: (event: string) => void,
-    onUnsubscribe: (event: string) => void
+    onUnsubscribe: (event: string) => void,
   ): void {
     this.onSubscribe = onSubscribe;
     this.onUnsubscribe = onUnsubscribe;
@@ -27,21 +27,39 @@ export class EventHandlers<AutoEvents extends Record<string, unknown>> {
   }
 
   /** Subscribe to events */
-  public on<K extends keyof AutoEvents>(event: K, callback: Callback<AutoEvents[K]>): void;
-  public on<K extends `Custom${string}`, T>(event: K, callback: Callback<T>): void;
-  public on<K extends keyof AutoEvents>(owner: PluginBase, event: K, callback: Callback<AutoEvents[K]>): void;
+  public on<K extends keyof AutoEvents>(
+    event: K,
+    callback: Callback<AutoEvents[K]>,
+  ): void;
+  public on<K extends `Custom${string}`, T>(
+    event: K,
+    callback: Callback<T>,
+  ): void;
+  public on<K extends keyof AutoEvents>(
+    owner: PluginBase,
+    event: K,
+    callback: Callback<AutoEvents[K]>,
+  ): void;
   public on(...args: unknown[]): void {
     if (typeof args[0] === "string") {
       this.addListener(args[0], args[1] as Callback<unknown>);
     } else {
-      this.addListener(args[1] as string, args[2] as Callback<unknown>, args[0] as PluginBase);
+      this.addListener(
+        args[1] as string,
+        args[2] as Callback<unknown>,
+        args[0] as PluginBase,
+      );
     }
   }
 
-  private addListener(event: string, callback: Callback<unknown>, owner?: PluginBase): void {
+  private addListener(
+    event: string,
+    callback: Callback<unknown>,
+    owner?: PluginBase,
+  ): void {
     const listeners = this.getListenerMap(event);
     const hadListeners = this.hasListeners(event);
-    
+
     const list = listeners.get(event) ?? [];
     list.push({ owner, cb: callback });
     listeners.set(event, list);
@@ -53,17 +71,32 @@ export class EventHandlers<AutoEvents extends Record<string, unknown>> {
   }
 
   /** Unsubscribe */
-  public off<K extends keyof AutoEvents | `Custom${string}`>(event: K, callback: Callback<unknown>): void;
-  public off(owner: PluginBase, event: string, callback?: Callback<unknown>): void;
+  public off<K extends keyof AutoEvents | `Custom${string}`>(
+    event: K,
+    callback: Callback<unknown>,
+  ): void;
+  public off(
+    owner: PluginBase,
+    event: string,
+    callback?: Callback<unknown>,
+  ): void;
   public off(...args: unknown[]): void {
     if (typeof args[0] === "string") {
       this.removeListener(args[0], undefined, args[1] as Callback<unknown>);
     } else {
-      this.removeListener(args[1] as string, args[0] as PluginBase, args[2] as Callback<unknown> | undefined);
+      this.removeListener(
+        args[1] as string,
+        args[0] as PluginBase,
+        args[2] as Callback<unknown> | undefined,
+      );
     }
   }
 
-  private removeListener(event: string, owner?: PluginBase, callback?: Callback<unknown>): void {
+  private removeListener(
+    event: string,
+    owner?: PluginBase,
+    callback?: Callback<unknown>,
+  ): void {
     const listeners = this.getListenerMap(event);
     const list = listeners.get(event);
     if (!list) return;
@@ -83,13 +116,18 @@ export class EventHandlers<AutoEvents extends Record<string, unknown>> {
     listeners.set(event, keep);
 
     // Unsubscribe from event if no listeners remain
-    if (keep.length === 0 && this.onUnsubscribe && !event.startsWith("Custom")) {
+    if (
+      keep.length === 0 && this.onUnsubscribe && !event.startsWith("Custom")
+    ) {
       system.run(() => this.onUnsubscribe!(event));
     }
   }
 
   /** Emit */
-  public emit<K extends keyof AutoEvents>(event: K, payload: AutoEvents[K]): void;
+  public emit<K extends keyof AutoEvents>(
+    event: K,
+    payload: AutoEvents[K],
+  ): void;
   public emit<K extends `Custom${string}`, T>(event: K, payload: T): void;
   public emit(event: string, payload: unknown): void {
     const listeners = this.getListenerMap(event);
@@ -97,15 +135,44 @@ export class EventHandlers<AutoEvents extends Record<string, unknown>> {
     if (!list) return;
 
     for (const listener of list) {
-      this.executeListener(listener, payload);
+      this.executeListener(listener, payload, event);
     }
   }
 
-  private executeListener(listener: Listener, payload: unknown): void {
+  private executeListener(listener: Listener, payload: unknown, eventName?: string): void {
     try {
-      listener.cb(payload);
-    } catch {
-      // Swallow listener errors to avoid breaking emit loop
+      if (typeof listener.cb !== "function") {
+        console.error(
+          `[EventHandlers] listener.cb is not a function for event "${eventName ?? "unknown"}":`,
+          typeof listener.cb,
+          listener.cb,
+        );
+        return;
+      }
+      const result = listener.cb(payload) as unknown;
+      // If the listener returned a thenable (async listener), attach an error
+      // handler so rejections surface instead of silently disappearing.
+      if (
+        result !== null &&
+        typeof result === "object" &&
+        "then" in (result as object) &&
+        typeof (result as Record<string, unknown>)["then"] === "function"
+      ) {
+        void (result as {
+          then: unknown;
+          catch(fn: (e: unknown) => void): void;
+        })
+          .catch((err: unknown) => {
+            console.error(
+              `[EventHandlers] Unhandled async error in listener:`,
+              err,
+            );
+          });
+      }
+    } catch (err) {
+      // Log synchronous errors — swallowing silently makes bugs impossible to
+      // find (e.g. CustomPlayerRobber appearing to "not work").
+      console.error(`[EventHandlers] Error in listener for event "${eventName ?? "unknown"}":`, err);
     }
   }
 
@@ -128,7 +195,10 @@ export class EventHandlers<AutoEvents extends Record<string, unknown>> {
     return stored;
   }
 
-  public resumePlugin(owner: PluginBase, listeners: Map<string, Callback<unknown>[]>): void {
+  public resumePlugin(
+    owner: PluginBase,
+    listeners: Map<string, Callback<unknown>[]>,
+  ): void {
     for (const [event, callbacks] of listeners.entries()) {
       for (const cb of callbacks) {
         this.addListener(event, cb, owner);
@@ -137,6 +207,8 @@ export class EventHandlers<AutoEvents extends Record<string, unknown>> {
   }
 
   private getListenerMap(event: string): Map<string, Listener[]> {
-    return event.startsWith("Custom") ? this.customListeners : this.autoListeners as Map<string, Listener[]>;
+    return event.startsWith("Custom")
+      ? this.customListeners
+      : this.autoListeners as Map<string, Listener[]>;
   }
 }

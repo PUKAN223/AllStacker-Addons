@@ -1,16 +1,24 @@
 import * as path from "@std/path";
 
-type BuilderMod = { default: new () => { build: () => Promise<void> } };
+import type { FileManagers } from "./FileManagers.ts";
+import type { Logger } from "./Logger.ts";
+
+import type { IEnvironmentAdapter } from "../interfaces/IEnvironmentAdapter.ts";
+
+type BuilderMod = { default: new (fileManagers?: FileManagers, logger?: Logger) => { build: () => Promise<void> } };
 
 class BuilderManagers {
   private builderUrl: URL;
+  private fileManagers: FileManagers;
+  private logger: Logger;
+  private envAdapter: IEnvironmentAdapter;
 
-  // optional cache (useful in non-dev)
-  private cachedCtor: (BuilderMod["default"]) | null = null;
-
-  constructor() {
+  constructor(fileManagers: FileManagers, logger: Logger, envAdapter: IEnvironmentAdapter) {
+    this.fileManagers = fileManagers;
+    this.logger = logger;
+    this.envAdapter = envAdapter;
     const builderPath = path.join(
-      Deno.cwd(),
+      this.envAdapter.getCwd(),
       "packs",
       "config",
       "builders",
@@ -20,13 +28,7 @@ class BuilderManagers {
   }
 
   async buildPack(): Promise<void> {
-    const isDev = Deno.args.includes("--dev"); // หรืออ่านจาก config/env
-
-    // ✅ prod: reuse ctor (fast)
-    if (!isDev && this.cachedCtor) {
-      await new this.cachedCtor().build();
-      return;
-    }
+    const isDev = this.envAdapter.getArgs().includes("--dev"); // หรืออ่านจาก config/env
 
     // ✅ dev: bust module cache so it reloads changed code
     const url = new URL(this.builderUrl.href);
@@ -34,9 +36,16 @@ class BuilderManagers {
 
     const mod = (await import(url.href)) as BuilderMod;
 
-    if (!isDev) this.cachedCtor = mod.default;
-
-    await new mod.default().build();
+    try {
+      await new mod.default(this.fileManagers, this.logger).build();
+    } catch (e) {
+      if (e instanceof TypeError && e.message.includes("constructor")) {
+        // Fallback if the user's builder doesn't accept arguments or isn't a class
+        this.logger.error(`Error instantiating builder: ${e.message}`);
+      } else {
+        throw e;
+      }
+    }
   }
 }
 

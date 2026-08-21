@@ -1,0 +1,54 @@
+{
+  "lsp": {
+    "deno": {
+      "settings": {
+        "deno": {
+          "enable": true,
+        },
+      },
+    },
+    "eslint": {
+      "settings": {
+        "configFile": "eslint.config.mjs",
+      },
+    },
+  },
+  "languages": {
+    "JavaScript": {
+      "language_servers": [
+        "deno",
+        "eslint",
+        "!typescript-language-server",
+        "!vtsls",
+      ],
+      "formatter": "language_server",
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true,
+      },
+    },
+    "TypeScript": {
+      "language_servers": [
+        "deno",
+        "eslint",
+        "!typescript-language-server",
+        "!vtsls",
+      ],
+      "formatter": "language_server",
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true,
+      },
+    },
+    "TSX": {
+      "language_servers": [
+        "deno",
+        "eslint",
+        "!typescript-language-server",
+        "!vtsls",
+      ],
+      "formatter": "language_server",
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true,
+      },
+    },
+  },
+}

@@ -1,1 +1,1 @@
-export { Template } from "./src/Template.ts";
+export { Template } from  "@packages/template/src/Template.ts";

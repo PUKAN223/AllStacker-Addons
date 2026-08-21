@@ -1,5 +1,5 @@
-import { ItemCategory } from "../../types/ItemCategory.ts";
-import { ItemComponents } from "../components/ItemComponents.ts";
+import { ItemCategory } from  "@packages/builder/src/types/ItemCategory.ts";
+import { ItemComponents } from  "@packages/builder/src/class/components/ItemComponents.ts";
 
 class ItemBuilder {
   public basePath = "";

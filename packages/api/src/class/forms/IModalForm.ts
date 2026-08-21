@@ -1,12 +1,12 @@
 import { ModalFormData, type ModalFormResponse } from "@minecraft/server-ui";
 import type { Player } from "@minecraft/server";
-import type { IModalFormTextField } from "../../types/forms/IModalForm/Elements/TextField.ts";
-import type { IModalFormToggle } from "../../types/forms/IModalForm/Elements/Toggle.ts";
-import type { IModalFormSlider } from "../../types/forms/IModalForm/Elements/Slider.ts";
-import type { IModalFormDropdown } from "../../types/forms/IModalForm/Elements/Dropdown.ts";
-import type { IModalFormHeader } from "../../types/forms/IModalForm/Elements/Header.ts";
-import type { IModalFormLabel } from "../../types/forms/IModalForm/Elements/Label.ts";
-import type { IModalFormDivider } from "../../types/forms/IModalForm/Elements/Divider.ts";
+import type { IModalFormTextField } from  "@packages/api/src/types/forms/IModalForm/Elements/TextField.ts";
+import type { IModalFormToggle } from  "@packages/api/src/types/forms/IModalForm/Elements/Toggle.ts";
+import type { IModalFormSlider } from  "@packages/api/src/types/forms/IModalForm/Elements/Slider.ts";
+import type { IModalFormDropdown } from  "@packages/api/src/types/forms/IModalForm/Elements/Dropdown.ts";
+import type { IModalFormHeader } from  "@packages/api/src/types/forms/IModalForm/Elements/Header.ts";
+import type { IModalFormLabel } from  "@packages/api/src/types/forms/IModalForm/Elements/Label.ts";
+import type { IModalFormDivider } from  "@packages/api/src/types/forms/IModalForm/Elements/Divider.ts";
 
 type FormElement =
   | IModalFormTextField
@@ -314,44 +314,60 @@ class IModalForm {
     form.submitButton(this.submitButtonText);
 
     this.elements.forEach((element, index) => {
-      if (this.isDivider(element)) {
-        form.divider();
-      } else if (this.isHeader(element)) {
-        // Note: ModalFormData doesn't have a header method, incorporating into divider or label
-        form.label(element.text_header);
-      } else if (this.isLabel(element)) {
-        form.label(element.text_label);
-      } else if (this.isTextField(element)) {
-        form.textField(element.label, element.placeholderText || "", {
-          defaultValue: element.defaultValue || "",
-          tooltip: element.tooltip,
-        });
-      } else if (this.isToggle(element)) {
-        form.toggle(element.label, {
-          defaultValue: element.defaultValue || false,
-          tooltip: element.tooltip,
-        });
-      } else if (this.isSlider(element)) {
-        form.slider(element.label, element.minimumValue, element.maximumValue, {
-          defaultValue: element.defaultValue || 0,
-          valueStep: element.valueStep,
-          tooltip: element.tooltip,
-        });
-      } else if (this.isDropdown(element)) {
-        form.dropdown(element.label, element.options, {
-          defaultValueIndex: element.defaultValueIndex || 0,
-          tooltip: element.tooltip,
-        });
+      try {
+        if (this.isDivider(element)) {
+          form.divider();
+        } else if (this.isHeader(element)) {
+          form.label(element.text_header);
+        } else if (this.isLabel(element)) {
+          form.label(element.text_label);
+        } else if (this.isTextField(element)) {
+          const defVal = typeof element.defaultValue === "string" ? element.defaultValue : String(element.defaultValue ?? "");
+          form.textField(element.label, element.placeholderText || "", {
+            defaultValue: defVal,
+            tooltip: element.tooltip,
+          });
+        } else if (this.isToggle(element)) {
+          const defBool = element.defaultValue === true;
+          form.toggle(element.label, {
+            defaultValue: defBool,
+            tooltip: element.tooltip,
+          });
+        } else if (this.isSlider(element)) {
+          const minVal = Number(element.minimumValue ?? 0);
+          const maxVal = Number(element.maximumValue ?? 100);
+          const rawDefault = Number(element.defaultValue ?? minVal);
+          const clampedDefault = Number.isFinite(rawDefault)
+            ? Math.max(minVal, Math.min(maxVal, rawDefault))
+            : minVal;
+          console.log(`[IModalForm] slider "${element.label}" min=${minVal} max=${maxVal} default=${clampedDefault} (raw=${element.defaultValue})`);
+          form.slider(element.label, minVal, maxVal, {
+            defaultValue: clampedDefault,
+            valueStep: Number(element.valueStep ?? 1),
+            tooltip: element.tooltip,
+          });
+        } else if (this.isDropdown(element)) {
+          form.dropdown(element.label, element.options, {
+            defaultValueIndex: element.defaultValueIndex || 0,
+            tooltip: element.tooltip,
+          });
+        }
+        elementMap.set(index, element);
+      } catch (e) {
+        console.error(`[IModalForm] Failed to add element[${index}] type=${JSON.stringify(Object.keys(element))} value=${JSON.stringify(element)}:`, e);
       }
-      elementMap.set(index, element);
     });
 
     try {
       const response = await form.show(player);
       if (!response.canceled) {
         const values = response.formValues || [];
-        const elements = Array.from(elementMap.values());
-        elements.forEach((element, index) => {
+        // Build an ordered list of ONLY interactive elements (same order as added to MCBE form)
+        // so that formValues[i] correctly maps to the right onSubmit handler.
+        const interactiveElements = Array.from(elementMap.values()).filter(
+          (el) => this.isTextField(el) || this.isToggle(el) || this.isSlider(el) || this.isDropdown(el)
+        );
+        interactiveElements.forEach((element, index) => {
           if (this.isTextField(element)) {
             element.onSubmit(values[index] as string);
           } else if (this.isToggle(element)) {

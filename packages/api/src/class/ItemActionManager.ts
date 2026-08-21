@@ -1,6 +1,6 @@
 import type { Entity, ItemStack } from "@minecraft/server";
 import type { Player } from "@minecraft/server";
-import type { PluginBase } from "./PluginBase.ts";
+import type { PluginBase } from  "@packages/api/src/class/PluginBase.ts";
 
 const ItemActionRegistry = new Map<string, ItemActions>();
 

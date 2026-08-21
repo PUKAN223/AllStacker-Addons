@@ -9,6 +9,9 @@
   "imports": {
     "chalk": "npm:chalk@5.6.2",
     "jszip": "npm:jszip@3.10.1",
-    "@std/path": "jsr:@std/path@1.1.4"
+    "@std/path": "jsr:@std/path@1.1.4",
+    "sharp": "npm:sharp@0.33.5",
+    "@clack/prompts": "npm:@clack/prompts@0.11.0",
+    "strip-json-comments": "npm:strip-json-comments@5.0.1"
   }
 }

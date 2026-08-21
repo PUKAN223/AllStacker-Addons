@@ -3,16 +3,25 @@
     "dev": "cd ./app && deno run --allow-all ./index.ts --dev",
     "build": "cd ./app && deno run --allow-all ./index.ts --build",
     "packs": "cd ./app && deno run --allow-all ./index.ts --packs",
-    "clean": "cd ./app && deno run --allow-all ./index.ts --clean"
+    "clean": "cd ./app && deno run --allow-all ./index.ts --clean",
+    "optimize": "cd ./app && deno run --allow-all ./index.ts --optimize",
+    "lint": "deno lint app/packs/config/scripts && deno run -A npm:eslint \"app/packs/config/scripts/**/*.ts\""
   },
   "imports": {
+    "@minecraft/math": "npm:@minecraft/math@^2.4.0",
     "@std/assert": "jsr:@std/assert@1",
+    "@typescript-eslint/parser": "npm:@typescript-eslint/parser@^8.67.0",
     "chalk": "npm:chalk@5.6.2",
     "esbuild": "npm:esbuild@0.27.3",
     "@std/path": "jsr:@std/path@1.1.4",
     "@minecraft/server": "npm:@minecraft/server@2.5.0",
     "@minecraft/server-ui": "npm:@minecraft/server-ui@2.0.0",
-    "@luca/esbuild-deno-loader": "jsr:@luca/esbuild-deno-loader@0.11.1"
+    "@luca/esbuild-deno-loader": "jsr:@luca/esbuild-deno-loader@0.11.1",
+    "eslint": "npm:eslint@^10.8.1",
+    "eslint-plugin-minecraft-isvalid": "npm:eslint-plugin-minecraft-isvalid@^0.3.0",
+    "sharp": "npm:sharp@0.33.5",
+    "strip-json-comments": "npm:strip-json-comments@5.0.1",
+    "@packages/": "./packages/"
   },
   "lint": {
     "exclude": ["dist/", "**/dist/", "node_modules/", "**/*.min.js"]

@@ -1,0 +1,96 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"          # matches v3.0.0, v3.0.0-beta.1, etc.
+
+permissions:
+  contents: write    # needed to create GitHub Releases
+
+jobs:
+  build-and-release:
+    name: Build & Release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Setup Deno ──────────────────────────────────────────────────────
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: "2.x"
+
+      # ── 3. Cache Deno dependencies ─────────────────────────────────────────
+      - name: Cache Deno dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.deno
+            ~/.cache/deno
+          key: deno-${{ hashFiles('deno.lock') }}
+          restore-keys: deno-
+
+      # ── 4. Determine channel (beta vs production) ──────────────────────────
+      - name: Determine channel
+        id: channel
+        run: |
+          TAG="${{ github.ref_name }}"
+          if [[ "$TAG" == *"-beta"* || "$TAG" == *"-alpha"* || "$TAG" == *"-rc"* ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "channel=Beta" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "channel=Release" >> $GITHUB_OUTPUT
+          fi
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+
+      # ── 5. Patch config.json version from git tag ─────────────────────────
+      - name: Patch config.json version
+        run: |
+          VERSION="${{ steps.channel.outputs.version }}"
+          BASE_VERSION="${VERSION%%-*}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+          node -e "
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('app/packs/config.json','utf8'));
+            cfg.meta.version = [${MAJOR}, ${MINOR}, ${PATCH}];
+            fs.writeFileSync('app/packs/config.json', JSON.stringify(cfg, null, 2));
+            console.log('Patched version to', cfg.meta.version);
+          "
+
+      # ── 6. Build packs ─────────────────────────────────────────────────────
+      - name: Build
+        run: deno run build
+
+      # ── 7. Pack to .mcaddon ────────────────────────────────────────────────
+      - name: Pack
+        run: echo "n" | deno run packs
+
+      # ── 8. Rename artifacts with tag version ──────────────────────────────
+      - name: Rename artifacts
+        run: |
+          TAG="${{ github.ref_name }}"
+          DIST="app/data/dist/addons"
+          for f in "$DIST"/*.mcaddon "$DIST"/*.zip; do
+            [ -e "$f" ] || continue
+            BASE=$(basename "$f")
+            EXT="${BASE##*.}"
+            NAME="${BASE%.*}"
+            mv "$f" "$DIST/${NAME}_${TAG}.${EXT}"
+          done
+          ls -lh "$DIST"
+
+      # ── 9. Create GitHub Release ───────────────────────────────────────────
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "${{ steps.channel.outputs.channel }} ${{ github.ref_name }}"
+          prerelease: ${{ steps.channel.outputs.is_prerelease }}
+          generate_release_notes: true
+          files: |
+            app/data/dist/addons/*.mcaddon
+            app/data/dist/addons/*.zip

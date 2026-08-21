@@ -1,20 +1,23 @@
 import { FileManagers } from "@axeth/core";
-import { ItemBuilderManager } from "./ItemBuilderManager.ts";
+import { ItemBuilderManager } from  "@packages/builder/src/class/ItemBuilderManager.ts";
 import { Logger } from "@axeth/core";
 import * as path from "@std/path";
 import "colors";
 
 class AxethBuilder {
-  private fileManager = new FileManagers();
+  private fileManager: FileManagers;
   private distPath = path.join(
     Deno.cwd(),
     "data",
     "dist",
   );
-  private logger = new Logger();
+  private logger: Logger;
   public itemBuilderManager: ItemBuilderManager = new ItemBuilderManager();
 
-  constructor() {}
+  constructor(fileManagers?: FileManagers, logger?: Logger) {
+    this.fileManager = fileManagers || new FileManagers();
+    this.logger = logger || new Logger();
+  }
 
   public onBuild() {}
 

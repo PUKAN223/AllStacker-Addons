@@ -1,6 +1,6 @@
-import type { EventHandlers } from "./EventHanlders.ts";
-import type { PluginBase } from "./PluginBase.ts";
-import type { WorldEvents } from "../types/WorldEvents.ts";
+import type { EventHandlers } from  "@packages/api/src/class/EventHanlders.ts";
+import type { PluginBase } from  "@packages/api/src/class/PluginBase.ts";
+import type { WorldEvents } from  "@packages/api/src/types/WorldEvents.ts";
 
 class PluginEventHandlers {
   private plugin: PluginBase;

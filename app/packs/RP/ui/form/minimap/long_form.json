@@ -1,8 +1,0 @@
-{
-  "namespace": "minimap",
-  "$schema": "https://kalmemarq.github.io/Bugrock-JSON-UI-Schemas/ui.schema.json",
-  "long_form": {
-    "type": "panel",
-    "size": [1, 10]
-  }
-}

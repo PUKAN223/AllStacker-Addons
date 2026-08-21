@@ -3,3 +3,6 @@ node_modules/
 
 /app/data/dist/
 /app/data/.cache/
+/app/packs/RP/font/glyph_00.png
+/app/packs/RP/font/glyph_0A.png
+/app/packs/RP/font/glyph_0E.png
