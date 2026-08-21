@@ -56,8 +56,8 @@ jobs:
         id: changelog
         run: |
           VERSION="${{ steps.channel.outputs.version }}"
-          # Extract section between ## [VERSION] and next ## [
-          BODY=$(awk "/^## \[${VERSION}\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
+          # Extract section between ## [VERSION] or ## VERSION and next ##
+          BODY=$(awk "/^## \\\[?${VERSION}\\\]?/{found=1; next} found && /^## /{exit} found{print}" CHANGELOG.md)
           if [ -z "$BODY" ]; then
             BODY="No changelog entry found for ${VERSION}."
           fi
