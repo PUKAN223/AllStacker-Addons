@@ -90,13 +90,14 @@ jobs:
       - name: Rename artifacts
         run: |
           TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
           DIST="app/data/dist/addons"
           for f in "$DIST"/*.mcaddon "$DIST"/*.zip; do
             [ -e "$f" ] || continue
             BASE=$(basename "$f")
             EXT="${BASE##*.}"
             NAME="${BASE%.*}"
-            mv "$f" "$DIST/${NAME}_${TAG}.${EXT}"
+            mv "$f" "$DIST/${NAME}@${VERSION}.${EXT}"
           done
           ls -lh "$DIST"
 
