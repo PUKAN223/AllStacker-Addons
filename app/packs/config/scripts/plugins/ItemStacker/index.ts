@@ -15,6 +15,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
+  CommandPermissionLevel,
+  CustomCommandStatus,
   Entity,
   EntityRemoveBeforeEvent,
   EntitySpawnAfterEvent,
@@ -115,7 +117,40 @@ export class ItemStackerPlugin extends PluginBase {
     );
   }
 
-  public override onEnable(_ev: StartupEvent): void {
+  public override onEnable(ev: StartupEvent): void {
+    ev.customCommandRegistry.registerCommand(
+      {
+        name: "kisu:kill-items",
+        description: "Kill and clear all stacked items.",
+        permissionLevel: CommandPermissionLevel.Admin,
+        cheatsRequired: false,
+      },
+      (_origin) => {
+        let count = 0;
+        this.clearData(); // Clear data first so onItemRemoved doesn't destack
+        for (const dimId of ["overworld", "nether", "the_end"] as const) {
+          try {
+            const dim = world.getDimension(dimId);
+            const items = dim.getEntities({ type: "minecraft:item" });
+            for (const item of items) {
+              if (item.isValid) {
+                system.run(() => {
+                  item.addTag("fakeItem");
+                  item.remove();
+                });
+                count++;
+              }
+            }
+          } catch { /* ignore unloaded dims */ }
+        }
+        return {
+          message:
+            `[ItemStacker] Successfully killed and cleared ${count} items.`,
+          status: CustomCommandStatus.Success,
+        };
+      },
+    );
+
     system.run(() => {
       if (!this.isEnabled()) return;
       if (this.jobRunning) return;
@@ -223,7 +258,8 @@ export class ItemStackerPlugin extends PluginBase {
         maxValue: 50,
       },
       DisplayText: {
-        description: "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec %l=new line",
+        description:
+          "Name-tag format. Tokens: %a=amount %n=name %m=min %s=sec %l=new line",
         type: "string" as const,
         default: " §7§c§l%a §r%n§r",
       },

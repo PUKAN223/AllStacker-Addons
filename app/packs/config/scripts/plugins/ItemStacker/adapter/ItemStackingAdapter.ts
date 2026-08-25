@@ -157,6 +157,7 @@ export class ItemStackingAdapter implements IStackingAdapter {
         const itemSetData = { ...itemData };
         itemSetData.logicalTotal = itemToSpawn;
         itemSetData.nowAmount = itemStackSpawn.amount;
+        itemSetData.lifeTick = system.currentTick;
 
         const maxHt = world.getDimension(dimId).heightRange.max;
         const enBase = world.getDimension(dimId).spawnItem(itemStackSpawn, {

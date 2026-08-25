@@ -30,11 +30,10 @@ class Template {
   public async generateTemplate(config: TemplateKey, spinner: Spinner) {
     spinner.start("Preparing template pack files...");
 
-    const populatedTemplates: { [key: string]: string } = {};
-    for (const [filePath, fileContent] of Object.entries(templateData)) {
-      const populatedContent = await this.populateTemplate(fileContent, config);
-      populatedTemplates[filePath] = populatedContent;
-    }
+    const populatedTemplates = Object.entries(templateData).map(([filePath, fileContent]) => ({
+      filePath,
+      content: this.populateTemplate(fileContent, config)
+    }));
 
     spinner.stop("Prepared template pack files.");
     spinner.start("Creating template pack files...");
@@ -42,19 +41,15 @@ class Template {
     const targetDir = config["project_name"]
       ? path.join(this.workspaceDir, config["project_name"] as string)
       : this.workspaceDir;
-    for (const filePath of Object.keys(populatedTemplates)) {
-      const shortPath = filePath
-        .split("/")
-        .slice(-5)
-        .join("/");
-      spinner.message(`Creating file: ${shortPath}`);
-      await this.writeTemplateFile(
-        path.join(targetDir, filePath),
-        populatedTemplates[filePath],
-      );
-      spinner.message(`Created file: ${shortPath}`);
-      await new Promise((resolve) => setTimeout(resolve, filePath.length * 2));
-    }
+
+    await Promise.all(
+      populatedTemplates.map(async ({ filePath, content }) => {
+        const shortPath = filePath.split("/").slice(-5).join("/");
+        spinner.message(`Creating file: ${shortPath}`);
+        await this.writeTemplateFile(path.join(targetDir, filePath), content);
+      })
+    );
+
     spinner.stop("Created template pack files.");
     await this.installDependencies(targetDir, [
       `jsr:@axeth/api@${config["axethApiVersion"]}`,
@@ -70,28 +65,26 @@ class Template {
     spinner: Spinner,
   ) {
     spinner.start("Installing dependencies...");
+    spinner.message(`Installing ${dependencies.length} dependencies...`);
 
-    for (const dependency of dependencies) {
-      spinner.message(`Installing dependency: ${dependency}`);
-      const process = new Deno.Command("deno", {
-        cwd: targetDir,
-        args: ["add", `${dependency}`],
-        stdout: "piped",
-        stderr: "piped",
-      }).spawn();
-      const { code, stderr } = await process.output();
+    const process = new Deno.Command("deno", {
+      cwd: targetDir,
+      args: ["add", ...dependencies],
+      stdout: "piped",
+      stderr: "piped",
+    }).spawn();
+    
+    const { code, stderr } = await process.output();
 
-      if (code === 0) {
-        spinner.message(`Installed dependency: ${dependency}`);
-      } else {
-        const errorOutput = new TextDecoder().decode(stderr);
-        spinner.stop(`Failed to install dependency: ${dependency}`);
-        throw new Error(
-          `Error installing dependency ${dependency}: ${errorOutput}`,
-        );
-      }
+    if (code === 0) {
+      spinner.stop("Installed dependencies.");
+    } else {
+      const errorOutput = new TextDecoder().decode(stderr);
+      spinner.stop("Failed to install dependencies.");
+      throw new Error(
+        `Error installing dependencies: ${errorOutput}`,
+      );
     }
-    spinner.stop("Installed dependencies.");
   }
 
   private async writeTemplateFile(filePath: string, content: string) {
@@ -99,10 +92,10 @@ class Template {
     await Deno.writeTextFile(filePath, content);
   }
 
-  private async populateTemplate(
+  private populateTemplate(
     content: string,
     config: TemplateKey,
-  ): Promise<string> {
+  ): string {
     let populatedContent = content;
     for (const [key, value] of Object.entries(config)) {
       const placeholder = `{{${key}}}`;
@@ -131,8 +124,6 @@ class Template {
           replacementValue,
         );
       }
-
-      await new Promise((resolve) => setTimeout(resolve, 10));
     }
 
     return populatedContent;

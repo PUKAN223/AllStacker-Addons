@@ -73,7 +73,7 @@ export function combineItemStack(
       if (target.id === en.id || !target.isValid || target.hasTag("fakeItem")) {
         return false;
       }
-      if (!stackData.has(target.id)) return false;
+      if (!stackData.has(target.id) && !pendingStack.has(target.id)) return false;
       const tComp = target.getComponent("item");
       if (!tComp) return false;
       if (isUnstackable(tComp.itemStack.typeId)) return false;
@@ -82,10 +82,20 @@ export function combineItemStack(
 
   let total = item.amount;
   for (const target of nearBy) {
-    const td = stackData.get(target.id);
-    if (!td) continue;
-    total += td.logicalTotal;
-    stackData.delete(target.id);
+    let targetAmount = 0;
+    
+    if (stackData.has(target.id)) {
+      targetAmount = stackData.get(target.id)!.logicalTotal;
+      stackData.delete(target.id);
+    } else if (pendingStack.has(target.id)) {
+      const pAmt = storage.getAmount(target);
+      targetAmount = pAmt > 1 ? pAmt : target.getComponent("item")!.itemStack.amount;
+      pendingStack.delete(target.id);
+    } else {
+      continue;
+    }
+
+    total += targetAmount;
     target.addTag("fakeItem");
     target.remove();
   }
